@@ -171,15 +171,15 @@ static void test()
 			sizeof(X86_CODE16) - 1,
 			"X86 16bit (Intel syntax)"
 		},
-		{
-			CS_ARCH_X86,
-			CS_MODE_32,
-			(unsigned char *)X86_CODE32,
-			sizeof(X86_CODE32) - 1,
-			"X86 32 (AT&T syntax)",
-			CS_OPT_SYNTAX,
-			CS_OPT_SYNTAX_ATT,
-		},
+        {
+            CS_ARCH_X86,
+            CS_MODE_32,
+            (unsigned char *)X86_CODE32,
+            sizeof(X86_CODE32) - 1,
+            "X86 32 (AT&T syntax)",
+            CS_OPT_SYNTAX,
+            CS_OPT_SYNTAX_ATT,
+        },
 		{
 			CS_ARCH_X86,
 			CS_MODE_32,

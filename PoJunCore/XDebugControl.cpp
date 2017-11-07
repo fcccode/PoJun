@@ -1,7 +1,12 @@
 #include "stdafx.h"
-#include "XDebugControl.h" 
-#include "XDebugDataCenter.h"
+#include "XDebugControl.h"  
+#include "XBreakPoint.h"
+#include "XInt3Tab.h"
 #include "XThreadTab.h"
+#include "XModelTab.h"   
+#include "XOutStringTab.h"
+#include <XThread.h>
+#include "XDecodingASM.h"
 
 XDebugControl* XDebugControl::m_This = nullptr;
 XDebugControl::XDebugControl()
@@ -23,14 +28,17 @@ XDebugControl* XDebugControl::pins()
     return m_This;
 }
 
-void XDebugControl::start_debug_loop(XString& file_path, pfun_in_fun in_fun, pfun_out_fun out_fun)
+void XDebugControl::start_debug_loop(XString& file_path, pfun_in_fun in_fun, pfun_out_fun out_fun, DWORD count)
 {
     if (in_fun == nullptr || out_fun == nullptr)
     {
         return;
     }
-
-    XDebugDataCenter::pins()->set_file_path(file_path);
+     
+    this->file_path = file_path;
+    this->count = count;
+    this->f_in = in_fun;
+    this->f_out = out_fun;
 
     tagDebugInfo debug_info;
     memset(&debug_info, 0x0, sizeof(tagDebugInfo));
@@ -117,7 +125,25 @@ DWORD XDebugControl::e_break_point(tagDebugInfo& debug_info)
         EXCEPTION_RECORD *er = (EXCEPTION_RECORD*)&ed->ExceptionRecord;
         if (er == nullptr)
         {
-            XDebugDataCenter::pins()->break_point(er, debug_info);
+            XString command;
+            DWORD next_address = 0;
+            BP_STATUS status = XBreakPoint::pins()->break_point(er, debug_info);
+            if (status == BP_NULL)
+            {
+                return DBG_CONTINUE;
+            }
+            else if (status == BP_OEP)
+            { 
+                this->teb = XThread::get_thread_teb(debug_info.thread, debug_info.context.SegFs);
+                XBreakPoint::pins()->reduction_oep(debug_info.process);
+                user_control(debug_info, command, next_address);
+            }
+            else if (status == BP_CC)
+            {
+                user_control(debug_info, command, next_address);
+            }
+
+            command_explanation(command, debug_info, next_address);
         }
     } 
 
@@ -131,11 +157,10 @@ DWORD XDebugControl::e_single_step(tagDebugInfo& debug_info)
 
 DWORD XDebugControl::create_process_debug_event(tagDebugInfo& debug_info)
 {
-    CREATE_PROCESS_DEBUG_INFO *pCreateProcessDbgINOF 
-        = (CREATE_PROCESS_DEBUG_INFO*)&debug_info.event.u.CreateProcessInfo;
-    if (pCreateProcessDbgINOF != nullptr)
+    CREATE_PROCESS_DEBUG_INFO *cp = (CREATE_PROCESS_DEBUG_INFO*)&debug_info.event.u.CreateProcessInfo;
+    if (cp  != nullptr)
     {
-        XDebugDataCenter::pins()->create_process(pCreateProcessDbgINOF, debug_info.process);
+        XInt3Tab::pins()->create_process(cp, debug_info.process);
     }
 
     return DBG_CONTINUE;
@@ -143,11 +168,10 @@ DWORD XDebugControl::create_process_debug_event(tagDebugInfo& debug_info)
 
 DWORD XDebugControl::create_thread_debug_event(tagDebugInfo& debug_info)
 {
-    CREATE_THREAD_DEBUG_INFO *pCreateThreadDbgINOF 
-        = (CREATE_THREAD_DEBUG_INFO*)&debug_info.event.u.CreateThread;
-    if (pCreateThreadDbgINOF != nullptr)
+    CREATE_THREAD_DEBUG_INFO *ct = (CREATE_THREAD_DEBUG_INFO*)&debug_info.event.u.CreateThread;
+    if (ct != nullptr)
     {
-        XDebugDataCenter::pins()->insert_thread(pCreateThreadDbgINOF);
+        XThreadTab::pins()->insert_thread(ct);
     }
 
     return DBG_CONTINUE;
@@ -155,7 +179,7 @@ DWORD XDebugControl::create_thread_debug_event(tagDebugInfo& debug_info)
 
 DWORD XDebugControl::exit_thread_debug_event(tagDebugInfo& debug_info)
 { 
-    //没有有用的信息，不搞。
+    //没有有用的信息。
     return DBG_CONTINUE;
 }
 
@@ -167,11 +191,10 @@ DWORD XDebugControl::exit_process_debug_event(tagDebugInfo& debug_info)
  
 DWORD XDebugControl::load_dll_debug_event(tagDebugInfo& debug_info)
 {
-    LOAD_DLL_DEBUG_INFO *load_dll 
-        = (LOAD_DLL_DEBUG_INFO*)&debug_info.event.u.LoadDll;
-    if (load_dll != nullptr)
+    LOAD_DLL_DEBUG_INFO *ld = (LOAD_DLL_DEBUG_INFO*)&debug_info.event.u.LoadDll;
+    if (ld != nullptr)
     {
-        XDebugDataCenter::pins()->insert_dll(load_dll);
+        XModelTab::pins()->insert_dll(ld);
     }
       
     return DBG_CONTINUE;
@@ -179,11 +202,10 @@ DWORD XDebugControl::load_dll_debug_event(tagDebugInfo& debug_info)
 
 DWORD XDebugControl::unload_dll_debug_event(tagDebugInfo& debug_info)
 {
-    UNLOAD_DLL_DEBUG_INFO *unload_dll 
-        = (UNLOAD_DLL_DEBUG_INFO*)&debug_info.event.u.UnloadDll;
-    if (unload_dll != nullptr)
+    UNLOAD_DLL_DEBUG_INFO *ud = (UNLOAD_DLL_DEBUG_INFO*)&debug_info.event.u.UnloadDll;
+    if (ud != nullptr)
     {
-        XDebugDataCenter::pins()->remove_dll(unload_dll);
+        XModelTab::pins()->remove_dll((DWORD)ud->lpBaseOfDll);
     }
       
     return DBG_CONTINUE;
@@ -191,11 +213,10 @@ DWORD XDebugControl::unload_dll_debug_event(tagDebugInfo& debug_info)
 
 DWORD XDebugControl::output_debug_string_event(tagDebugInfo& debug_info)
 {
-    OUTPUT_DEBUG_STRING_INFO *pos 
-        = (OUTPUT_DEBUG_STRING_INFO*)&debug_info.event.u.DebugString;
-    if (pos != nullptr)
-    {
-        XDebugDataCenter::pins()->insert_out_string(pos, debug_info.process);
+    OUTPUT_DEBUG_STRING_INFO *ods = (OUTPUT_DEBUG_STRING_INFO*)&debug_info.event.u.DebugString;
+    if (ods != nullptr)
+    { 
+        XOutStringTab::pins()->insert_out_string(ods, debug_info.process);
     }
 
     return DBG_CONTINUE;
@@ -207,3 +228,32 @@ DWORD XDebugControl::irp_event(tagDebugInfo& debug_info)
     return DBG_CONTINUE;
 } 
  
+
+void XDebugControl::user_control(tagDebugInfo& debug_info, XString& command, DWORD& next_address)
+{
+    std::list<DECODEING_ASM> asm_tab;
+    bool ok = XDecodingASM::pins()->decoding_asm(
+        debug_info.process,
+        debug_info.context.Eip,
+        this->count,
+        asm_tab);
+    if (ok)
+    {
+        this->f_out(debug_info.context, asm_tab); 
+        this->f_in(command);
+
+        if (asm_tab.size() > 2)
+        {
+            std::list<DECODEING_ASM>::iterator it = asm_tab.begin();
+            ++it;
+            next_address = it->address;
+        }
+    }
+
+    asm_tab.clear();
+}
+
+void XDebugControl::command_explanation(XString& command, tagDebugInfo& debug_info, DWORD next_address)
+{
+
+}

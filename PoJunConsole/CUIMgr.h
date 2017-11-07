@@ -1,6 +1,7 @@
 #pragma once 
 #include <stdlib.h>
 #include <XString.h>
+#include "XPCoreHead.h"
 
 class CUIMgr
 {
@@ -21,8 +22,8 @@ public:
 
     XString open_file_dlg();
 
-    static void __stdcall in_fun();
+    static void __stdcall in_fun(XString& command);
 
-    static void __stdcall out_fun();
+    static void __stdcall out_fun(CONTEXT context, const std::list<DECODEING_ASM>& asm_tab);
 };
 

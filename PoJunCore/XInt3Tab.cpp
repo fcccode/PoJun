@@ -7,7 +7,7 @@ XInt3Tab::XInt3Tab()
 {
     this->start_oep = 0; 
     this->int3 = 0xCC;
-    this->opcode = 0;
+    this->start_opcode = 0;
 }
  
 XInt3Tab::~XInt3Tab()
@@ -28,7 +28,7 @@ void XInt3Tab::create_process(CREATE_PROCESS_DEBUG_INFO* cp, HANDLE process)
 {
     this->start_oep = (DWORD)*cp->lpStartAddress;
 
-    DWORD opcode = 0;
+    BYTE opcode = 0;
     BOOL bRet = ::ReadProcessMemory(
         process, 
         (LPCVOID)this->start_oep,
@@ -60,21 +60,64 @@ bool XInt3Tab::is_start_opcode(DWORD opcode)
     return false;
 }
 
-bool XInt3Tab::is_my_cc(tagDebugInfo& debug_info)
-{ 
-    std::map<DWORD, BYTE>::iterator it = this->cc_table.find(--debug_info.context.Eip);
-    if (it != this->cc_table.end())
+bool XInt3Tab::reduction_oep(HANDLE handle)
+{
+    BYTE opcode = 0;
+    return set_opcode(handle, this->start_opcode, this->start_opcode, opcode);
+}
+ 
+bool XInt3Tab::insert_cc(HANDLE handle, DWORD address)
+{
+    BYTE opcode = 0;
+    bool status = set_opcode(handle, address, this->int3, opcode);
+    if (status)
     {
-        BOOL bRet = ::WriteProcessMemory(
-            debug_info.process, 
-            (LPVOID)it->first,
-            (LPVOID)it->second, 
-            1, 
-            NULL);
-        if (bRet == FALSE)
-        {
-            XGlobal::show_api_err();
-        }
+        this->cc_table.insert(std::pair<DWORD, BYTE>(address, opcode));
+    } 
+    return status;
+}
+
+bool XInt3Tab::remove_cc(HANDLE handle, DWORD address)
+{
+    std::map<DWORD, BYTE>::iterator it = this->cc_table.find(address);
+    if (it == this->cc_table.end())
+    {
+        return true;
+    }
+
+    BYTE opcode = 0;
+    bool status = set_opcode(handle, address, it->second, opcode);
+    if (status)
+    {
+        this->cc_table.erase(it);
+    }
+     
+    return status;
+}
+
+bool XInt3Tab::is_my_cc(HANDLE handle, DWORD address)
+{ 
+    std::map<DWORD, BYTE>::iterator it = this->cc_table.find(address);
+    if (it != this->cc_table.end())
+    { 
+        return true;
+    }
+
+    return false;
+} 
+
+bool XInt3Tab::set_opcode(HANDLE handle, DWORD address, BYTE& i_opcode, BYTE& o_opcode)
+{ 
+    BOOL status = ::ReadProcessMemory(handle, (LPCVOID)address, (LPVOID)&o_opcode, 1, NULL);
+    if (!status)
+    {
+        return false;
+    }
+
+    status = ::WriteProcessMemory(handle, (LPVOID)address, (LPVOID)&i_opcode, 1, NULL);
+    if (!status)
+    {
+        return false;
     }
 
     return true;

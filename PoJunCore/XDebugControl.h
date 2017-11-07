@@ -1,5 +1,5 @@
 #pragma once 
-#include "XPublicHead.h"
+#include "XPCoreHead.h"
     
 class XEXP XDebugControl
 {
@@ -10,7 +10,7 @@ public:
     static XDebugControl* m_This;
     static XDebugControl* pins();
 
-    void start_debug_loop(XString& file_path, pfun_in_fun in_fun, pfun_out_fun out_fun);
+    void start_debug_loop(XString& file_path, pfun_in_fun in_fun, pfun_out_fun out_fun, DWORD count);
 
     DWORD e_acess_violation(tagDebugInfo& debug_info);
 
@@ -33,5 +33,20 @@ public:
     DWORD output_debug_string_event(tagDebugInfo& debug_info);
 
     DWORD irp_event(tagDebugInfo& debug_info); 
+
+private:
+    void user_control(tagDebugInfo& debug_info, XString& command, DWORD& next_address);
+
+    void command_explanation(XString& command, tagDebugInfo& debug_info, DWORD next_address);
+
+private:
+    XString file_path;
+
+    DWORD teb;
+
+    DWORD count;
+
+    pfun_in_fun f_in;
+    pfun_out_fun f_out;
 };
 

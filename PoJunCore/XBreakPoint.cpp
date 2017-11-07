@@ -23,14 +23,28 @@ XBreakPoint* XBreakPoint::pins()
     return pThis;
 }
 
-void XBreakPoint::break_point(EXCEPTION_RECORD* ed, tagDebugInfo& debug_info)
+BP_STATUS XBreakPoint::break_point(EXCEPTION_RECORD* ed, tagDebugInfo& debug_info)
 { 
-    if (XInt3Tab::pins()->is_start_opcode(*(DWORD*)&ed->ExceptionAddress))
+    if (XInt3Tab::pins()->is_my_cc(debug_info.process, --debug_info.context.Eip))
     {
-
+        return BP_CC; 
+    } 
+    else if (XInt3Tab::pins()->is_start_opcode(*(DWORD*)&ed->ExceptionAddress))
+    {  
+        return BP_OEP;
     }
-    else if (XInt3Tab::pins()->is_my_cc(debug_info))
-    {
 
-    }
+    return BP_NULL;
+}
+
+BP_STATUS XBreakPoint::reduction_oep(HANDLE handle)
+{
+    bool status = XInt3Tab::pins()->reduction_oep(handle);
+    return status ? BP_OK : BP_NULL;
+}
+
+BP_STATUS XBreakPoint::insert_cc(HANDLE handle, DWORD address)
+{
+    bool status = XInt3Tab::pins()->insert_cc(handle, address); 
+    return status ? BP_OK : BP_NULL;
 }

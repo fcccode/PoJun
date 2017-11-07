@@ -86,12 +86,12 @@ XString CUIMgr::open_file_dlg()
     }
 }
 
-void __stdcall CUIMgr::in_fun()
+void __stdcall CUIMgr::in_fun(XString& command)
 {
 
 }
 
-void __stdcall CUIMgr::out_fun()
+void __stdcall CUIMgr::out_fun(CONTEXT context, const std::list<DECODEING_ASM>& asm_tab)
 {
 
 }

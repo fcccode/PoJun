@@ -1,5 +1,5 @@
 #pragma once 
-#include "XPublicHead.h"
+#include "XPCoreHead.h"
 #include <list>
 
 class XOutStringTab
