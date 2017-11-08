@@ -83,6 +83,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="XBreakPoint.h" />
+    <ClInclude Include="XCommandMgr.h" />
     <ClInclude Include="XDebugControl.h" />
     <ClInclude Include="XDecodingASM.h" />
     <ClInclude Include="XInt3Tab.h" />
@@ -95,6 +96,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="XBreakPoint.cpp" />
+    <ClCompile Include="XCommandMgr.cpp" />
     <ClCompile Include="XDebugControl.cpp" />
     <ClCompile Include="dllmain.cpp">
       <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</CompileAsManaged>

@@ -4,8 +4,7 @@
 #include <list>
 
 #define XEXP __declspec(dllexport)
-  
-
+   
 typedef struct _tagDebigInfo
 {
     DEBUG_EVENT event;

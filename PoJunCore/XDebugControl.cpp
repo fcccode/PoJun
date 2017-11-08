@@ -123,14 +123,14 @@ DWORD XDebugControl::e_break_point(tagDebugInfo& debug_info)
     if (ed != nullptr)
     {
         EXCEPTION_RECORD *er = (EXCEPTION_RECORD*)&ed->ExceptionRecord;
-        if (er == nullptr)
+        if (er != nullptr)
         {
             XString command;
             DWORD next_address = 0;
             BP_STATUS status = XBreakPoint::pins()->break_point(er, debug_info);
             if (status == BP_NULL)
             {
-                return DBG_CONTINUE;
+                return DBG_EXCEPTION_NOT_HANDLED;
             }
             else if (status == BP_OEP)
             { 
@@ -242,7 +242,7 @@ void XDebugControl::user_control(tagDebugInfo& debug_info, XString& command, DWO
         this->f_out(debug_info.context, asm_tab); 
         this->f_in(command);
 
-        if (asm_tab.size() > 2)
+        if (asm_tab.size())
         {
             std::list<DECODEING_ASM>::iterator it = asm_tab.begin();
             ++it;
@@ -255,5 +255,9 @@ void XDebugControl::user_control(tagDebugInfo& debug_info, XString& command, DWO
 
 void XDebugControl::command_explanation(XString& command, tagDebugInfo& debug_info, DWORD next_address)
 {
-
+    if (command == L"\n")
+    { 
+        char comm[64] = { 0 };
+        fgets(comm, 64, stdin); 
+    }
 }

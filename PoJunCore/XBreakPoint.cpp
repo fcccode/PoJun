@@ -23,13 +23,13 @@ XBreakPoint* XBreakPoint::pins()
     return pThis;
 }
 
-BP_STATUS XBreakPoint::break_point(EXCEPTION_RECORD* ed, tagDebugInfo& debug_info)
+BP_STATUS XBreakPoint::break_point(EXCEPTION_RECORD* er, tagDebugInfo& debug_info)
 { 
     if (XInt3Tab::pins()->is_my_cc(debug_info.process, --debug_info.context.Eip))
     {
         return BP_CC; 
     } 
-    else if (XInt3Tab::pins()->is_start_opcode(*(DWORD*)&ed->ExceptionAddress))
+    else if (XInt3Tab::pins()->is_start_opcode(*(DWORD*)&er->ExceptionAddress))
     {  
         return BP_OEP;
     }

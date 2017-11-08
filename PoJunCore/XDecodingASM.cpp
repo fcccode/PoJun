@@ -52,14 +52,27 @@ bool XDecodingASM::decoding_asm(HANDLE process, DWORD address, DWORD count, std:
         return false;
     }
 
+    unsigned char *opcode_buf = new unsigned char[(count+1)*E_OPCODE_LENGTH];
+    if (opcode_buf == nullptr)
+    {
+        return false;
+    }
+
+    BOOL status = ::ReadProcessMemory(process, (LPCVOID)address, (LPVOID)opcode_buf,
+        (count+1)*E_OPCODE_LENGTH*sizeof(unsigned char), NULL);
+    if (status == FALSE)
+    {
+        return false;
+    }
+     
     cs_insn *insn = nullptr;
-    int de_count = cs_disasm(asm_handle, (unsigned char*)address, count*E_OPCODE_LENGTH, address, 0, &insn);
+    int de_count = cs_disasm(asm_handle, opcode_buf, count*E_OPCODE_LENGTH, address, 0, &insn);
     if (de_count == 0)
     {
         return false;
     } 
 
-    for (int i = 0; i < de_count; i++)
+    for (DWORD i = 0; i < count + 1; i++)
     { 
         DECODEING_ASM decoding;
         decoding.head = insn[i].bytes[0];
@@ -67,8 +80,10 @@ bool XDecodingASM::decoding_asm(HANDLE process, DWORD address, DWORD count, std:
         memset(&decoding.opcode, 0x0, E_OPCODE_LENGTH * sizeof(uint8_t));
         memcpy(decoding.opcode, insn[i].bytes, insn[i].size);
         decoding.opcode_length = insn[i].size; 
-        decoding.asm_str << insn[i].mnemonic << L"" << insn[i].op_str;
+        decoding.asm_str << insn[i].mnemonic << L" " << insn[i].op_str;
+        asm_tab.push_back(decoding);
     }  
 
+    cs_free(insn, de_count);
     return true;
 }

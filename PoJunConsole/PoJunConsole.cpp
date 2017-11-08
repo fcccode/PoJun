@@ -8,21 +8,15 @@
 
 int _tmain(int argc, _TCHAR* argv[])
 {     
-    do 
+    CUIMgr::pins()->init_local(); 
+    int CommandNumber = CUIMgr::pins()->show_main();
+    if (3 == CommandNumber)
     {
-        CUIMgr::pins()->init_local();
-        CUIMgr::pins()->clear_ui();
-        int CommandNumber = CUIMgr::pins()->show_main(); 
-        if (3 == CommandNumber)
-        {
-            break;
-        }
-         
-        CCommandMgr::pins()->command_ui(CommandNumber);
+        return 1;
+    }
 
-    } while (true);
-
-     
+    CUIMgr::pins()->clear_ui();
+    CCommandMgr::pins()->command_ui(CommandNumber); 
 	return 0;
 }
 

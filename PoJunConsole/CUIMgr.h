@@ -22,7 +22,7 @@ public:
 
     XString open_file_dlg();
 
-    static void __stdcall in_fun(XString& command);
+    static void __stdcall in_fun(XString& out_command);
 
     static void __stdcall out_fun(CONTEXT context, const std::list<DECODEING_ASM>& asm_tab);
 };

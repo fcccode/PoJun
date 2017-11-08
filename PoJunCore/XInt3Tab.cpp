@@ -27,7 +27,7 @@ XInt3Tab* XInt3Tab::pins()
 void XInt3Tab::create_process(CREATE_PROCESS_DEBUG_INFO* cp, HANDLE process)
 {
     this->start_oep = (DWORD)*cp->lpStartAddress;
-
+    
     BYTE opcode = 0;
     BOOL bRet = ::ReadProcessMemory(
         process, 
@@ -52,7 +52,7 @@ void XInt3Tab::create_process(CREATE_PROCESS_DEBUG_INFO* cp, HANDLE process)
 
 bool XInt3Tab::is_start_opcode(DWORD opcode)
 {
-    if (opcode == this->start_opcode)
+    if (opcode == this->start_oep)
     {
         return true;
     }
@@ -63,7 +63,7 @@ bool XInt3Tab::is_start_opcode(DWORD opcode)
 bool XInt3Tab::reduction_oep(HANDLE handle)
 {
     BYTE opcode = 0;
-    return set_opcode(handle, this->start_opcode, this->start_opcode, opcode);
+    return set_opcode(handle, this->start_oep, this->start_opcode, opcode);
 }
  
 bool XInt3Tab::insert_cc(HANDLE handle, DWORD address)
