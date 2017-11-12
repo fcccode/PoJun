@@ -24,6 +24,6 @@ public:
 
     static void __stdcall in_fun(XString& out_command);
 
-    static void __stdcall out_fun(CONTEXT context, const std::list<DECODEING_ASM>& asm_tab);
+    static void __stdcall out_fun(const CONTEXT context, const std::list<DECODEING_ASM>& asm_tab);
 };
 

@@ -52,7 +52,7 @@
       <Filter>File</Filter>
     </ClInclude>
     <ClInclude Include="XCommandMgr.h">
-      <Filter>头文件</Filter>
+      <Filter>File</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -90,7 +90,7 @@
       <Filter>File</Filter>
     </ClCompile>
     <ClCompile Include="XCommandMgr.cpp">
-      <Filter>源文件</Filter>
+      <Filter>File</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

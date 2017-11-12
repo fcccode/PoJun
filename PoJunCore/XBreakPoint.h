@@ -3,14 +3,12 @@
 
 typedef enum _BP_STATUS
 {
-    //
     BP_NULL = -1,
     BP_OK,
     BP_OEP, 
     BP_CC
 }BP_STATUS;
-
-
+  
 class XBreakPoint
 {
 public:
@@ -25,9 +23,6 @@ public:
     BP_STATUS reduction_oep(HANDLE handle);
 
     BP_STATUS insert_cc(HANDLE handle, DWORD address);
-
-
-private:
-
+      
 };
 

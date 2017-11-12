@@ -47,4 +47,4 @@ BP_STATUS XBreakPoint::insert_cc(HANDLE handle, DWORD address)
 {
     bool status = XInt3Tab::pins()->insert_cc(handle, address); 
     return status ? BP_OK : BP_NULL;
-}
+} 

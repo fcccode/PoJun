@@ -89,10 +89,13 @@ void __stdcall CUIMgr::in_fun(XString& out_command)
     char comm[64] = { 0 };
     fflush(stdin);
     fgets(comm, 64, stdin);
+    fflush(stdin);
     out_command = comm;
+    int pos = out_command.rfind(L"\n");
+    out_command = out_command.substr(0, pos);
 }
 
-void __stdcall CUIMgr::out_fun(CONTEXT context, const std::list<DECODEING_ASM>& asm_tab)
+void __stdcall CUIMgr::out_fun(const CONTEXT context, const std::list<DECODEING_ASM>& asm_tab)
 {
     DWORD dwFlags = 0;
     DWORD dwbite[8] = { 11, 10, 8, 7, 6, 4, 2, 0 };

@@ -7,6 +7,7 @@
 #include "XOutStringTab.h"
 #include <XThread.h>
 #include "XDecodingASM.h"
+#include "XCommandMgr.h"
 
 XDebugControl* XDebugControl::m_This = nullptr;
 XDebugControl::XDebugControl()
@@ -255,9 +256,5 @@ void XDebugControl::user_control(tagDebugInfo& debug_info, XString& command, DWO
 
 void XDebugControl::command_explanation(XString& command, tagDebugInfo& debug_info, DWORD next_address)
 {
-    if (command == L"\n")
-    { 
-        char comm[64] = { 0 };
-        fgets(comm, 64, stdin); 
-    }
+    XCommandMgr::pins()->command_call_back(command, debug_info.context, next_address);
 }
