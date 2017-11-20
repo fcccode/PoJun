@@ -26,28 +26,12 @@ XInt3Tab* XInt3Tab::pins()
 
 void XInt3Tab::create_process(CREATE_PROCESS_DEBUG_INFO* cp, HANDLE process)
 {
-    this->start_oep = (DWORD)*cp->lpStartAddress;
-    
-    BYTE opcode = 0;
-    BOOL bRet = ::ReadProcessMemory(
-        process, 
-        (LPCVOID)this->start_oep,
-        (LPVOID)&opcode, 
-        1, 
-        NULL);
-    if (bRet == FALSE)
-    {
-        XGlobal::show_api_err(); 
+    this->start_oep = (DWORD)*cp->lpStartAddress;  
+    bool ret = set_opcode(process, this->start_oep, this->int3, this->start_opcode);
+    if (!ret)
+    { 
+        XGlobal::show_api_err();
     }
-
-    bRet = ::WriteProcessMemory(process, (LPVOID)this->start_oep,
-        (LPVOID)&this->int3, 1, NULL);
-    if (bRet == FALSE)
-    {
-        XGlobal::show_api_err(); 
-    }
-     
-    this->start_opcode = opcode;
 }
 
 bool XInt3Tab::is_start_opcode(DWORD opcode)
@@ -105,6 +89,35 @@ bool XInt3Tab::is_my_cc(HANDLE handle, DWORD address)
 
     return false;
 } 
+
+bool XInt3Tab::insert_single_step(HANDLE handle, DWORD address)
+{
+    BYTE opcode = 0;
+    bool status = set_opcode(handle, address, this->int3, opcode);
+    if (status)
+    {
+        this->single_step_table.insert(std::pair<DWORD, BYTE>(address, opcode));
+    }
+    return status;
+}
+
+bool XInt3Tab::is_single_step(HANDLE handle, DWORD address)
+{
+    std::map<DWORD, BYTE>::iterator it = this->single_step_table.find(address);
+    if (it != this->single_step_table.end())
+    {
+        //单步表触发当前单步后直接移除
+        BYTE opcode = 0;
+        bool status = set_opcode(handle, address, it->second, opcode);
+        if (status)
+        {
+            this->single_step_table.erase(it);
+        }
+        return status;
+    }
+
+    return false;
+}
 
 bool XInt3Tab::set_opcode(HANDLE handle, DWORD address, BYTE& i_opcode, BYTE& o_opcode)
 { 

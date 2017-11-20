@@ -35,9 +35,9 @@ public:
     DWORD irp_event(tagDebugInfo& debug_info); 
 
 private:
-    void user_control(tagDebugInfo& debug_info, XString& command, DWORD& next_address);
+    void user_control(tagDebugInfo& debug_info, XString& command, OPCODE_INFO& opcode_info);
 
-    void command_explanation(XString& command, tagDebugInfo& debug_info, DWORD next_address);
+    void command_explanation(XString& command, tagDebugInfo& debug_info, OPCODE_INFO& opcode_info);
 
 private:
     XString file_path;

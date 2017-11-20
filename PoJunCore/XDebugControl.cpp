@@ -115,7 +115,7 @@ void XDebugControl::start_debug_loop(XString& file_path, pfun_in_fun in_fun, pfu
 
 DWORD XDebugControl::e_acess_violation(tagDebugInfo& debug_info)
 {  
-    return DBG_CONTINUE;
+    return DBG_EXCEPTION_NOT_HANDLED;
 }
 
 DWORD XDebugControl::e_break_point(tagDebugInfo& debug_info)
@@ -126,25 +126,27 @@ DWORD XDebugControl::e_break_point(tagDebugInfo& debug_info)
         EXCEPTION_RECORD *er = (EXCEPTION_RECORD*)&ed->ExceptionRecord;
         if (er != nullptr)
         {
-            XString command;
+            XString str_command;
+            OPCODE_INFO opcode_info;
             DWORD next_address = 0;
+            BYTE opcode = 0;
             BP_STATUS status = XBreakPoint::pins()->break_point(er, debug_info);
-            if (status == BP_NULL)
+            switch (status)
             {
+            case BP_NULL:
                 return DBG_EXCEPTION_NOT_HANDLED;
-            }
-            else if (status == BP_OEP)
-            { 
+            case BP_OEP: 
                 this->teb = XThread::get_thread_teb(debug_info.thread, debug_info.context.SegFs);
                 XBreakPoint::pins()->reduction_oep(debug_info.process);
-                user_control(debug_info, command, next_address);
+            case BP_SINGLE_STEP:
+            case BP_CC:
+                user_control(debug_info, str_command, opcode_info);
+                break;
+            default:
+                break;
             }
-            else if (status == BP_CC)
-            {
-                user_control(debug_info, command, next_address);
-            }
-
-            command_explanation(command, debug_info, next_address);
+             
+            command_explanation(str_command, debug_info, opcode_info);
         }
     } 
 
@@ -153,7 +155,15 @@ DWORD XDebugControl::e_break_point(tagDebugInfo& debug_info)
 
 DWORD XDebugControl::e_single_step(tagDebugInfo& debug_info)
 {
-    return 0;
+    if (XCommandMgr::pins()->is_single_step())
+    {
+        XString str_command;
+        OPCODE_INFO opcode_info;
+        user_control(debug_info, str_command, opcode_info);
+        command_explanation(str_command, debug_info, opcode_info);
+    }
+
+    return DBG_CONTINUE;
 }
 
 DWORD XDebugControl::create_process_debug_event(tagDebugInfo& debug_info)
@@ -230,7 +240,7 @@ DWORD XDebugControl::irp_event(tagDebugInfo& debug_info)
 } 
  
 
-void XDebugControl::user_control(tagDebugInfo& debug_info, XString& command, DWORD& next_address)
+void XDebugControl::user_control(tagDebugInfo& debug_info, XString& str_command, OPCODE_INFO& opcode_info)
 {
     std::list<DECODEING_ASM> asm_tab;
     bool ok = XDecodingASM::pins()->decoding_asm(
@@ -241,20 +251,21 @@ void XDebugControl::user_control(tagDebugInfo& debug_info, XString& command, DWO
     if (ok)
     {
         this->f_out(debug_info.context, asm_tab); 
-        this->f_in(command);
+        this->f_in(str_command);
 
         if (asm_tab.size())
         {
             std::list<DECODEING_ASM>::iterator it = asm_tab.begin();
+            opcode_info.current_opcode = it->opcode[0];
             ++it;
-            next_address = it->address;
+            opcode_info.next_address = it->address;
         }
     }
 
     asm_tab.clear();
 }
 
-void XDebugControl::command_explanation(XString& command, tagDebugInfo& debug_info, DWORD next_address)
+void XDebugControl::command_explanation(XString& command, tagDebugInfo& debug_info, OPCODE_INFO& opcode_info)
 {
-    XCommandMgr::pins()->command_call_back(command, debug_info.context, next_address);
+    XCommandMgr::pins()->command_call_back(command, debug_info, opcode_info);
 }

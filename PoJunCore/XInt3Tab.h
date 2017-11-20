@@ -23,6 +23,10 @@ public:
       
     bool is_my_cc(HANDLE handle, DWORD address);
     
+    bool insert_single_step(HANDLE handle, DWORD address);
+
+    bool is_single_step(HANDLE handle, DWORD address);
+
 private:
     bool set_opcode(HANDLE handle, DWORD address, BYTE& i_opcode, BYTE& o_opcode);
 
@@ -33,6 +37,9 @@ private:
 
     //int3管理表
     //DWORD:地址，BYTE:被覆盖的源opcode
-    std::map<DWORD, BYTE> cc_table;
+    std::map<DWORD, BYTE> cc_table; 
+
+    //单步表
+    std::map<DWORD, BYTE> single_step_table;
 };
 

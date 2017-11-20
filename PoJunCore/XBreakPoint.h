@@ -5,7 +5,8 @@ typedef enum _BP_STATUS
 {
     BP_NULL = -1,
     BP_OK,
-    BP_OEP, 
+    BP_OEP,
+    BP_SINGLE_STEP,
     BP_CC
 }BP_STATUS;
   
@@ -24,5 +25,6 @@ public:
 
     BP_STATUS insert_cc(HANDLE handle, DWORD address);
       
+    BP_STATUS insert_single_step(HANDLE handle, DWORD address);
 };
 
