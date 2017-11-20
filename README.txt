@@ -1,6 +1,6 @@
 破军交互式动态反汇编调试器
 
-作者：三水青，博客：http://www.xuwu.org
+作者：阿虚，博客：http://www.xuwu.org
 
 BUG反馈邮件：xuwuorg@hotmail.com, http://www.xuwu.org/pojun/
 
