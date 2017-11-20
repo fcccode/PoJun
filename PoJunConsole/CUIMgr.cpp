@@ -137,3 +137,22 @@ void __stdcall CUIMgr::out_fun(const CONTEXT context, const std::list<DECODEING_
         wprintf(L"%p:%-14s   %s [%d] \r\n", it->address, opcode.w_cstr(), asm_str.w_cstr(), it->opcode_length);
     } 
 }
+
+void __stdcall CUIMgr::command_call_back_out(const DEBUG_MODULE_DATA& module_data)
+{
+    if (module_data.type == E_BPL)
+    {
+        CUIMgr::pins()->show_break_point_tab(module_data.break_point_tab);
+    }
+    return;
+}
+
+void CUIMgr::show_break_point_tab(const std::map<DWORD, CC_BREAK_POINT>& break_point_tab)
+{
+    WCHAR activation[][64] = { L"Î´¼¤»î", L"ÒÑ¼¤»î" };
+    std::map<DWORD, CC_BREAK_POINT>::const_iterator it = break_point_tab.cbegin();
+    for (it; it != break_point_tab.cend(); it++)
+    {
+        wprintf(L"%p    %d    %s \r\n", it->first, it->second.number, activation[it->second.activation]);
+    }
+}

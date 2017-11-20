@@ -1,14 +1,17 @@
 #include "stdafx.h"
 #include "XCommandMgr.h"
 #include "XBreakPoint.h"
-
-
+ 
 XCommandMgr* XCommandMgr::m_This = nullptr;
 XCommandMgr::XCommandMgr()
 {
     insert(L"t", XCommandMgr::t_command);
     insert(L"p", XCommandMgr::p_command); 
     insert(L"g", XCommandMgr::g_command);
+
+    insert(L"bp", XCommandMgr::bp_command);
+    insert(L"bpl", XCommandMgr::bpl_command);
+    insert(L"bpc", XCommandMgr::bpc_command);
 }
 
 
@@ -38,7 +41,7 @@ bool XCommandMgr::insert(const XString& command, pfun_command_call_back call_bac
     return true;
 }
 
-bool XCommandMgr::command_call_back(const XString& command, tagDebugInfo& debug_info, OPCODE_INFO& opcode_info)
+bool XCommandMgr::command_call_back(const XString& command, tagDebugInfo& debug_info, OPCODE_INFO& opcode_info, DEBUG_MODULE_DATA& out_module_data)
 { 
     std::vector<XString> vt_command;
     XString str_command = command;
@@ -51,19 +54,21 @@ bool XCommandMgr::command_call_back(const XString& command, tagDebugInfo& debug_
         return false;
     }
 
-    return it->second(command, debug_info, opcode_info);
+    return it->second(command, debug_info, opcode_info, out_module_data);
 }
 
-bool __stdcall XCommandMgr::t_command(const XString& command, tagDebugInfo& debug_info, OPCODE_INFO& opcode_info)
+bool __stdcall XCommandMgr::t_command(const XString& command, tagDebugInfo& debug_info, OPCODE_INFO& opcode_info, DEBUG_MODULE_DATA& out_module_data)
 {
+    out_module_data.type = E_T;
     //设置EFlage标志
     XCommandMgr::pins()->single_step = true;
     debug_info.context.EFlags |= 0x100;
     return true;
 }
 
-bool __stdcall XCommandMgr::p_command(const XString& command, tagDebugInfo& debug_info, OPCODE_INFO& opcode_info)
+bool __stdcall XCommandMgr::p_command(const XString& command, tagDebugInfo& debug_info, OPCODE_INFO& opcode_info, DEBUG_MODULE_DATA& out_module_data)
 {
+    out_module_data.type = E_P;
     if (opcode_info.current_opcode == E_CALL_E8 
         || opcode_info.current_opcode == E_CALL_FF)
     {
@@ -79,12 +84,12 @@ bool __stdcall XCommandMgr::p_command(const XString& command, tagDebugInfo& debu
     return true;
 } 
 
-bool __stdcall XCommandMgr::g_command(const XString& command, tagDebugInfo& debug_info, OPCODE_INFO& opcode_info)
-{ 
+bool __stdcall XCommandMgr::g_command(const XString& command, tagDebugInfo& debug_info, OPCODE_INFO& opcode_info, DEBUG_MODULE_DATA& out_module_data)
+{
+    out_module_data.type = E_G;
     std::vector<XString> vt_command;
     XString str_command = command;
-    str_command.get_vt_str_seg(vt_command, L" ");
-
+    str_command.get_vt_str_seg(vt_command, L" "); 
     if (vt_command.size() != 2)
     {
         //默认直接飞
@@ -101,4 +106,49 @@ bool __stdcall XCommandMgr::g_command(const XString& command, tagDebugInfo& debu
 bool XCommandMgr::is_single_step()
 {
     return this->single_step;
+}
+
+bool __stdcall XCommandMgr::bp_command(const XString& command, tagDebugInfo& debug_info, OPCODE_INFO& opcode_info, DEBUG_MODULE_DATA& out_module_data)
+{
+    out_module_data.type = E_BP;
+    std::vector<XString> vt_command;
+    XString str_command = command;
+    str_command.get_vt_str_seg(vt_command, L" "); 
+    if (vt_command.size() != 2)
+    {
+        //默认直接飞
+        return true;
+    }
+
+    std::vector<XString>::iterator it = vt_command.begin();
+    it++;
+
+    XBreakPoint::pins()->insert_cc(debug_info.process, it->to_int_0x());
+    return true; 
+}
+
+bool __stdcall XCommandMgr::bpl_command(const XString& command, tagDebugInfo& debug_info, OPCODE_INFO& opcode_info, DEBUG_MODULE_DATA& out_module_data)
+{
+    out_module_data.type = E_BPL; 
+    XBreakPoint::pins()->get_cc_table(out_module_data.break_point_tab);
+    return true;
+}
+
+bool __stdcall XCommandMgr::bpc_command(const XString& command, tagDebugInfo& debug_info, OPCODE_INFO& opcode_info, DEBUG_MODULE_DATA& out_module_data)
+{
+    out_module_data.type = E_BPC;
+    std::vector<XString> vt_command;
+    XString str_command = command;
+    str_command.get_vt_str_seg(vt_command, L" "); 
+    if (vt_command.size() != 2)
+    {
+        //命令错误，直接飞
+        return true;
+    }
+
+    std::vector<XString>::iterator it = vt_command.begin();
+    it++;
+
+    XBreakPoint::pins()->delete_cc_inedx(it->to_int());
+    return true; 
 }

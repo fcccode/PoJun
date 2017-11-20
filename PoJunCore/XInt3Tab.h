@@ -22,7 +22,13 @@ public:
     bool remove_cc(HANDLE handle, DWORD address);
       
     bool is_my_cc(HANDLE handle, DWORD address);
+
+    bool set_cc_status(int inedx, bool status);
     
+    bool get_cc_table(std::map<DWORD, CC_BREAK_POINT>& out_map);
+
+    bool delete_cc_inedx(int inedx);
+
     bool insert_single_step(HANDLE handle, DWORD address);
 
     bool is_single_step(HANDLE handle, DWORD address);
@@ -37,7 +43,8 @@ private:
 
     //int3管理表
     //DWORD:地址，BYTE:被覆盖的源opcode
-    std::map<DWORD, BYTE> cc_table; 
+    std::map<DWORD, CC_BREAK_POINT> cc_table;
+    std::vector<int> cc_table_num_mgr;
 
     //单步表
     std::map<DWORD, BYTE> single_step_table;

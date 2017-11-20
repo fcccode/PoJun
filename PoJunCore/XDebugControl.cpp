@@ -7,7 +7,7 @@
 #include "XOutStringTab.h"
 #include <XThread.h>
 #include "XDecodingASM.h"
-#include "XCommandMgr.h"
+#include "XCommandMgr.h" 
 
 XDebugControl* XDebugControl::m_This = nullptr;
 XDebugControl::XDebugControl()
@@ -29,7 +29,7 @@ XDebugControl* XDebugControl::pins()
     return m_This;
 }
 
-void XDebugControl::start_debug_loop(XString& file_path, pfun_in_fun in_fun, pfun_out_fun out_fun, DWORD count)
+void XDebugControl::start_debug_loop(XString& file_path, pfun_in_fun in_fun, pfun_out_fun out_fun, pfun_command_call_back_out command_out, DWORD count)
 {
     if (in_fun == nullptr || out_fun == nullptr)
     {
@@ -40,6 +40,7 @@ void XDebugControl::start_debug_loop(XString& file_path, pfun_in_fun in_fun, pfu
     this->count = count;
     this->f_in = in_fun;
     this->f_out = out_fun;
+    this->f_command_out = command_out;
 
     tagDebugInfo debug_info;
     memset(&debug_info, 0x0, sizeof(tagDebugInfo));
@@ -144,9 +145,8 @@ DWORD XDebugControl::e_break_point(tagDebugInfo& debug_info)
                 break;
             default:
                 break;
-            }
+            } 
              
-            command_explanation(str_command, debug_info, opcode_info);
         }
     } 
 
@@ -159,8 +159,7 @@ DWORD XDebugControl::e_single_step(tagDebugInfo& debug_info)
     {
         XString str_command;
         OPCODE_INFO opcode_info;
-        user_control(debug_info, str_command, opcode_info);
-        command_explanation(str_command, debug_info, opcode_info);
+        user_control(debug_info, str_command, opcode_info); 
     }
 
     return DBG_CONTINUE;
@@ -248,24 +247,53 @@ void XDebugControl::user_control(tagDebugInfo& debug_info, XString& str_command,
         debug_info.context.Eip,
         this->count,
         asm_tab);
-    if (ok)
-    {
-        this->f_out(debug_info.context, asm_tab); 
-        this->f_in(str_command);
-
-        if (asm_tab.size())
-        {
-            std::list<DECODEING_ASM>::iterator it = asm_tab.begin();
-            opcode_info.current_opcode = it->opcode[0];
-            ++it;
-            opcode_info.next_address = it->address;
-        }
+    if (!ok)
+    {   
+        return;
     }
 
+    if (asm_tab.size())
+    {
+        std::list<DECODEING_ASM>::iterator it = asm_tab.begin();
+        opcode_info.current_opcode = it->opcode[0];
+        ++it;
+        opcode_info.next_address = it->address;
+    }
+     
     asm_tab.clear();
+     
+    this->f_out(debug_info.context, asm_tab);
+    
+    //命令不等于 t,p,g则一直循环
+    do 
+    {
+        this->f_in(str_command);
+
+        DEBUG_MODULE_DATA module_data;
+        command_explanation(str_command, debug_info, opcode_info, module_data);
+        this->f_command_out(module_data);
+
+    } while (scan_command(str_command));
 }
 
-void XDebugControl::command_explanation(XString& command, tagDebugInfo& debug_info, OPCODE_INFO& opcode_info)
+void XDebugControl::command_explanation(XString& command, tagDebugInfo& debug_info, OPCODE_INFO& opcode_info, DEBUG_MODULE_DATA& out_module_data)
 {
-    XCommandMgr::pins()->command_call_back(command, debug_info, opcode_info);
+    XCommandMgr::pins()->command_call_back(command, debug_info, opcode_info, out_module_data);
+}
+
+bool XDebugControl::scan_command(XString& command)
+{
+    std::vector<XString> vt_command;
+    XString str_command = command;
+    str_command.get_vt_str_seg(vt_command, L" ");
+    XString command_head = *vt_command.begin();
+
+    if (command_head.compare(L"t") == 0
+        || command_head.compare(L"p") == 0
+        || command_head.compare(L"g") == 0)
+    {
+        return false;
+    }
+
+    return true;
 }

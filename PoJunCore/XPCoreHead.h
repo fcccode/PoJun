@@ -2,6 +2,7 @@
 #include <windows.h>
 #include <XString.h>  
 #include <list>
+#include <map>
 
 #define XEXP __declspec(dllexport)
    
@@ -28,12 +29,40 @@ typedef struct _tagOpcodeInfo
     DWORD next_address; 
 }OPCODE_INFO;
 
+typedef struct _tagCCBreakPoint
+{
+    int number;
+    BYTE opcode;
+    bool activation;
+}CC_BREAK_POINT;
+
+typedef enum _tagModuleType
+{
+    E_P,
+    E_T,
+    E_G,
+    E_BP,
+    E_BPL,
+    E_BPC
+}DEBUG_MODULE_TYPE;
+ 
+ 
+typedef struct _tagModuleData
+{
+    DEBUG_MODULE_TYPE type;
+    std::map<DWORD, CC_BREAK_POINT> break_point_tab;
+}DEBUG_MODULE_DATA;
+
+
 //输入/输出控制回调
 typedef void(__stdcall *pfun_in_fun)(XString& command);
 typedef void(__stdcall *pfun_out_fun)(CONTEXT context, const std::list<DECODEING_ASM>& asm_tab);
-
-//命令管理回调
-typedef bool(__stdcall *pfun_command_call_back)(const XString& command, tagDebugInfo& debug_info, OPCODE_INFO& opcode_info);
+ 
+ 
+//命令管理器回调
+typedef bool(__stdcall *pfun_command_call_back)(const XString& command, tagDebugInfo& debug_info, OPCODE_INFO& opcode_info, DEBUG_MODULE_DATA& out_module_data);
+//命令执行完毕输出回调
+typedef void(__stdcall *pfun_command_call_back_out)(const DEBUG_MODULE_DATA& module_data);
 
 namespace XGlobal
 {

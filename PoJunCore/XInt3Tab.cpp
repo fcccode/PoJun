@@ -56,21 +56,42 @@ bool XInt3Tab::insert_cc(HANDLE handle, DWORD address)
     bool status = set_opcode(handle, address, this->int3, opcode);
     if (status)
     {
-        this->cc_table.insert(std::pair<DWORD, BYTE>(address, opcode));
+        CC_BREAK_POINT cbp;
+        cbp.opcode = opcode;
+        cbp.activation = true;
+        cbp.number = -1;
+
+        for (int i = 0; i < this->cc_table.size() + 1; i++)
+        {
+            std::vector<int>::iterator it = std::find(cc_table_num_mgr.begin(), cc_table_num_mgr.end(), i);
+            if (it == cc_table_num_mgr.end())
+            {
+                cbp.number = i;
+                cc_table_num_mgr.push_back(i);
+                break;
+            }
+        }
+
+        if (cbp.number == -1)
+        {
+            cbp.number = this->cc_table.size() + 1;
+        }
+
+        this->cc_table.insert(std::pair<DWORD, CC_BREAK_POINT>(address, cbp));
     } 
     return status;
 }
 
 bool XInt3Tab::remove_cc(HANDLE handle, DWORD address)
 {
-    std::map<DWORD, BYTE>::iterator it = this->cc_table.find(address);
+    std::map<DWORD, CC_BREAK_POINT>::iterator it = this->cc_table.find(address);
     if (it == this->cc_table.end())
     {
         return true;
     }
 
     BYTE opcode = 0;
-    bool status = set_opcode(handle, address, it->second, opcode);
+    bool status = set_opcode(handle, address, it->second.opcode, opcode);
     if (status)
     {
         this->cc_table.erase(it);
@@ -81,7 +102,7 @@ bool XInt3Tab::remove_cc(HANDLE handle, DWORD address)
 
 bool XInt3Tab::is_my_cc(HANDLE handle, DWORD address)
 { 
-    std::map<DWORD, BYTE>::iterator it = this->cc_table.find(address);
+    std::map<DWORD, CC_BREAK_POINT>::iterator it = this->cc_table.find(address);
     if (it != this->cc_table.end())
     { 
         return true;
@@ -89,6 +110,42 @@ bool XInt3Tab::is_my_cc(HANDLE handle, DWORD address)
 
     return false;
 } 
+
+bool XInt3Tab::set_cc_status(int inedx, bool status)
+{
+    std::map<DWORD, CC_BREAK_POINT>::iterator it = this->cc_table.begin();
+    for (it; it != this->cc_table.end(); it++)
+    {
+        if (it->second.number == inedx)
+        {
+            it->second.activation = status;
+            return true;
+        }
+    }
+
+    return false;
+}
+
+bool XInt3Tab::get_cc_table(std::map<DWORD, CC_BREAK_POINT>& out_map)
+{
+    out_map = this->cc_table;
+    return true;
+}
+ 
+bool XInt3Tab::delete_cc_inedx(int inedx)
+{
+    std::map<DWORD, CC_BREAK_POINT>::iterator it = this->cc_table.begin();
+    for (it; it != this->cc_table.end(); it++)
+    {
+        if (it->second.number == inedx)
+        {
+            this->cc_table.erase(it);
+            return true;
+        }
+    }
+
+    return false;
+}
 
 bool XInt3Tab::insert_single_step(HANDLE handle, DWORD address)
 {

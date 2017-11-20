@@ -53,6 +53,24 @@ BP_STATUS XBreakPoint::insert_cc(HANDLE handle, DWORD address)
     return status ? BP_OK : BP_NULL;
 }
 
+BP_STATUS XBreakPoint::set_cc_status(int inedx, bool status)
+{ 
+    bool ret = XInt3Tab::pins()->set_cc_status(inedx, status);
+    return ret ? BP_OK : BP_NULL;
+}
+
+BP_STATUS XBreakPoint::get_cc_table(std::map<DWORD, CC_BREAK_POINT>& out_map)
+{
+    bool status = XInt3Tab::pins()->get_cc_table(out_map);
+    return status ? BP_OK : BP_NULL;
+}
+
+BP_STATUS XBreakPoint::delete_cc_inedx(int inedx)
+{
+    bool status = XInt3Tab::pins()->delete_cc_inedx(inedx);
+    return status ? BP_OK : BP_NULL;
+}
+
 BP_STATUS XBreakPoint::insert_single_step(HANDLE handle, DWORD address)
 {
     bool status = XInt3Tab::pins()->insert_single_step(handle, address);

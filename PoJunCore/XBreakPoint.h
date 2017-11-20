@@ -1,5 +1,6 @@
 #pragma once
 #include "XPCoreHead.h"
+#include <map>
 
 typedef enum _BP_STATUS
 {
@@ -24,6 +25,12 @@ public:
     BP_STATUS reduction_oep(HANDLE handle);
 
     BP_STATUS insert_cc(HANDLE handle, DWORD address);
+
+    BP_STATUS set_cc_status(int inedx, bool status);
+
+    BP_STATUS get_cc_table(std::map<DWORD, CC_BREAK_POINT>& out_map);
+
+    BP_STATUS delete_cc_inedx(int inedx);
       
     BP_STATUS insert_single_step(HANDLE handle, DWORD address);
 };

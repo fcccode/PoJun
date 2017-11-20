@@ -41,7 +41,7 @@ void CCommandMgr::command_ui(int type)
                 break;
             }
 
-            XDebugControl::pins()->start_debug_loop(FilePath, CUIMgr::in_fun, CUIMgr::out_fun, 1);
+            XDebugControl::pins()->start_debug_loop(FilePath, CUIMgr::in_fun, CUIMgr::out_fun, CUIMgr::command_call_back_out, 1);
             break;
         }
     case E_ACTIVE_PROCESS:
