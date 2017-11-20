@@ -139,6 +139,14 @@ bool XInt3Tab::delete_cc_inedx(int inedx)
     {
         if (it->second.number == inedx)
         {
+            std::vector<int>::iterator nit = std::find(
+                this->cc_table_num_mgr.begin(), 
+                this->cc_table_num_mgr.end(), inedx);
+            if (nit != this->cc_table_num_mgr.end())
+            {
+                this->cc_table_num_mgr.erase(nit);
+            }
+
             this->cc_table.erase(it);
             return true;
         }
