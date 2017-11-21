@@ -29,12 +29,27 @@ typedef struct _tagOpcodeInfo
     DWORD next_address; 
 }OPCODE_INFO;
 
+/*
+    cc断点结构体
+*/
 typedef struct _tagCCBreakPoint
 {
     int number;
     BYTE opcode;
     bool activation;
 }CC_BREAK_POINT;
+
+/*
+    硬件断点结构体
+*/
+typedef struct _tagHardDwareBreak
+{
+    DWORD address;
+    int dr_number;
+    int length;
+    int type;
+}HARD_DWARE_BREAK;
+
 
 typedef enum _tagModuleType
 {
@@ -45,14 +60,17 @@ typedef enum _tagModuleType
     E_BPL,
     E_BPC
 }DEBUG_MODULE_TYPE;
- 
- 
+  
 typedef struct _tagModuleData
 {
     DEBUG_MODULE_TYPE type;
     std::map<DWORD, CC_BREAK_POINT> break_point_tab;
-}DEBUG_MODULE_DATA;
 
+    std::vector<HARD_DWARE_BREAK> hard_dware_break_tab;
+
+    std::list<DECODEING_ASM> asm_table;
+}DEBUG_MODULE_DATA;
+ 
 
 //输入/输出控制回调
 typedef void(__stdcall *pfun_in_fun)(XString& command);

@@ -89,6 +89,7 @@
     <ClInclude Include="XCommandMgr.h" />
     <ClInclude Include="XDebugControl.h" />
     <ClInclude Include="XDecodingASM.h" />
+    <ClInclude Include="XHardwareBreak.h" />
     <ClInclude Include="XInt3Tab.h" />
     <ClInclude Include="XModelTab.h" />
     <ClInclude Include="XOutStringTab.h" />
@@ -111,6 +112,7 @@
     </ClCompile>
     <ClCompile Include="PoJunCore.cpp" />
     <ClCompile Include="XDecodingASM.cpp" />
+    <ClCompile Include="XHardwareBreak.cpp" />
     <ClCompile Include="XInt3Tab.cpp" />
     <ClCompile Include="XModelTab.cpp" />
     <ClCompile Include="XOutStringTab.cpp" />

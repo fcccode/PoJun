@@ -16,6 +16,9 @@
     <Filter Include="File">
       <UniqueIdentifier>{ad2cacdc-6c80-4508-9c3b-e33f2e75bf56}</UniqueIdentifier>
     </Filter>
+    <Filter Include="File\break_point">
+      <UniqueIdentifier>{38d53cb7-8fbe-4fad-8db2-26e2ccb24ab6}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />
@@ -33,9 +36,6 @@
     <ClInclude Include="XModelTab.h">
       <Filter>File</Filter>
     </ClInclude>
-    <ClInclude Include="XInt3Tab.h">
-      <Filter>File</Filter>
-    </ClInclude>
     <ClInclude Include="XThreadTab.h">
       <Filter>File</Filter>
     </ClInclude>
@@ -45,14 +45,20 @@
     <ClInclude Include="XDecodingASM.h">
       <Filter>File</Filter>
     </ClInclude>
-    <ClInclude Include="XBreakPoint.h">
-      <Filter>File</Filter>
-    </ClInclude>
     <ClInclude Include="XPCoreHead.h">
       <Filter>File</Filter>
     </ClInclude>
     <ClInclude Include="XCommandMgr.h">
       <Filter>File</Filter>
+    </ClInclude>
+    <ClInclude Include="XBreakPoint.h">
+      <Filter>File\break_point</Filter>
+    </ClInclude>
+    <ClInclude Include="XInt3Tab.h">
+      <Filter>File\break_point</Filter>
+    </ClInclude>
+    <ClInclude Include="XHardwareBreak.h">
+      <Filter>File\break_point</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -71,9 +77,6 @@
     <ClCompile Include="XModelTab.cpp">
       <Filter>File</Filter>
     </ClCompile>
-    <ClCompile Include="XInt3Tab.cpp">
-      <Filter>File</Filter>
-    </ClCompile>
     <ClCompile Include="XThreadTab.cpp">
       <Filter>File</Filter>
     </ClCompile>
@@ -83,14 +86,20 @@
     <ClCompile Include="XDecodingASM.cpp">
       <Filter>File</Filter>
     </ClCompile>
-    <ClCompile Include="XBreakPoint.cpp">
-      <Filter>File</Filter>
-    </ClCompile>
     <ClCompile Include="XPCoreHead.cpp">
       <Filter>File</Filter>
     </ClCompile>
     <ClCompile Include="XCommandMgr.cpp">
       <Filter>File</Filter>
+    </ClCompile>
+    <ClCompile Include="XBreakPoint.cpp">
+      <Filter>File\break_point</Filter>
+    </ClCompile>
+    <ClCompile Include="XInt3Tab.cpp">
+      <Filter>File\break_point</Filter>
+    </ClCompile>
+    <ClCompile Include="XHardwareBreak.cpp">
+      <Filter>File\break_point</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

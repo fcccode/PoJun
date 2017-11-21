@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "XCommandMgr.h"
 #include "XBreakPoint.h"
+#include "XDecodingASM.h"
  
 XCommandMgr* XCommandMgr::m_This = nullptr;
 XCommandMgr::XCommandMgr()
@@ -12,6 +13,12 @@ XCommandMgr::XCommandMgr()
     insert(L"bp", XCommandMgr::bp_command);
     insert(L"bpl", XCommandMgr::bpl_command);
     insert(L"bpc", XCommandMgr::bpc_command);
+
+    insert(L"bh", XCommandMgr::bh_command);
+    insert(L"bhl", XCommandMgr::bhl_command);
+    insert(L"bhc", XCommandMgr::bhc_command);
+     
+    insert(L"u", XCommandMgr::u_command);  
 }
 
 
@@ -88,12 +95,10 @@ bool __stdcall XCommandMgr::g_command(const XString& command, tagDebugInfo& debu
 {
     out_module_data.type = E_G;
     std::vector<XString> vt_command;
-    XString str_command = command;
-    str_command.get_vt_str_seg(vt_command, L" "); 
-    if (vt_command.size() != 2)
+    if (XCommandMgr::pins()->get_vt_command(command, vt_command, 2))
     {
-        //ƒ¨»œ÷±Ω”∑…
-        return true;
+        //√¸¡Ó¥ÌŒÛ£¨÷±Ω”∑…
+        return false;
     }
     
     std::vector<XString>::iterator it = vt_command.begin();
@@ -112,12 +117,10 @@ bool __stdcall XCommandMgr::bp_command(const XString& command, tagDebugInfo& deb
 {
     out_module_data.type = E_BP;
     std::vector<XString> vt_command;
-    XString str_command = command;
-    str_command.get_vt_str_seg(vt_command, L" "); 
-    if (vt_command.size() != 2)
+    if (XCommandMgr::pins()->get_vt_command(command, vt_command, 2))
     {
-        //ƒ¨»œ÷±Ω”∑…
-        return true;
+        //√¸¡Ó¥ÌŒÛ£¨÷±Ω”∑…
+        return false;
     }
 
     std::vector<XString>::iterator it = vt_command.begin();
@@ -138,12 +141,10 @@ bool __stdcall XCommandMgr::bpc_command(const XString& command, tagDebugInfo& de
 {
     out_module_data.type = E_BPC;
     std::vector<XString> vt_command;
-    XString str_command = command;
-    str_command.get_vt_str_seg(vt_command, L" "); 
-    if (vt_command.size() != 2)
+    if (XCommandMgr::pins()->get_vt_command(command, vt_command, 2))
     {
         //√¸¡Ó¥ÌŒÛ£¨÷±Ω”∑…
-        return true;
+        return false;
     }
 
     std::vector<XString>::iterator it = vt_command.begin();
@@ -151,4 +152,77 @@ bool __stdcall XCommandMgr::bpc_command(const XString& command, tagDebugInfo& de
 
     XBreakPoint::pins()->delete_cc_inedx(it->to_int());
     return true; 
+}
+
+bool __stdcall XCommandMgr::bh_command(const XString& command, tagDebugInfo& debug_info, OPCODE_INFO& opcode_info, DEBUG_MODULE_DATA& out_module_data)
+{
+    std::vector<XString> vt_command; 
+    if (XCommandMgr::pins()->get_vt_command(command, vt_command, 4))
+    {
+        //√¸¡Ó¥ÌŒÛ£¨÷±Ω”∑…
+        return false;
+    }
+     
+    XBreakPoint::pins()->insert_hard_break(vt_command, debug_info.context); 
+    return true;
+}
+
+bool __stdcall XCommandMgr::bhl_command(const XString& command, tagDebugInfo& debug_info, OPCODE_INFO& opcode_info, DEBUG_MODULE_DATA& out_module_data)
+{
+    XBreakPoint::pins()->get_hard_ware_break_tab(out_module_data.hard_dware_break_tab);
+    return true;
+}
+
+bool __stdcall XCommandMgr::bhc_command(const XString& command, tagDebugInfo& debug_info, OPCODE_INFO& opcode_info, DEBUG_MODULE_DATA& out_module_data)
+{ 
+    std::vector<XString> vt_command;
+    if (XCommandMgr::pins()->get_vt_command(command, vt_command, 2))
+    {
+        //√¸¡Ó¥ÌŒÛ£¨÷±Ω”∑…
+        return false;
+    }
+
+    std::vector<XString>::iterator it = vt_command.begin();
+    it++;
+     
+    XBreakPoint::pins()->delete_hard_ware_break_inedx(debug_info.context, it->to_int());
+    return true;
+}
+ 
+
+bool XCommandMgr::get_vt_command(const XString& command, std::vector<XString>& vt_command, int min)
+{
+    XString str_command = command;
+    str_command.get_vt_str_seg(vt_command, L" ");
+    if (vt_command.size() < min)
+    {
+        //√¸¡Ó¥ÌŒÛ£¨÷±Ω”∑…
+        return false;
+    }
+
+    return true;
+}
+
+bool __stdcall XCommandMgr::u_command(const XString& command, tagDebugInfo& debug_info, OPCODE_INFO& opcode_info, DEBUG_MODULE_DATA& out_module_data)
+{
+    std::vector<XString> vt_command;
+    if (XCommandMgr::pins()->get_vt_command(command, vt_command, 3))
+    {
+        //√¸¡Ó¥ÌŒÛ£¨÷±Ω”∑…
+        return false;
+    }
+
+    std::vector<XString>::iterator it = vt_command.begin();
+    it++;
+
+    DWORD address = it->to_int_0x();
+    DWORD count = 8;
+    if (vt_command.size() == 3)
+    { 
+        it++; 
+        count = it->to_int();
+    } 
+       
+    XDecodingASM::pins()->decoding_asm(debug_info.process, address, count, out_module_data.asm_table);
+    return true;
 }

@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "XBreakPoint.h"
 #include "XInt3Tab.h"
+#include "XHardwareBreak.h"
 
 
 XBreakPoint* XBreakPoint::pThis = 0;
@@ -75,4 +76,22 @@ BP_STATUS XBreakPoint::insert_single_step(HANDLE handle, DWORD address)
 {
     bool status = XInt3Tab::pins()->insert_single_step(handle, address);
     return status ? BP_OK : BP_NULL; 
+}
+
+BP_STATUS XBreakPoint::insert_hard_break(std::vector<XString>& vt_command, CONTEXT& context)
+{
+    bool status = XHardwareBreak::pins()->insert(vt_command, context);
+    return status ? BP_OK : BP_NULL;
+}
+
+BP_STATUS XBreakPoint::get_hard_ware_break_tab(std::vector<HARD_DWARE_BREAK>& out_map)
+{
+    bool status = XHardwareBreak::pins()->get_hard_dware_break_table(out_map);
+    return status ? BP_OK : BP_NULL;
+}
+ 
+BP_STATUS XBreakPoint::delete_hard_ware_break_inedx(CONTEXT& context, int inedx)
+{
+    bool status = XHardwareBreak::pins()->delete_hard_ware_break_inedx(context, inedx);
+    return status ? BP_OK : BP_NULL;
 }

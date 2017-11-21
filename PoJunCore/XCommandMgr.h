@@ -44,21 +44,30 @@ public:
     //删除CC某个断点
     static bool __stdcall bpc_command(const XString& command, tagDebugInfo& debug_info, OPCODE_INFO& opcode_info, DEBUG_MODULE_DATA& out_module_data);
 
+    //设置硬件断点
+    static bool __stdcall bh_command(const XString& command, tagDebugInfo& debug_info, OPCODE_INFO& opcode_info, DEBUG_MODULE_DATA& out_module_data);
+    //查看硬件断点
+    static bool __stdcall bhl_command(const XString& command, tagDebugInfo& debug_info, OPCODE_INFO& opcode_info, DEBUG_MODULE_DATA& out_module_data);
+    //删除硬件断点
+    static bool __stdcall bhc_command(const XString& command, tagDebugInfo& debug_info, OPCODE_INFO& opcode_info, DEBUG_MODULE_DATA& out_module_data);
+    
     /* 
         数据显示指令
     */
+    static bool __stdcall u_command(const XString& command, tagDebugInfo& debug_info, OPCODE_INFO& opcode_info, DEBUG_MODULE_DATA& out_module_data);
 
-    /*
-        断点指令
-    */
-
+      
     /*
         记录指令
     */
 
 private:
+    bool get_vt_command(const XString& str_command, std::vector<XString>& vt_command, int min);
+
+private:
     std::map<XString, pfun_command_call_back> comm_mgr;
 
+    //调试指令需要使用
     bool single_step;
 };
 
