@@ -91,6 +91,7 @@
     <ClInclude Include="XDecodingASM.h" />
     <ClInclude Include="XHardwareBreak.h" />
     <ClInclude Include="XInt3Tab.h" />
+    <ClInclude Include="XMemoryMgr.h" />
     <ClInclude Include="XModelTab.h" />
     <ClInclude Include="XOutStringTab.h" />
     <ClInclude Include="XPCoreHead.h" />
@@ -114,6 +115,7 @@
     <ClCompile Include="XDecodingASM.cpp" />
     <ClCompile Include="XHardwareBreak.cpp" />
     <ClCompile Include="XInt3Tab.cpp" />
+    <ClCompile Include="XMemoryMgr.cpp" />
     <ClCompile Include="XModelTab.cpp" />
     <ClCompile Include="XOutStringTab.cpp" />
     <ClCompile Include="XPCoreHead.cpp" />

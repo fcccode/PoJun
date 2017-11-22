@@ -258,11 +258,11 @@ void XDebugControl::user_control(tagDebugInfo& debug_info, XString& str_command,
         opcode_info.current_opcode = it->opcode[0];
         ++it;
         opcode_info.next_address = it->address;
-    }
-     
-    asm_tab.clear();
-     
+    } 
+
     this->f_out(debug_info.context, asm_tab);
+
+    asm_tab.clear();
     
     //命令不等于 t,p,g则一直循环
     do 

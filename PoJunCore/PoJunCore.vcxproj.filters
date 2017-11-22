@@ -60,6 +60,9 @@
     <ClInclude Include="XHardwareBreak.h">
       <Filter>File\break_point</Filter>
     </ClInclude>
+    <ClInclude Include="XMemoryMgr.h">
+      <Filter>File\break_point</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -99,6 +102,9 @@
       <Filter>File\break_point</Filter>
     </ClCompile>
     <ClCompile Include="XHardwareBreak.cpp">
+      <Filter>File\break_point</Filter>
+    </ClCompile>
+    <ClCompile Include="XMemoryMgr.cpp">
       <Filter>File\break_point</Filter>
     </ClCompile>
   </ItemGroup>
