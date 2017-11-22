@@ -72,7 +72,7 @@ bool XCommandMgr::command_call_back(const XString& command, tagDebugInfo& debug_
 
 bool __stdcall XCommandMgr::t_command(const XString& command, tagDebugInfo& debug_info, OPCODE_INFO& opcode_info, DEBUG_MODULE_DATA& out_module_data)
 {
-    out_module_data.type = E_T;
+    out_module_data.type = DEBUG_MODULE_DATA::DM_TYPE::E_T;
     //ÉèÖÃEFlage±êÖ¾
     XCommandMgr::pins()->single_step = true;
     debug_info.context.EFlags |= 0x100;
@@ -81,7 +81,7 @@ bool __stdcall XCommandMgr::t_command(const XString& command, tagDebugInfo& debu
 
 bool __stdcall XCommandMgr::p_command(const XString& command, tagDebugInfo& debug_info, OPCODE_INFO& opcode_info, DEBUG_MODULE_DATA& out_module_data)
 {
-    out_module_data.type = E_P;
+    out_module_data.type = DEBUG_MODULE_DATA::DM_TYPE::E_P;
     if (opcode_info.current_opcode == E_CALL_E8 
         || opcode_info.current_opcode == E_CALL_FF)
     {
@@ -99,7 +99,7 @@ bool __stdcall XCommandMgr::p_command(const XString& command, tagDebugInfo& debu
 
 bool __stdcall XCommandMgr::g_command(const XString& command, tagDebugInfo& debug_info, OPCODE_INFO& opcode_info, DEBUG_MODULE_DATA& out_module_data)
 {
-    out_module_data.type = E_G;
+    out_module_data.type = DEBUG_MODULE_DATA::DM_TYPE::E_G;
     std::vector<XString> vt_command;
     if (!XCommandMgr::pins()->get_vt_command(command, vt_command, 2))
     {
@@ -121,7 +121,7 @@ bool XCommandMgr::is_single_step()
 
 bool __stdcall XCommandMgr::bp_command(const XString& command, tagDebugInfo& debug_info, OPCODE_INFO& opcode_info, DEBUG_MODULE_DATA& out_module_data)
 {
-    out_module_data.type = E_BP;
+    out_module_data.type = DEBUG_MODULE_DATA::DM_TYPE::E_BP;
     std::vector<XString> vt_command;
     if (!XCommandMgr::pins()->get_vt_command(command, vt_command, 2))
     {
@@ -138,14 +138,14 @@ bool __stdcall XCommandMgr::bp_command(const XString& command, tagDebugInfo& deb
 
 bool __stdcall XCommandMgr::bpl_command(const XString& command, tagDebugInfo& debug_info, OPCODE_INFO& opcode_info, DEBUG_MODULE_DATA& out_module_data)
 {
-    out_module_data.type = E_BPL; 
+    out_module_data.type = DEBUG_MODULE_DATA::DM_TYPE::E_BPL;
     XBreakPoint::pins()->get_cc_table(out_module_data.break_point_tab);
     return true;
 }
 
 bool __stdcall XCommandMgr::bpc_command(const XString& command, tagDebugInfo& debug_info, OPCODE_INFO& opcode_info, DEBUG_MODULE_DATA& out_module_data)
 {
-    out_module_data.type = E_BPC;
+    out_module_data.type = DEBUG_MODULE_DATA::DM_TYPE::E_BPC;
     std::vector<XString> vt_command;
     if (!XCommandMgr::pins()->get_vt_command(command, vt_command, 2))
     {
@@ -232,10 +232,8 @@ bool __stdcall XCommandMgr::db_command(const XString& command, tagDebugInfo& deb
     DWORD row = 8;
 
     XCommandMgr::pins()->get_d_row_address(vt_command, address, row);
-     
-    XString mem_data;
-    XMemoryMgr::pins()->get_memort_byte(debug_info.process, address, row, mem_data);
-    MessageBox(nullptr, mem_data.w_cstr(), nullptr, MB_OK);
+      
+    XMemoryMgr::pins()->get_memort_byte(debug_info.process, address, row, out_module_data.d_memory); 
     return true;
 }
 
@@ -252,10 +250,8 @@ bool __stdcall XCommandMgr::dw_command(const XString& command, tagDebugInfo& deb
     DWORD row = 8;
 
     XCommandMgr::pins()->get_d_row_address(vt_command, address, row);
-
-    XString mem_data;
-    XMemoryMgr::pins()->get_memort_word(debug_info.process, address, row, mem_data);
-    MessageBox(nullptr, mem_data.w_cstr(), nullptr, MB_OK);
+     
+    XMemoryMgr::pins()->get_memort_word(debug_info.process, address, row, out_module_data.d_memory); 
     return true;
 }
 
@@ -274,7 +270,7 @@ bool __stdcall XCommandMgr::dd_command(const XString& command, tagDebugInfo& deb
     XCommandMgr::pins()->get_d_row_address(vt_command, address, row);
 
     XString mem_data;
-    XMemoryMgr::pins()->get_memort_dword(debug_info.process, address, row, mem_data);
+    XMemoryMgr::pins()->get_memort_dword(debug_info.process, address, row, out_module_data.d_memory);
     MessageBox(nullptr, mem_data.w_cstr(), nullptr, MB_OK);
     return true;
 }

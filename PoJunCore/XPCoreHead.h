@@ -50,25 +50,46 @@ typedef struct _tagHardDwareBreak
     int type;
 }HARD_DWARE_BREAK;
 
-
-typedef enum _tagModuleType
-{
-    E_P,
-    E_T,
-    E_G,
-    E_BP,
-    E_BPL,
-    E_BPC
-}DEBUG_MODULE_TYPE;
-  
+ 
 typedef struct _tagModuleData
 {
-    DEBUG_MODULE_TYPE type;
+    typedef enum DM_TYPE
+    {
+        E_P,
+        E_T,
+        E_G,
+        E_BP,
+        E_BPL,
+        E_BPC
+    };
+
+    //÷∏¡Ó¿‡–Õ
+    int type;
+
     std::map<DWORD, CC_BREAK_POINT> break_point_tab;
 
     std::vector<HARD_DWARE_BREAK> hard_dware_break_tab;
 
     std::list<DECODEING_ASM> asm_table;
+     
+    struct D_MEMORY
+    {
+        enum DE_MEMORY
+        {
+            DE_BYTE,
+            DE_WORD,
+            DE_DWORD
+        };
+
+        int type;
+        union
+        {
+            BYTE* memory_byte;
+            WORD* memory_word;
+            DWORD* memory_dword;
+        };
+    }d_memory; 
+
 }DEBUG_MODULE_DATA;
  
 
