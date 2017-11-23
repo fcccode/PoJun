@@ -25,6 +25,12 @@ XCommandMgr::XCommandMgr()
     insert(L"dw", XCommandMgr::dw_command);
     insert(L"dd", XCommandMgr::dd_command);
     insert(L"dq", XCommandMgr::dq_command);
+
+    insert(L"eb", XCommandMgr::eb_command);
+    insert(L"ew", XCommandMgr::ew_command);
+    insert(L"ed", XCommandMgr::ed_command);
+    insert(L"ea", XCommandMgr::ea_command);
+    insert(L"eu", XCommandMgr::eu_command);
 }
 
 
@@ -229,12 +235,10 @@ bool __stdcall XCommandMgr::db_command(const XString& command, tagDebugInfo& deb
     }
 
     DWORD address = debug_info.context.Eip;
-    DWORD row = 8;
-
+    DWORD row = 8; 
     XCommandMgr::pins()->get_d_row_address(vt_command, address, row);
-      
-    XMemoryMgr::pins()->get_memort_byte(debug_info.process, address, row, out_module_data.d_memory); 
-    return true;
+       
+    return XMemoryMgr::pins()->read_memory<BYTE>(debug_info.process, address, out_module_data.d_memory);
 }
 
 bool __stdcall XCommandMgr::dw_command(const XString& command, tagDebugInfo& debug_info, OPCODE_INFO& opcode_info, DEBUG_MODULE_DATA& out_module_data)
@@ -247,12 +251,10 @@ bool __stdcall XCommandMgr::dw_command(const XString& command, tagDebugInfo& deb
     }
 
     DWORD address = debug_info.context.Eip;
-    DWORD row = 8;
-
+    DWORD row = 8; 
     XCommandMgr::pins()->get_d_row_address(vt_command, address, row);
-     
-    XMemoryMgr::pins()->get_memort_word(debug_info.process, address, row, out_module_data.d_memory); 
-    return true;
+      
+    return XMemoryMgr::pins()->read_memory<WORD>(debug_info.process, address, out_module_data.d_memory);
 }
 
 bool __stdcall XCommandMgr::dd_command(const XString& command, tagDebugInfo& debug_info, OPCODE_INFO& opcode_info, DEBUG_MODULE_DATA& out_module_data)
@@ -265,20 +267,120 @@ bool __stdcall XCommandMgr::dd_command(const XString& command, tagDebugInfo& deb
     }
 
     DWORD address = debug_info.context.Eip;
-    DWORD row = 8;
-
+    DWORD row = 8; 
     XCommandMgr::pins()->get_d_row_address(vt_command, address, row);
-
-    XString mem_data;
-    XMemoryMgr::pins()->get_memort_dword(debug_info.process, address, row, out_module_data.d_memory);
-    MessageBox(nullptr, mem_data.w_cstr(), nullptr, MB_OK);
-    return true;
+       
+    return XMemoryMgr::pins()->read_memory<DWORD>(debug_info.process, address, out_module_data.d_memory);
 }
 
 bool __stdcall XCommandMgr::dq_command(const XString& command, tagDebugInfo& debug_info, OPCODE_INFO& opcode_info, DEBUG_MODULE_DATA& out_module_data)
 {
     return true;
 }
+
+bool __stdcall XCommandMgr::eb_command(const XString& command, tagDebugInfo& debug_info, OPCODE_INFO& opcode_info, DEBUG_MODULE_DATA& out_module_data)
+{
+    std::vector<XString> vt_command;
+    if (!XCommandMgr::pins()->get_vt_command(command, vt_command, 3))
+    {
+        //ÃüÁî´íÎó£¬Ö±½Ó·É
+        return false;
+    }
+      
+    DWORD address = 0; 
+    XCommandMgr::pins()->get_e_address(vt_command, address);
+     
+    BYTE* buffer = nullptr;
+    if (!XCommandMgr::pins()->str2type<BYTE>(&buffer, vt_command))
+    {
+        return false;
+    }
+
+    XMemoryMgr::pins()->write_memory(debug_info.process, address, buffer, vt_command.size() * sizeof(BYTE));
+    delete[] buffer;
+    return true;
+}
+
+bool __stdcall XCommandMgr::ew_command(const XString& command, tagDebugInfo& debug_info, OPCODE_INFO& opcode_info, DEBUG_MODULE_DATA& out_module_data)
+{
+    std::vector<XString> vt_command;
+    if (!XCommandMgr::pins()->get_vt_command(command, vt_command, 3))
+    {
+        //ÃüÁî´íÎó£¬Ö±½Ó·É
+        return false;
+    }
+
+    DWORD address = 0;
+    XCommandMgr::pins()->get_e_address(vt_command, address);
+     
+    WORD* buffer = nullptr;
+    if (!XCommandMgr::pins()->str2type<WORD>(&buffer, vt_command))
+    {
+        return false;
+    }
+
+    XMemoryMgr::pins()->write_memory(debug_info.process, address, buffer, vt_command.size() * sizeof(WORD));
+    delete[] buffer;
+    return true;
+}
+
+bool __stdcall XCommandMgr::ed_command(const XString& command, tagDebugInfo& debug_info, OPCODE_INFO& opcode_info, DEBUG_MODULE_DATA& out_module_data)
+{
+    std::vector<XString> vt_command;
+    if (!XCommandMgr::pins()->get_vt_command(command, vt_command, 3))
+    {
+        //ÃüÁî´íÎó£¬Ö±½Ó·É
+        return false;
+    }
+
+    DWORD address = 0;
+    XCommandMgr::pins()->get_e_address(vt_command, address);
+      
+    DWORD* buffer = nullptr;
+    if (!XCommandMgr::pins()->str2type<DWORD>(&buffer, vt_command))
+    {
+        return false;
+    }
+
+    XMemoryMgr::pins()->write_memory(debug_info.process, address, buffer, vt_command.size() * sizeof(DWORD));
+    delete[] buffer;
+    return true;
+}
+
+bool __stdcall XCommandMgr::ea_command(const XString& command, tagDebugInfo& debug_info, OPCODE_INFO& opcode_info, DEBUG_MODULE_DATA& out_module_data)
+{
+    std::vector<XString> vt_command;
+    if (!XCommandMgr::pins()->get_vt_command(command, vt_command, 3))
+    {
+        //ÃüÁî´íÎó£¬Ö±½Ó·É
+        return false;
+    }
+
+    DWORD address = 0;
+    XCommandMgr::pins()->get_e_address(vt_command, address); 
+    std::vector<XString>::iterator it = vt_command.begin(); 
+
+    XMemoryMgr::pins()->write_memory(debug_info.process, address, it->get_str().c_str(), it->get_str().length());
+    return true;
+}
+
+bool __stdcall XCommandMgr::eu_command(const XString& command, tagDebugInfo& debug_info, OPCODE_INFO& opcode_info, DEBUG_MODULE_DATA& out_module_data)
+{
+    std::vector<XString> vt_command;
+    if (!XCommandMgr::pins()->get_vt_command(command, vt_command, 3))
+    {
+        //ÃüÁî´íÎó£¬Ö±½Ó·É
+        return false;
+    }
+
+    DWORD address = 0;
+    XCommandMgr::pins()->get_e_address(vt_command, address);
+    std::vector<XString>::iterator it = vt_command.begin();
+
+    XMemoryMgr::pins()->write_memory(debug_info.process, address, it->w_cstr(), it->length());
+    return true;
+}
+
 
 bool XCommandMgr::get_vt_command(const XString& command, std::vector<XString>& vt_command, int min)
 {
@@ -308,6 +410,35 @@ bool XCommandMgr::get_d_row_address(std::vector<XString>& vt, DWORD& address, DW
             row = it->to_int();
         }
     }
+
+    return true;
+}
+
+template<typename T>
+bool XCommandMgr::str2type(T** buf, std::vector<XString>& vt)
+{
+    *buf = new T[vt.size()];
+    if (*buf == nullptr)
+    {
+        return false;
+    }
+
+    int i = 0;
+    std::vector<XString>::iterator it = vt.begin();
+    for (it; it != vt.end(); it++, i++)
+    {
+        (*buf)[i] = it->to_int_0x();
+    } 
+
+    return true;
+}
+
+bool XCommandMgr::get_e_address(std::vector<XString>& vt, DWORD& address)
+{
+    vt.erase(vt.begin());
+    std::vector<XString>::iterator it = vt.begin();
+    address = it->to_int_0x();
+    vt.erase(it);
 
     return true;
 }

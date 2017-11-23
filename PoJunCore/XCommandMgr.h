@@ -57,16 +57,17 @@ public:
     static bool __stdcall u_command(const XString& command, tagDebugInfo& debug_info, OPCODE_INFO& opcode_info, DEBUG_MODULE_DATA& out_module_data);
 
     //字节显示
-
-    //1字节 byte
+     
     static bool __stdcall db_command(const XString& command, tagDebugInfo& debug_info, OPCODE_INFO& opcode_info, DEBUG_MODULE_DATA& out_module_data);
-    //2字节 word
     static bool __stdcall dw_command(const XString& command, tagDebugInfo& debug_info, OPCODE_INFO& opcode_info, DEBUG_MODULE_DATA& out_module_data);
-    //4字节 dword
     static bool __stdcall dd_command(const XString& command, tagDebugInfo& debug_info, OPCODE_INFO& opcode_info, DEBUG_MODULE_DATA& out_module_data);
-    //8字节 qword
     static bool __stdcall dq_command(const XString& command, tagDebugInfo& debug_info, OPCODE_INFO& opcode_info, DEBUG_MODULE_DATA& out_module_data);
 
+    static bool __stdcall eb_command(const XString& command, tagDebugInfo& debug_info, OPCODE_INFO& opcode_info, DEBUG_MODULE_DATA& out_module_data);
+    static bool __stdcall ew_command(const XString& command, tagDebugInfo& debug_info, OPCODE_INFO& opcode_info, DEBUG_MODULE_DATA& out_module_data);
+    static bool __stdcall ed_command(const XString& command, tagDebugInfo& debug_info, OPCODE_INFO& opcode_info, DEBUG_MODULE_DATA& out_module_data); 
+    static bool __stdcall ea_command(const XString& command, tagDebugInfo& debug_info, OPCODE_INFO& opcode_info, DEBUG_MODULE_DATA& out_module_data); 
+    static bool __stdcall eu_command(const XString& command, tagDebugInfo& debug_info, OPCODE_INFO& opcode_info, DEBUG_MODULE_DATA& out_module_data);
      
     //浮点显示 
 
@@ -78,6 +79,11 @@ private:
     bool get_vt_command(const XString& str_command, std::vector<XString>& vt_command, int min);
 
     bool get_d_row_address(std::vector<XString>& vt, DWORD& address, DWORD& row);
+
+    template<typename T>
+    bool str2type(T** buf, std::vector<XString>& vt);
+
+    bool get_e_address(std::vector<XString>& vt, DWORD& address);
 
 private:
     std::map<XString, pfun_command_call_back> comm_mgr;

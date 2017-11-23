@@ -20,61 +20,40 @@ XMemoryMgr* XMemoryMgr::pins()
 
     return m_This;
 }
-
-bool XMemoryMgr::get_memort_byte(HANDLE process, DWORD address, int row, DEBUG_MODULE_DATA::D_MEMORY& dm)
-{ 
-    dm.type = DEBUG_MODULE_DATA::D_MEMORY::DE_BYTE; 
-    dm.memory_byte = new BYTE[row * E_COL]; 
-    if (dm.memory_byte == nullptr)
-    {
-        return false;
-    }
-     
-    BOOL bRet = ::ReadProcessMemory(process, (LPCVOID)address, dm.memory_byte, row * E_COL, NULL);
-    if (bRet == FALSE)
-    {
-        return false;
-    }
-
-    return true;
-}
-
-bool XMemoryMgr::get_memort_word(HANDLE process, DWORD address, int row, DEBUG_MODULE_DATA::D_MEMORY& dm)
-{ 
-    dm.type = DEBUG_MODULE_DATA::D_MEMORY::DE_WORD; 
-    int i_size = E_WORD_ROW * E_WORD;
-    dm.memory_word = new WORD[row * i_size];
-    if (dm.memory_word == nullptr)
-    {
-        return false;
-    }
-      
-    BOOL bRet = ::ReadProcessMemory(process, (LPCVOID)address, dm.memory_word, i_size, NULL);
-    if (bRet == FALSE)
-    {
-        return false;
-    }
-     
-    return true;
-}
-
-bool XMemoryMgr::get_memort_dword(HANDLE process, DWORD address, int row, DEBUG_MODULE_DATA::D_MEMORY& dm)
+  
+bool XMemoryMgr::free_get_memory(DEBUG_MODULE_DATA::D_MEMORY& dm)
 {
-    dm.type = DEBUG_MODULE_DATA::D_MEMORY::DE_DWORD; 
-    dm.memory_dword = new DWORD[row * E_DWORD];
-    if (dm.memory_dword == nullptr)
+    if (dm.type == DEBUG_MODULE_DATA::D_MEMORY::DE_BYTE)
     {
-        return false;
+        delete[] dm.memory_byte;
+        return true;
     }
 
-    BOOL bRet = ::ReadProcessMemory(process, (LPCVOID)address, dm.memory_dword, row * E_DWORD, NULL);
-    if (bRet == FALSE)
+    if (dm.type == DEBUG_MODULE_DATA::D_MEMORY::DE_WORD)
     {
-        return false;
+        delete[] dm.memory_word;
+        return true;
     }
-     
-    return true;
-}
+
+    if (dm.type == DEBUG_MODULE_DATA::D_MEMORY::DE_DWORD)
+    {
+        delete[] dm.memory_dword;
+        return true;
+    }
+
+    return false;
+} 
+
+bool XMemoryMgr::write_memory(HANDLE process, DWORD address, LPCVOID buf, int length)
+{
+    BOOL ret = ::WriteProcessMemory(process, (LPVOID)address, buf, length, nullptr);
+    if (ret)
+    {
+        return true;
+    }
+
+    return false;
+} 
   
 /*
 

@@ -76,6 +76,7 @@ typedef struct _tagModuleData
     {
         enum DE_MEMORY
         {
+            DE_NULL,
             DE_BYTE,
             DE_WORD,
             DE_DWORD
