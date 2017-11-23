@@ -13,6 +13,8 @@ public:
 
     void insert_thread(CREATE_THREAD_DEBUG_INFO* pti);
 
+    bool get_thread_table(std::vector<CREATE_THREAD_DEBUG_INFO>& tab);
+
 private:
     std::vector<CREATE_THREAD_DEBUG_INFO> thread_tab;
 };

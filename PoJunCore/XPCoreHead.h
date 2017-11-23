@@ -23,6 +23,13 @@ typedef struct _tagDecodingASM
     XString asm_str;
 }DECODEING_ASM;
 
+typedef struct _tag_module
+{
+    HANDLE handle;
+    DWORD base;
+    XString file_path;
+}tag_module, *ptag_module;
+
 typedef struct _tagOpcodeInfo
 {
     BYTE current_opcode;
@@ -71,7 +78,11 @@ typedef struct _tagModuleData
     std::vector<HARD_DWARE_BREAK> hard_dware_break_tab;
 
     std::list<DECODEING_ASM> asm_table;
-     
+    
+    std::map<DWORD, tag_module> module_table;
+
+    std::vector<CREATE_THREAD_DEBUG_INFO> thread_table;
+
     struct D_MEMORY
     {
         enum DE_MEMORY

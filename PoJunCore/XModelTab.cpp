@@ -47,6 +47,12 @@ void XModelTab::remove_dll(DWORD base)
     }
 }
 
+bool XModelTab::get_module_table(std::map<DWORD, tag_module>& modules)
+{
+    modules = this->modules;
+    return true;
+}
+
 bool XModelTab::handle_to_path(HANDLE handle, WCHAR* path)
 {
     WCHAR pszFileName[MAX_PATH];

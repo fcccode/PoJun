@@ -54,7 +54,18 @@ public:
     /* 
         数据显示指令
     */
+
+    //反汇编
     static bool __stdcall u_command(const XString& command, tagDebugInfo& debug_info, OPCODE_INFO& opcode_info, DEBUG_MODULE_DATA& out_module_data);
+
+    //寄存器
+    static bool __stdcall r_command(const XString& command, tagDebugInfo& debug_info, OPCODE_INFO& opcode_info, DEBUG_MODULE_DATA& out_module_data);
+
+    //模块
+    static bool __stdcall lm_command(const XString& command, tagDebugInfo& debug_info, OPCODE_INFO& opcode_info, DEBUG_MODULE_DATA& out_module_data);
+
+    //线程 ~
+    static bool __stdcall thread_command(const XString& command, tagDebugInfo& debug_info, OPCODE_INFO& opcode_info, DEBUG_MODULE_DATA& out_module_data);
 
     //字节显示
      

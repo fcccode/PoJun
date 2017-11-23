@@ -3,6 +3,8 @@
 #include "XBreakPoint.h"
 #include "XDecodingASM.h"
 #include "XMemoryMgr.h"
+#include "XModelTab.h"
+#include "XThreadTab.h"
  
 XCommandMgr* XCommandMgr::m_This = nullptr;
 XCommandMgr::XCommandMgr()
@@ -20,6 +22,9 @@ XCommandMgr::XCommandMgr()
     insert(L"bhc", XCommandMgr::bhc_command);
      
     insert(L"u", XCommandMgr::u_command);
+    insert(L"r", XCommandMgr::r_command);
+    insert(L"lm", XCommandMgr::lm_command);
+    insert(L"~", XCommandMgr::thread_command);
 
     insert(L"db", XCommandMgr::db_command);
     insert(L"dw", XCommandMgr::dw_command);
@@ -220,9 +225,24 @@ bool __stdcall XCommandMgr::u_command(const XString& command, tagDebugInfo& debu
         it++; 
         count = it->to_int();
     } 
-       
-    XDecodingASM::pins()->decoding_asm(debug_info.process, address, count, out_module_data.asm_table);
+        
+    return XDecodingASM::pins()->decoding_asm(debug_info.process, address, count, out_module_data.asm_table);
+}
+
+bool __stdcall XCommandMgr::r_command(const XString& command, tagDebugInfo& debug_info, OPCODE_INFO& opcode_info, DEBUG_MODULE_DATA& out_module_data)
+{ 
+    //±£Áô¸ÃÖ¸Áî
     return true;
+}
+
+bool __stdcall XCommandMgr::lm_command(const XString& command, tagDebugInfo& debug_info, OPCODE_INFO& opcode_info, DEBUG_MODULE_DATA& out_module_data)
+{
+    return XModelTab::pins()->get_module_table(out_module_data.module_table);
+}
+
+bool __stdcall XCommandMgr::thread_command(const XString& command, tagDebugInfo& debug_info, OPCODE_INFO& opcode_info, DEBUG_MODULE_DATA& out_module_data)
+{
+    return XThreadTab::pins()->get_thread_table(out_module_data.thread_table);
 }
 
 bool __stdcall XCommandMgr::db_command(const XString& command, tagDebugInfo& debug_info, OPCODE_INFO& opcode_info, DEBUG_MODULE_DATA& out_module_data)

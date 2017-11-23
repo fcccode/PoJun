@@ -30,3 +30,9 @@ void XThreadTab::insert_thread(CREATE_THREAD_DEBUG_INFO* pti)
 
     this->thread_tab.push_back(tab);
 }
+
+bool XThreadTab::get_thread_table(std::vector<CREATE_THREAD_DEBUG_INFO>& tab)
+{
+    tab = this->thread_tab;
+    return true;
+}

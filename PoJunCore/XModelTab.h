@@ -1,13 +1,5 @@
 #pragma once 
 #include "XPCoreHead.h"
-#include <map>
-
-typedef struct _tag_module
-{
-    HANDLE handle;
-    DWORD base;
-    XString file_path;
-}tag_module, *ptag_module;
 
 class XModelTab
 {
@@ -22,8 +14,11 @@ public:
 
     void remove_dll(DWORD base);
 
-    bool handle_to_path(HANDLE handle, WCHAR* path);
+    bool get_module_table(std::map<DWORD, tag_module>& modules);
 
+private:
+    bool handle_to_path(HANDLE handle, WCHAR* path);
+      
 private: 
     std::map<DWORD, tag_module> modules;
 };
