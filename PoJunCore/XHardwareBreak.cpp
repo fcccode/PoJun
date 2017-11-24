@@ -31,7 +31,7 @@ bool XHardwareBreak::insert(std::vector<XString>& vt_command, CONTEXT& context)
         return false;
     }
      
-    HARD_DWARE_BREAK data;
+    HARD_DWARE_BREAK_POINT data;
     data.dr_number = pos;
     if (check_command(vt_command, data))
     {
@@ -57,7 +57,7 @@ bool XHardwareBreak::insert(std::vector<XString>& vt_command, CONTEXT& context)
     return true;
 }
 
-bool XHardwareBreak::get_hard_dware_break_table(std::vector<HARD_DWARE_BREAK>& out_tab)
+bool XHardwareBreak::get_hard_dware_break_table(std::vector<HARD_DWARE_BREAK_POINT>& out_tab)
 {
     out_tab = this->hard_dware_break_tab;
     return true;
@@ -93,7 +93,7 @@ int XHardwareBreak::get_hard_dware_break_pos(CONTEXT& context)
     return -1;
 }
 
-bool XHardwareBreak::check_command(std::vector<XString>& vt_command, HARD_DWARE_BREAK& out_data)
+bool XHardwareBreak::check_command(std::vector<XString>& vt_command, HARD_DWARE_BREAK_POINT& out_data)
 {
     std::vector<XString>::iterator it = vt_command.begin();
     it++;
@@ -129,7 +129,7 @@ bool XHardwareBreak::check_command(std::vector<XString>& vt_command, HARD_DWARE_
     return true;
 }
 
-bool XHardwareBreak::set_hard_dware_break_exe(int pos, CONTEXT& context, HARD_DWARE_BREAK& out_data)
+bool XHardwareBreak::set_hard_dware_break_exe(int pos, CONTEXT& context, HARD_DWARE_BREAK_POINT& out_data)
 {
     DWORD dr0_3[4] = { 0x1, 0x4, 0x10, 0x40 };
     DWORD ANDLRW[4] = { 0xFFF0FFFF, 0xFF0FFFFF, 0xF0FFFFFF, 0x0FFFFFFF };
@@ -147,7 +147,7 @@ bool XHardwareBreak::set_hard_dware_break_exe(int pos, CONTEXT& context, HARD_DW
     return true;
 }
 
-bool XHardwareBreak::set_hard_dware_break_w(int pos, CONTEXT& context, HARD_DWARE_BREAK& out_data)
+bool XHardwareBreak::set_hard_dware_break_w(int pos, CONTEXT& context, HARD_DWARE_BREAK_POINT& out_data)
 {
     DWORD dr0_3[4] = { 0x1, 0x4, 0x10, 0x40 };
     DWORD ANDLRW[4] = { 0xFFF0FFFF, 0xFF0FFFFF, 0xF0FFFFFF, 0x0FFFFFFF };
@@ -171,7 +171,7 @@ bool XHardwareBreak::set_hard_dware_break_w(int pos, CONTEXT& context, HARD_DWAR
     return true;
 }
 
-bool XHardwareBreak::set_hard_dware_break_rw(int pos, CONTEXT& context, HARD_DWARE_BREAK& out_data)
+bool XHardwareBreak::set_hard_dware_break_rw(int pos, CONTEXT& context, HARD_DWARE_BREAK_POINT& out_data)
 {
     DWORD dr0_3[4] = { 0x1, 0x4, 0x10, 0x40 };
     DWORD ANDLRW[4] = { 0xFFF0FFFF, 0xFF0FFFFF, 0xF0FFFFFF, 0x0FFFFFFF };

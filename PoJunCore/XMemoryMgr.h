@@ -4,6 +4,16 @@
   
 #define D_ROW 8
 #define D_COL 16
+#define PAGE_SIZE 0x1000
+#define PAGE_BASE(pos) pos & 0xFFFFF000 
+
+
+typedef enum
+{
+    E_FLASE,
+    E_TRUE,
+    E_NOT_TYPE
+}CXMEMORY_MGR;
 
 class XMemoryMgr
 {
@@ -13,54 +23,32 @@ public:
 
     static XMemoryMgr* pins();
     static XMemoryMgr* m_This;
-       
-    bool free_get_memory(DEBUG_MODULE_DATA::D_MEMORY& dm);
+
+    bool insert_break_point(HANDLE process, DWORD address, DWORD length, bool rw);
+
+    CXMEMORY_MGR is_my_break_point(EXCEPTION_DEBUG_INFO *ed);
+
+    bool reset_protect(HANDLE process, DWORD address, bool status = false);
     
-    template<typename T>
-    bool read_memory(HANDLE process, DWORD address, DEBUG_MODULE_DATA::D_MEMORY& dm, int size = D_ROW * D_COL);
+    bool get_memory_table(std::map<DWORD, MEMORY_BREAK_POINT>& table);
+
+    bool delete_memory_break_point_inedx(HANDLE process, DWORD inedx);
+
+public:
+    bool read_memory(HANDLE process, DWORD address, LPVOID* buf, int size = D_ROW * D_COL);
 
     bool write_memory(HANDLE process, DWORD address, LPCVOID buf, int length);
+
+private:
+    int get_page_count(DWORD address, DWORD length);
+
+    bool set_break_point(HANDLE process, DWORD address, DWORD& old_protect);
+
+    bool set_protect(HANDLE process, DWORD address, DWORD protect, bool status);
+
+    DWORD get_inedx();
+
+private:
+    std::map<DWORD, MEMORY_BREAK_POINT> memory_break_point;
+    std::vector<DWORD> mb_table_num_mgr;
 };
-
-template<typename T>
-bool XMemoryMgr::read_memory(HANDLE process, DWORD address, DEBUG_MODULE_DATA::D_MEMORY& dm, int size)
-{
-    DEBUG_MODULE_DATA::D_MEMORY::DE_MEMORY type[5] = {
-        DEBUG_MODULE_DATA::D_MEMORY::DE_MEMORY::DE_NULL,
-        DEBUG_MODULE_DATA::D_MEMORY::DE_MEMORY::DE_BYTE,
-        DEBUG_MODULE_DATA::D_MEMORY::DE_MEMORY::DE_WORD,
-        DEBUG_MODULE_DATA::D_MEMORY::DE_MEMORY::DE_NULL,
-        DEBUG_MODULE_DATA::D_MEMORY::DE_MEMORY::DE_DWORD };
-
-    dm.type = type[sizeof(T)];
-
-    LPVOID* pbuffer = nullptr;
-    switch (dm.type)
-    {
-    case DEBUG_MODULE_DATA::D_MEMORY::DE_BYTE:
-        pbuffer = (LPVOID*)&dm.memory_byte;
-        break;
-    case DEBUG_MODULE_DATA::D_MEMORY::DE_WORD:
-        pbuffer = (LPVOID*)&dm.memory_word;
-        break;
-    case DEBUG_MODULE_DATA::D_MEMORY::DE_DWORD:
-        pbuffer = (LPVOID*)&dm.memory_dword;
-        break;
-    default:
-        return false;
-    }
-
-    *pbuffer = (LPVOID)new BYTE[size];
-    if (*pbuffer == nullptr)
-    {
-        return false;
-    }
-
-    BOOL bRet = ::ReadProcessMemory(process, (LPCVOID)address, *pbuffer, size, NULL);
-    if (bRet == FALSE)
-    {
-        return false;
-    }
-
-    return true;
-}

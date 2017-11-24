@@ -55,8 +55,21 @@ typedef struct _tagHardDwareBreak
     int dr_number;
     int length;
     int type;
-}HARD_DWARE_BREAK;
+}HARD_DWARE_BREAK_POINT;
 
+/*
+    ÄÚ´æ¶Ïµã
+*/ 
+typedef struct _tagMemoryBreak
+{
+    DWORD inedx;
+    DWORD page_base;
+    DWORD address;
+    DWORD length;
+    //0:'r'£¬1:'w'
+    DWORD type;
+    DWORD old_page_protect; 
+}MEMORY_BREAK_POINT;
  
 typedef struct _tagModuleData
 {
@@ -75,7 +88,9 @@ typedef struct _tagModuleData
 
     std::map<DWORD, CC_BREAK_POINT> break_point_tab;
 
-    std::vector<HARD_DWARE_BREAK> hard_dware_break_tab;
+    std::vector<HARD_DWARE_BREAK_POINT> hard_dware_break_tab;
+
+    std::map<DWORD, MEMORY_BREAK_POINT> memory_break_tab;
 
     std::list<DECODEING_ASM> asm_table;
     

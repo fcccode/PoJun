@@ -51,6 +51,13 @@ public:
     //删除硬件断点
     static bool __stdcall bhc_command(const XString& command, tagDebugInfo& debug_info, OPCODE_INFO& opcode_info, DEBUG_MODULE_DATA& out_module_data);
     
+    //设置内存断点
+    static bool __stdcall bm_command(const XString& command, tagDebugInfo& debug_info, OPCODE_INFO& opcode_info, DEBUG_MODULE_DATA& out_module_data);
+    //查看内存断点
+    static bool __stdcall bml_command(const XString& command, tagDebugInfo& debug_info, OPCODE_INFO& opcode_info, DEBUG_MODULE_DATA& out_module_data);
+    //删除内存断点
+    static bool __stdcall bmc_command(const XString& command, tagDebugInfo& debug_info, OPCODE_INFO& opcode_info, DEBUG_MODULE_DATA& out_module_data);
+    
     /* 
         数据显示指令
     */
@@ -79,7 +86,7 @@ public:
     static bool __stdcall ed_command(const XString& command, tagDebugInfo& debug_info, OPCODE_INFO& opcode_info, DEBUG_MODULE_DATA& out_module_data); 
     static bool __stdcall ea_command(const XString& command, tagDebugInfo& debug_info, OPCODE_INFO& opcode_info, DEBUG_MODULE_DATA& out_module_data); 
     static bool __stdcall eu_command(const XString& command, tagDebugInfo& debug_info, OPCODE_INFO& opcode_info, DEBUG_MODULE_DATA& out_module_data);
-     
+      
     //浮点显示 
 
     /*
@@ -89,7 +96,7 @@ public:
 private:
     bool get_vt_command(const XString& str_command, std::vector<XString>& vt_command, int min);
 
-    bool get_d_row_address(std::vector<XString>& vt, DWORD& address, DWORD& row);
+    bool get_d_row_address(std::vector<XString>& vt, DWORD& address, DWORD& size);
 
     template<typename T>
     bool str2type(T** buf, std::vector<XString>& vt);

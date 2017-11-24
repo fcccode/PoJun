@@ -84,7 +84,7 @@ BP_STATUS XBreakPoint::insert_hard_break(std::vector<XString>& vt_command, CONTE
     return status ? BP_OK : BP_NULL;
 }
 
-BP_STATUS XBreakPoint::get_hard_ware_break_tab(std::vector<HARD_DWARE_BREAK>& out_map)
+BP_STATUS XBreakPoint::get_hard_ware_break_tab(std::vector<HARD_DWARE_BREAK_POINT>& out_map)
 {
     bool status = XHardwareBreak::pins()->get_hard_dware_break_table(out_map);
     return status ? BP_OK : BP_NULL;

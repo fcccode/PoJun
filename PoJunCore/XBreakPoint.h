@@ -36,7 +36,7 @@ public:
 
     BP_STATUS insert_hard_break(std::vector<XString>& vt_command, CONTEXT& context);
 
-    BP_STATUS get_hard_ware_break_tab(std::vector<HARD_DWARE_BREAK>& out_map);
+    BP_STATUS get_hard_ware_break_tab(std::vector<HARD_DWARE_BREAK_POINT>& out_map);
 
     BP_STATUS delete_hard_ware_break_inedx(CONTEXT& context, int inedx);
      
