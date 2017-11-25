@@ -5,4 +5,4 @@
 BUG反馈邮件：xuwuorg@hotmail.com, http://www.xuwu.org/pojun/
 
 项目介绍：
-	2017/11/05：刚刚启动的一个项目，Core还没搞好。努力~奋斗！！
+	2017/11/05：刚刚启动的一个项目，Core还没搞好。努力~奋斗！！ 
