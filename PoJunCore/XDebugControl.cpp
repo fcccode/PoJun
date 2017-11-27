@@ -160,7 +160,9 @@ DWORD XDebugControl::e_break_point(tagDebugInfo& debug_info)
                 XBreakPoint::pins()->reduction_oep(debug_info.process);
             case BP_SINGLE_STEP:
             case BP_CC:
+                XBreakPoint::pins()->reduction_cc(debug_info.process, debug_info.context.Eip, false);
                 user_control(debug_info);
+                //XBreakPoint::pins()->reduction_cc(debug_info.process, debug_info.context.Eip, true);
                 break;
             default:
                 break;
@@ -314,6 +316,11 @@ void XDebugControl::command_explanation(XString& command, tagDebugInfo& debug_in
 
 bool XDebugControl::scan_command(XString& command)
 {
+    if (command.empty())
+    {
+        return true;
+    }
+
     std::vector<XString> vt_command;
     XString str_command = command;
     str_command.get_vt_str_seg(vt_command, L" ");

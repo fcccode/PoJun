@@ -49,7 +49,26 @@ bool XInt3Tab::reduction_oep(HANDLE handle)
     BYTE opcode = 0;
     return set_opcode(handle, this->start_oep, this->start_opcode, opcode);
 }
- 
+
+bool XInt3Tab::reduction_cc(HANDLE handle, DWORD address, bool status)
+{
+    std::map<DWORD, CC_BREAK_POINT>::iterator it = this->cc_table.find(address);
+    if (it == cc_table.end())
+    {
+        return false;
+    }
+     
+    BYTE opcode = 0;
+    if (status)
+    {
+        return set_opcode(handle, address, this->int3, opcode);
+    } 
+    else
+    {
+        return set_opcode(handle, address, it->second.opcode, opcode); 
+    }
+}
+
 bool XInt3Tab::insert_cc(HANDLE handle, DWORD address)
 {
     BYTE opcode = 0;

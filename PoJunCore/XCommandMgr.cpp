@@ -71,6 +71,11 @@ bool XCommandMgr::insert(const XString& command, pfun_command_call_back call_bac
 
 bool XCommandMgr::command_call_back(const XString& command, tagDebugInfo& debug_info, OPCODE_INFO& opcode_info, DEBUG_MODULE_DATA& out_module_data)
 { 
+    if (command.empty())
+    {
+        return false;
+    }
+
     std::vector<XString> vt_command;
     XString str_command = command;
     str_command.get_vt_str_seg(vt_command, L" ");
@@ -98,7 +103,8 @@ bool __stdcall XCommandMgr::p_command(const XString& command, tagDebugInfo& debu
 {
     out_module_data.type = DEBUG_MODULE_DATA::DM_TYPE::E_P;
     if (opcode_info.current_opcode == E_CALL_E8 
-        || opcode_info.current_opcode == E_CALL_FF)
+        || opcode_info.current_opcode == E_CALL_FF
+        || opcode_info.current_opcode == E_REP)
     {
         XCommandMgr::pins()->single_step = false;
         XBreakPoint::pins()->insert_single_step(debug_info.process, opcode_info.next_address);

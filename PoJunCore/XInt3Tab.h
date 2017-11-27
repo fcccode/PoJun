@@ -17,6 +17,8 @@ public:
     
     bool reduction_oep(HANDLE handle);
 
+    bool reduction_cc(HANDLE handle, DWORD address, bool status);
+
     bool insert_cc(HANDLE handle, DWORD address);
 
     bool remove_cc(HANDLE handle, DWORD address);

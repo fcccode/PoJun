@@ -24,6 +24,8 @@ public:
 
     BP_STATUS reduction_oep(HANDLE handle);
 
+    BP_STATUS reduction_cc(HANDLE handle, DWORD address, bool status);
+
     BP_STATUS insert_cc(HANDLE handle, DWORD address);
       
     BP_STATUS set_cc_status(int inedx, bool status);

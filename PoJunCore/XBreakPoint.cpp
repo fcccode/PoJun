@@ -26,7 +26,10 @@ XBreakPoint* XBreakPoint::pins()
 
 BP_STATUS XBreakPoint::break_point(EXCEPTION_RECORD* er, tagDebugInfo& debug_info)
 { 
-    if (XInt3Tab::pins()->is_my_cc(debug_info.process, --debug_info.context.Eip))
+    //此时触发的EIP已经指向了CC所在地址之后的一位偏移，修正EIP
+    --debug_info.context.Eip;
+
+    if (XInt3Tab::pins()->is_my_cc(debug_info.process, debug_info.context.Eip))
     {
         return BP_CC; 
     }
@@ -45,6 +48,12 @@ BP_STATUS XBreakPoint::break_point(EXCEPTION_RECORD* er, tagDebugInfo& debug_inf
 BP_STATUS XBreakPoint::reduction_oep(HANDLE handle)
 {
     bool status = XInt3Tab::pins()->reduction_oep(handle);
+    return status ? BP_OK : BP_NULL;
+}
+
+BP_STATUS XBreakPoint::reduction_cc(HANDLE handle, DWORD address, bool status)
+{
+    status = XInt3Tab::pins()->reduction_cc(handle, address, status);
     return status ? BP_OK : BP_NULL;
 }
 
