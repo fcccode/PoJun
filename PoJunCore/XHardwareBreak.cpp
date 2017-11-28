@@ -30,28 +30,37 @@ bool XHardwareBreak::insert(std::vector<XString>& vt_command, CONTEXT& context)
     {
         return false;
     }
-     
+      
     HARD_DWARE_BREAK_POINT data;
     data.dr_number = pos;
-    if (check_command(vt_command, data))
+    if (!check_command(vt_command, data))
     {
         return false;
     }
-
-    switch (data.type)
+     
+    if (pos == 0)
     {
-    case 0:
-        set_hard_dware_break_exe(pos, context, data);
-        break;
-    case 1:
-        set_hard_dware_break_w(pos, context, data);
-        break;
-    case 2:
-        set_hard_dware_break_rw(pos, context, data);
-        break; 
-    default:
-        break;
+        context.Dr0 = (DWORD_PTR)data.address;
     }
+    else if (pos == 1)
+    {
+        context.Dr1 = (DWORD_PTR)data.address;
+    }
+    else if (pos == 2)
+    {
+        context.Dr2 = (DWORD_PTR)data.address;
+    }
+    else if (pos == 3)
+    {
+        context.Dr3 = (DWORD_PTR)data.address;
+    }
+
+    context.Dr6 = 0;
+
+    set_bit(context.Dr7, 16 + pos * 4, 2, data.type);
+    set_bit(context.Dr7, 18 + pos * 4, 2, data.length);
+    set_bit(context.Dr7, pos * 2, 1, 1);
+    set_bit(context.Dr7, 1 + pos * 2, 1, 1);
      
     this->hard_dware_break_tab[pos] = data;
     return true;
@@ -68,10 +77,21 @@ bool XHardwareBreak::delete_hard_ware_break_inedx(CONTEXT& context, int inedx)
     if (inedx < 0 || inedx > 4)
     {
         return FALSE;
-    }
+    } 
 
-    DWORD dr0_3[4] = { 0x1, 0x4, 0x10, 0x40 };
-    context.Dr7 -= dr0_3[inedx];
+    std::vector<HARD_DWARE_BREAK_POINT>::iterator it = hard_dware_break_tab.begin();
+    for (it; it != this->hard_dware_break_tab.end(); it++)
+    {
+        if (it->dr_number == inedx)
+        { 
+            set_bit(context.Dr7, 16 + inedx * 4, 2, 0);
+            set_bit(context.Dr7, 18 + inedx * 4, 2, 0);
+            set_bit(context.Dr7, inedx * 2, 1, 0);
+            this->hard_dware_break_tab.erase(it);
+            break;
+        }
+    } 
+
     return true;
 }
 
@@ -98,7 +118,7 @@ bool XHardwareBreak::check_command(std::vector<XString>& vt_command, HARD_DWARE_
     std::vector<XString>::iterator it = vt_command.begin();
     it++;
 
-    out_data.address = it->to_int();
+    out_data.address = it->to_int_0x();
     it++;
 
     XString type = *it;  
@@ -110,86 +130,44 @@ bool XHardwareBreak::check_command(std::vector<XString>& vt_command, HARD_DWARE_
     {
         out_data.type = 1;
     }
-    else if (type.compare(L"a") == 0)
+    else if (type.compare(L"r") == 0)
     {
-        out_data.type = 2;
+        out_data.type = 3;
     }
     else
     {
         return false;
     }
+    it++;
 
     DWORD length = it->to_int();
-    if (length != 1 && length != 2 && length != 4)
+
+    if (length == 1)
+    {
+        out_data.length = 0;
+    }
+    else if (length == 2)
+    {
+        out_data.length = 1;
+    }
+    else if (length == 4)
+    {
+        out_data.length = 3;
+    }
+    else if (length == 8)
+    {
+        out_data.length = 2;
+    }
+    else
     {
         return false;
-    }
-
-    out_data.length = length;
+    } 
+     
     return true;
-}
+} 
 
-bool XHardwareBreak::set_hard_dware_break_exe(int pos, CONTEXT& context, HARD_DWARE_BREAK_POINT& out_data)
+void XHardwareBreak::set_bit(DWORD_PTR& dw, int lowBit, int bits, int newValue)
 {
-    DWORD dr0_3[4] = { 0x1, 0x4, 0x10, 0x40 };
-    DWORD ANDLRW[4] = { 0xFFF0FFFF, 0xFF0FFFFF, 0xF0FFFFFF, 0x0FFFFFFF };
-    DWORD *dr0_address = nullptr;
-
-    //设置哪一个Dr0~3放地址
-    dr0_address = &context.Dr0;
-    dr0_address[pos] = out_data.address;
-
-    //设置断点
-    context.Dr7 |= dr0_3[pos];
-    context.Dr7 |= 0x700;   //设置其它不重要的位
-    context.Dr7 &= ANDLRW[pos];
-
-    return true;
-}
-
-bool XHardwareBreak::set_hard_dware_break_w(int pos, CONTEXT& context, HARD_DWARE_BREAK_POINT& out_data)
-{
-    DWORD dr0_3[4] = { 0x1, 0x4, 0x10, 0x40 };
-    DWORD ANDLRW[4] = { 0xFFF0FFFF, 0xFF0FFFFF, 0xF0FFFFFF, 0x0FFFFFFF };
-    DWORD OREWA[4] = { 0xFFF7FFFF, 0xFF7FFFFF, 0xF7FFFFFF, 0x7FFFFFFF };
-    DWORD ORL[5] = { 0, 0x100000, 0x20000, 0, 0x30000 };
-    DWORD *dr0_address = nullptr;
-
-    //设置哪一个Dr0~3放地址
-    dr0_address = &context.Dr0;
-    dr0_address[pos] = out_data.address;
-
-    //设置断点
-    context.Dr7 |= dr0_3[pos];
-    context.Dr7 |= 0x700;   //设置其它不重要的位
-    context.Dr7 &= ANDLRW[pos];
-    context.Dr7 |= OREWA[pos];
-
-    //设置长度
-    context.Dr7 |= ORL[out_data.length];
-
-    return true;
-}
-
-bool XHardwareBreak::set_hard_dware_break_rw(int pos, CONTEXT& context, HARD_DWARE_BREAK_POINT& out_data)
-{
-    DWORD dr0_3[4] = { 0x1, 0x4, 0x10, 0x40 };
-    DWORD ANDLRW[4] = { 0xFFF0FFFF, 0xFF0FFFFF, 0xF0FFFFFF, 0x0FFFFFFF };
-    DWORD OREWA[4] = { 0xC0000, 0xC00000, 0xC000000, 0xC0000000 };
-    DWORD ORL[5] = { 0, 0x100000, 0x20000, 0, 0x30000 };
-    DWORD *dr0_address = nullptr;
-
-    //设置哪一个Dr0~3放地址
-    dr0_address = &context.Dr0;
-    dr0_address[pos] = out_data.address;
-
-    //设置权限
-    context.Dr7 |= dr0_3[pos];
-    context.Dr7 |= 0x700;   //设置其它不重要的位
-    context.Dr7 &= ANDLRW[pos];
-    context.Dr7 |= OREWA[pos];
-
-    //设置长度
-    context.Dr7 |= ORL[out_data.length];
-    return true;
+    DWORD_PTR mask = (1 << bits) - 1;
+    dw = (dw & ~(mask << lowBit)) | (newValue << lowBit);
 }

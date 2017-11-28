@@ -1,6 +1,6 @@
 #pragma once
 #include "XPCoreHead.h"
-
+   
 class XHardwareBreak
 {
 public:
@@ -20,12 +20,8 @@ private:
     int get_hard_dware_break_pos(CONTEXT& context);
 
     bool check_command(std::vector<XString>& vt_command, HARD_DWARE_BREAK_POINT& out_data);
-
-    bool set_hard_dware_break_exe(int pos, CONTEXT& context, HARD_DWARE_BREAK_POINT& out_data);
-
-    bool set_hard_dware_break_w(int pos, CONTEXT& context, HARD_DWARE_BREAK_POINT& out_data);
-
-    bool set_hard_dware_break_rw(int pos, CONTEXT& context, HARD_DWARE_BREAK_POINT& out_data);
+      
+    void set_bit(DWORD_PTR& dw, int lowBit, int bits, int newValue);
 
 private:
     std::vector<HARD_DWARE_BREAK_POINT> hard_dware_break_tab;

@@ -192,14 +192,14 @@ bool XMemoryMgr::set_protect(HANDLE process, DWORD address, DWORD protect, bool 
     {
         return set_break_point(process, address, dw);
     }
-    else
+
+    BOOL ret = ::VirtualProtectEx(process, (LPVOID)address, 1, protect, &dw);
+    if (ret)
     {
-        BOOL ret = ::VirtualProtectEx(process, (LPVOID)address, 1, protect, &dw);
-        if (ret)
-        {
-            return true;
-        }
+        return true;
     }
+
+    return false;
 }
 
 DWORD XMemoryMgr::get_inedx()

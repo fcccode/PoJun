@@ -199,7 +199,7 @@ DWORD XDebugControl::e_single_step(tagDebugInfo& debug_info)
      
 
     if (debug_info.context.Dr6 != 0 
-        && ((debug_info.context.Dr6 & 0x400) == 0))
+        && ((debug_info.context.Dr6 & 0x4000) == 0))
     { 
         user_control(debug_info); 
     } 

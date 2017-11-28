@@ -19,6 +19,15 @@
     <Filter Include="File\break_point">
       <UniqueIdentifier>{38d53cb7-8fbe-4fad-8db2-26e2ccb24ab6}</UniqueIdentifier>
     </Filter>
+    <Filter Include="File\Module">
+      <UniqueIdentifier>{5c48132f-b485-41ca-b285-2eab7cc57a06}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="File\Control">
+      <UniqueIdentifier>{1245347b-1dd2-404e-bf08-9ca5ce6330d9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="File\Decoding">
+      <UniqueIdentifier>{04908c73-68a6-4fae-881c-b73e6af6167f}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />
@@ -30,25 +39,7 @@
     <ClInclude Include="targetver.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="XDebugControl.h">
-      <Filter>File</Filter>
-    </ClInclude>
-    <ClInclude Include="XModelTab.h">
-      <Filter>File</Filter>
-    </ClInclude>
-    <ClInclude Include="XThreadTab.h">
-      <Filter>File</Filter>
-    </ClInclude>
-    <ClInclude Include="XOutStringTab.h">
-      <Filter>File</Filter>
-    </ClInclude>
-    <ClInclude Include="XDecodingASM.h">
-      <Filter>File</Filter>
-    </ClInclude>
     <ClInclude Include="XPCoreHead.h">
-      <Filter>File</Filter>
-    </ClInclude>
-    <ClInclude Include="XCommandMgr.h">
       <Filter>File</Filter>
     </ClInclude>
     <ClInclude Include="XBreakPoint.h">
@@ -63,6 +54,24 @@
     <ClInclude Include="XMemoryMgr.h">
       <Filter>File\break_point</Filter>
     </ClInclude>
+    <ClInclude Include="XThreadTab.h">
+      <Filter>File\Module</Filter>
+    </ClInclude>
+    <ClInclude Include="XOutStringTab.h">
+      <Filter>File\Module</Filter>
+    </ClInclude>
+    <ClInclude Include="XModelTab.h">
+      <Filter>File\Module</Filter>
+    </ClInclude>
+    <ClInclude Include="XDecodingASM.h">
+      <Filter>File\Decoding</Filter>
+    </ClInclude>
+    <ClInclude Include="XCommandMgr.h">
+      <Filter>File\Control</Filter>
+    </ClInclude>
+    <ClInclude Include="XDebugControl.h">
+      <Filter>File\Control</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -74,25 +83,7 @@
     <ClCompile Include="PoJunCore.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="XDebugControl.cpp">
-      <Filter>File</Filter>
-    </ClCompile>
-    <ClCompile Include="XModelTab.cpp">
-      <Filter>File</Filter>
-    </ClCompile>
-    <ClCompile Include="XThreadTab.cpp">
-      <Filter>File</Filter>
-    </ClCompile>
-    <ClCompile Include="XOutStringTab.cpp">
-      <Filter>File</Filter>
-    </ClCompile>
-    <ClCompile Include="XDecodingASM.cpp">
-      <Filter>File</Filter>
-    </ClCompile>
     <ClCompile Include="XPCoreHead.cpp">
-      <Filter>File</Filter>
-    </ClCompile>
-    <ClCompile Include="XCommandMgr.cpp">
       <Filter>File</Filter>
     </ClCompile>
     <ClCompile Include="XBreakPoint.cpp">
@@ -106,6 +97,24 @@
     </ClCompile>
     <ClCompile Include="XMemoryMgr.cpp">
       <Filter>File\break_point</Filter>
+    </ClCompile>
+    <ClCompile Include="XThreadTab.cpp">
+      <Filter>File\Module</Filter>
+    </ClCompile>
+    <ClCompile Include="XModelTab.cpp">
+      <Filter>File\Module</Filter>
+    </ClCompile>
+    <ClCompile Include="XOutStringTab.cpp">
+      <Filter>File\Module</Filter>
+    </ClCompile>
+    <ClCompile Include="XDecodingASM.cpp">
+      <Filter>File\Decoding</Filter>
+    </ClCompile>
+    <ClCompile Include="XCommandMgr.cpp">
+      <Filter>File\Control</Filter>
+    </ClCompile>
+    <ClCompile Include="XDebugControl.cpp">
+      <Filter>File\Control</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

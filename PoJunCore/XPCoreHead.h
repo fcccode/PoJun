@@ -50,7 +50,7 @@ typedef struct _tagCCBreakPoint
     硬件断点结构体
 */
 typedef struct _tagHardDwareBreak
-{
+{ 
     DWORD address;
     int dr_number;
     int length;
