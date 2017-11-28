@@ -1,5 +1,5 @@
 #pragma once
-#include "XPCoreHead.h"
+#include "XPJCoreHead.h"
 #include <map>
 
 typedef enum _BP_STATUS
@@ -20,7 +20,7 @@ public:
     static XBreakPoint* pThis;
     static XBreakPoint* pins();
 
-    BP_STATUS break_point(EXCEPTION_RECORD* ed, tagDebugInfo& debug_info);
+    BP_STATUS break_point(EXCEPTION_RECORD* ed, DEBUG_INFO& debug_info);
 
     BP_STATUS reduction_oep(HANDLE handle);
 

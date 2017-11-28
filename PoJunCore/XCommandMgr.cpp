@@ -69,7 +69,7 @@ bool XCommandMgr::insert(const XString& command, pfun_command_call_back call_bac
     return true;
 }
 
-bool XCommandMgr::command_call_back(const XString& command, tagDebugInfo& debug_info, OPCODE_INFO& opcode_info, DEBUG_MODULE_DATA& out_module_data)
+bool XCommandMgr::command_call_back(const XString& command, DEBUG_INFO& debug_info, OPCODE_INFO& opcode_info, DEBUG_MODULE_DATA& out_module_data)
 { 
     if (command.empty())
     {
@@ -90,18 +90,18 @@ bool XCommandMgr::command_call_back(const XString& command, tagDebugInfo& debug_
     return it->second(command, debug_info, opcode_info, out_module_data);
 }
 
-bool __stdcall XCommandMgr::t_command(const XString& command, tagDebugInfo& debug_info, OPCODE_INFO& opcode_info, DEBUG_MODULE_DATA& out_module_data)
+bool __stdcall XCommandMgr::t_command(const XString& command, DEBUG_INFO& debug_info, OPCODE_INFO& opcode_info, DEBUG_MODULE_DATA& out_module_data)
 {
-    out_module_data.type = DEBUG_MODULE_DATA::DM_TYPE::E_T;
+    out_module_data.type = D_T;
     //设置EFlage标志
     XCommandMgr::pins()->single_step = true;
     debug_info.context.EFlags |= 0x100;
     return true;
 }
 
-bool __stdcall XCommandMgr::p_command(const XString& command, tagDebugInfo& debug_info, OPCODE_INFO& opcode_info, DEBUG_MODULE_DATA& out_module_data)
+bool __stdcall XCommandMgr::p_command(const XString& command, DEBUG_INFO& debug_info, OPCODE_INFO& opcode_info, DEBUG_MODULE_DATA& out_module_data)
 {
-    out_module_data.type = DEBUG_MODULE_DATA::DM_TYPE::E_P;
+    out_module_data.type = D_P;
     if (opcode_info.current_opcode == E_CALL_E8 
         || opcode_info.current_opcode == E_CALL_FF
         || opcode_info.current_opcode == E_REP
@@ -119,9 +119,9 @@ bool __stdcall XCommandMgr::p_command(const XString& command, tagDebugInfo& debu
     return true;
 } 
 
-bool __stdcall XCommandMgr::g_command(const XString& command, tagDebugInfo& debug_info, OPCODE_INFO& opcode_info, DEBUG_MODULE_DATA& out_module_data)
+bool __stdcall XCommandMgr::g_command(const XString& command, DEBUG_INFO& debug_info, OPCODE_INFO& opcode_info, DEBUG_MODULE_DATA& out_module_data)
 {
-    out_module_data.type = DEBUG_MODULE_DATA::DM_TYPE::E_G;
+    out_module_data.type = D_G;
     std::vector<XString> vt_command;
     if (!XCommandMgr::pins()->get_vt_command(command, vt_command, 2))
     {
@@ -141,9 +141,9 @@ bool XCommandMgr::is_single_step()
     return this->single_step;
 }
 
-bool __stdcall XCommandMgr::bp_command(const XString& command, tagDebugInfo& debug_info, OPCODE_INFO& opcode_info, DEBUG_MODULE_DATA& out_module_data)
+bool __stdcall XCommandMgr::bp_command(const XString& command, DEBUG_INFO& debug_info, OPCODE_INFO& opcode_info, DEBUG_MODULE_DATA& out_module_data)
 {
-    out_module_data.type = DEBUG_MODULE_DATA::DM_TYPE::E_BP;
+    out_module_data.type = D_BP;
     std::vector<XString> vt_command;
     if (!XCommandMgr::pins()->get_vt_command(command, vt_command, 2))
     {
@@ -158,16 +158,16 @@ bool __stdcall XCommandMgr::bp_command(const XString& command, tagDebugInfo& deb
     return true;
 }
 
-bool __stdcall XCommandMgr::bpl_command(const XString& command, tagDebugInfo& debug_info, OPCODE_INFO& opcode_info, DEBUG_MODULE_DATA& out_module_data)
+bool __stdcall XCommandMgr::bpl_command(const XString& command, DEBUG_INFO& debug_info, OPCODE_INFO& opcode_info, DEBUG_MODULE_DATA& out_module_data)
 {
-    out_module_data.type = DEBUG_MODULE_DATA::DM_TYPE::E_BPL; 
+    out_module_data.type = D_BPL;
     XBreakPoint::pins()->get_cc_table(out_module_data.break_point_tab);
     return true;
 }
 
-bool __stdcall XCommandMgr::bpc_command(const XString& command, tagDebugInfo& debug_info, OPCODE_INFO& opcode_info, DEBUG_MODULE_DATA& out_module_data)
+bool __stdcall XCommandMgr::bpc_command(const XString& command, DEBUG_INFO& debug_info, OPCODE_INFO& opcode_info, DEBUG_MODULE_DATA& out_module_data)
 {
-    out_module_data.type = DEBUG_MODULE_DATA::DM_TYPE::E_BPC;
+    out_module_data.type = D_BPC;
     std::vector<XString> vt_command;
     if (!XCommandMgr::pins()->get_vt_command(command, vt_command, 2))
     {
@@ -182,8 +182,10 @@ bool __stdcall XCommandMgr::bpc_command(const XString& command, tagDebugInfo& de
     return true;
 }
 
-bool __stdcall XCommandMgr::bh_command(const XString& command, tagDebugInfo& debug_info, OPCODE_INFO& opcode_info, DEBUG_MODULE_DATA& out_module_data)
+bool __stdcall XCommandMgr::bh_command(const XString& command, DEBUG_INFO& debug_info, OPCODE_INFO& opcode_info, DEBUG_MODULE_DATA& out_module_data)
 {
+    out_module_data.type = D_BH;
+
     std::vector<XString> vt_command; 
     if (!XCommandMgr::pins()->get_vt_command(command, vt_command, 4))
     {
@@ -195,14 +197,18 @@ bool __stdcall XCommandMgr::bh_command(const XString& command, tagDebugInfo& deb
     return true;
 }
 
-bool __stdcall XCommandMgr::bhl_command(const XString& command, tagDebugInfo& debug_info, OPCODE_INFO& opcode_info, DEBUG_MODULE_DATA& out_module_data)
-{ 
+bool __stdcall XCommandMgr::bhl_command(const XString& command, DEBUG_INFO& debug_info, OPCODE_INFO& opcode_info, DEBUG_MODULE_DATA& out_module_data)
+{
+    out_module_data.type = D_BHL;
+
     XBreakPoint::pins()->get_hard_ware_break_tab(out_module_data.hard_dware_break_tab);
     return true;
 }
 
-bool __stdcall XCommandMgr::bhc_command(const XString& command, tagDebugInfo& debug_info, OPCODE_INFO& opcode_info, DEBUG_MODULE_DATA& out_module_data)
-{ 
+bool __stdcall XCommandMgr::bhc_command(const XString& command, DEBUG_INFO& debug_info, OPCODE_INFO& opcode_info, DEBUG_MODULE_DATA& out_module_data)
+{
+    out_module_data.type = D_BHC;
+
     std::vector<XString> vt_command;
     if (!XCommandMgr::pins()->get_vt_command(command, vt_command, 2))
     {
@@ -217,8 +223,10 @@ bool __stdcall XCommandMgr::bhc_command(const XString& command, tagDebugInfo& de
     return true;
 }
 
-bool __stdcall XCommandMgr::bm_command(const XString& command, tagDebugInfo& debug_info, OPCODE_INFO& opcode_info, DEBUG_MODULE_DATA& out_module_data)
+bool __stdcall XCommandMgr::bm_command(const XString& command, DEBUG_INFO& debug_info, OPCODE_INFO& opcode_info, DEBUG_MODULE_DATA& out_module_data)
 {
+    out_module_data.type = D_BM;
+
     std::vector<XString> vt_command;
     if (!XCommandMgr::pins()->get_vt_command(command, vt_command, 4))
     { 
@@ -250,13 +258,16 @@ bool __stdcall XCommandMgr::bm_command(const XString& command, tagDebugInfo& deb
     return XMemoryMgr::pins()->insert_break_point(debug_info.process, address, length, rw);
 }
 
-bool __stdcall XCommandMgr::bml_command(const XString& command, tagDebugInfo& debug_info, OPCODE_INFO& opcode_info, DEBUG_MODULE_DATA& out_module_data)
+bool __stdcall XCommandMgr::bml_command(const XString& command, DEBUG_INFO& debug_info, OPCODE_INFO& opcode_info, DEBUG_MODULE_DATA& out_module_data)
 {
+    out_module_data.type = D_BML;
     return XMemoryMgr::pins()->get_memory_table(out_module_data.memory_break_tab);
 }
 
-bool __stdcall XCommandMgr::bmc_command(const XString& command, tagDebugInfo& debug_info, OPCODE_INFO& opcode_info, DEBUG_MODULE_DATA& out_module_data)
+bool __stdcall XCommandMgr::bmc_command(const XString& command, DEBUG_INFO& debug_info, OPCODE_INFO& opcode_info, DEBUG_MODULE_DATA& out_module_data)
 {
+    out_module_data.type = D_BML;
+
     std::vector<XString> vt_command;
     if (!XCommandMgr::pins()->get_vt_command(command, vt_command, 2))
     {
@@ -270,8 +281,10 @@ bool __stdcall XCommandMgr::bmc_command(const XString& command, tagDebugInfo& de
     return XMemoryMgr::pins()->delete_memory_break_point_inedx(debug_info.process, it->to_int());
 }
 
-bool __stdcall XCommandMgr::u_command(const XString& command, tagDebugInfo& debug_info, OPCODE_INFO& opcode_info, DEBUG_MODULE_DATA& out_module_data)
+bool __stdcall XCommandMgr::u_command(const XString& command, DEBUG_INFO& debug_info, OPCODE_INFO& opcode_info, DEBUG_MODULE_DATA& out_module_data)
 {
+    out_module_data.type = D_U;
+
     std::vector<XString> vt_command;
     if (!XCommandMgr::pins()->get_vt_command(command, vt_command, 2))
     {
@@ -293,24 +306,32 @@ bool __stdcall XCommandMgr::u_command(const XString& command, tagDebugInfo& debu
     return XDecodingASM::pins()->decoding_asm(debug_info.process, address, count, out_module_data.asm_table);
 }
 
-bool __stdcall XCommandMgr::r_command(const XString& command, tagDebugInfo& debug_info, OPCODE_INFO& opcode_info, DEBUG_MODULE_DATA& out_module_data)
-{ 
+bool __stdcall XCommandMgr::r_command(const XString& command, DEBUG_INFO& debug_info, OPCODE_INFO& opcode_info, DEBUG_MODULE_DATA& out_module_data)
+{
+    out_module_data.type = D_R;
+
     //保留该指令
     return true;
 }
 
-bool __stdcall XCommandMgr::lm_command(const XString& command, tagDebugInfo& debug_info, OPCODE_INFO& opcode_info, DEBUG_MODULE_DATA& out_module_data)
+bool __stdcall XCommandMgr::lm_command(const XString& command, DEBUG_INFO& debug_info, OPCODE_INFO& opcode_info, DEBUG_MODULE_DATA& out_module_data)
 {
+    out_module_data.type = D_LM;
+
     return XModelTab::pins()->get_module_table(out_module_data.module_table);
 }
 
-bool __stdcall XCommandMgr::thread_command(const XString& command, tagDebugInfo& debug_info, OPCODE_INFO& opcode_info, DEBUG_MODULE_DATA& out_module_data)
+bool __stdcall XCommandMgr::thread_command(const XString& command, DEBUG_INFO& debug_info, OPCODE_INFO& opcode_info, DEBUG_MODULE_DATA& out_module_data)
 {
+    out_module_data.type = D_THREAD;
+
     return XThreadTab::pins()->get_thread_table(out_module_data.thread_table);
 }
 
-bool __stdcall XCommandMgr::db_command(const XString& command, tagDebugInfo& debug_info, OPCODE_INFO& opcode_info, DEBUG_MODULE_DATA& out_module_data)
+bool __stdcall XCommandMgr::db_command(const XString& command, DEBUG_INFO& debug_info, OPCODE_INFO& opcode_info, DEBUG_MODULE_DATA& out_module_data)
 {
+    out_module_data.type = D_DB;
+
     std::vector<XString> vt_command;
     if (!XCommandMgr::pins()->get_vt_command(command, vt_command, 1))
     {
@@ -322,7 +343,7 @@ bool __stdcall XCommandMgr::db_command(const XString& command, tagDebugInfo& deb
     DWORD size = D_ROW * D_COL;
     XCommandMgr::pins()->get_d_row_address(vt_command, address, size);
        
-    out_module_data.d_memory.type = DEBUG_MODULE_DATA::D_MEMORY::DE_BYTE;
+    out_module_data.d_memory.type = DME_BYTE;
     return XMemoryMgr::pins()->read_memory(
         debug_info.process,
         address,
@@ -330,8 +351,10 @@ bool __stdcall XCommandMgr::db_command(const XString& command, tagDebugInfo& deb
         size);
 }
 
-bool __stdcall XCommandMgr::dw_command(const XString& command, tagDebugInfo& debug_info, OPCODE_INFO& opcode_info, DEBUG_MODULE_DATA& out_module_data)
+bool __stdcall XCommandMgr::dw_command(const XString& command, DEBUG_INFO& debug_info, OPCODE_INFO& opcode_info, DEBUG_MODULE_DATA& out_module_data)
 {
+    out_module_data.type = D_DW;
+
     std::vector<XString> vt_command;
     if (!XCommandMgr::pins()->get_vt_command(command, vt_command, 1))
     {
@@ -343,7 +366,7 @@ bool __stdcall XCommandMgr::dw_command(const XString& command, tagDebugInfo& deb
     DWORD size = D_ROW * D_COL;
     XCommandMgr::pins()->get_d_row_address(vt_command, address, size);
       
-    out_module_data.d_memory.type = DEBUG_MODULE_DATA::D_MEMORY::DE_WORD;
+    out_module_data.d_memory.type = DME_WORD;
     return XMemoryMgr::pins()->read_memory(
         debug_info.process,
         address,
@@ -351,8 +374,10 @@ bool __stdcall XCommandMgr::dw_command(const XString& command, tagDebugInfo& deb
         size);
 }
 
-bool __stdcall XCommandMgr::dd_command(const XString& command, tagDebugInfo& debug_info, OPCODE_INFO& opcode_info, DEBUG_MODULE_DATA& out_module_data)
+bool __stdcall XCommandMgr::dd_command(const XString& command, DEBUG_INFO& debug_info, OPCODE_INFO& opcode_info, DEBUG_MODULE_DATA& out_module_data)
 {
+    out_module_data.type = D_DD;
+
     std::vector<XString> vt_command;
     if (!XCommandMgr::pins()->get_vt_command(command, vt_command, 1))
     {
@@ -364,7 +389,7 @@ bool __stdcall XCommandMgr::dd_command(const XString& command, tagDebugInfo& deb
     DWORD size = D_ROW * D_COL;
     XCommandMgr::pins()->get_d_row_address(vt_command, address, size);
        
-    out_module_data.d_memory.type = DEBUG_MODULE_DATA::D_MEMORY::DE_DWORD;
+    out_module_data.d_memory.type = DME_DWORD;
     return XMemoryMgr::pins()->read_memory(
         debug_info.process, 
         address, 
@@ -372,13 +397,17 @@ bool __stdcall XCommandMgr::dd_command(const XString& command, tagDebugInfo& deb
         size);
 }
 
-bool __stdcall XCommandMgr::dq_command(const XString& command, tagDebugInfo& debug_info, OPCODE_INFO& opcode_info, DEBUG_MODULE_DATA& out_module_data)
+bool __stdcall XCommandMgr::dq_command(const XString& command, DEBUG_INFO& debug_info, OPCODE_INFO& opcode_info, DEBUG_MODULE_DATA& out_module_data)
 {
+    out_module_data.type = D_DQ;
+
     return true;
 }
 
-bool __stdcall XCommandMgr::eb_command(const XString& command, tagDebugInfo& debug_info, OPCODE_INFO& opcode_info, DEBUG_MODULE_DATA& out_module_data)
+bool __stdcall XCommandMgr::eb_command(const XString& command, DEBUG_INFO& debug_info, OPCODE_INFO& opcode_info, DEBUG_MODULE_DATA& out_module_data)
 {
+    out_module_data.type = D_EB;
+
     std::vector<XString> vt_command;
     if (!XCommandMgr::pins()->get_vt_command(command, vt_command, 3))
     {
@@ -400,8 +429,10 @@ bool __stdcall XCommandMgr::eb_command(const XString& command, tagDebugInfo& deb
     return true;
 }
 
-bool __stdcall XCommandMgr::ew_command(const XString& command, tagDebugInfo& debug_info, OPCODE_INFO& opcode_info, DEBUG_MODULE_DATA& out_module_data)
+bool __stdcall XCommandMgr::ew_command(const XString& command, DEBUG_INFO& debug_info, OPCODE_INFO& opcode_info, DEBUG_MODULE_DATA& out_module_data)
 {
+    out_module_data.type = D_EW;
+
     std::vector<XString> vt_command;
     if (!XCommandMgr::pins()->get_vt_command(command, vt_command, 3))
     {
@@ -423,8 +454,10 @@ bool __stdcall XCommandMgr::ew_command(const XString& command, tagDebugInfo& deb
     return true;
 }
 
-bool __stdcall XCommandMgr::ed_command(const XString& command, tagDebugInfo& debug_info, OPCODE_INFO& opcode_info, DEBUG_MODULE_DATA& out_module_data)
+bool __stdcall XCommandMgr::ed_command(const XString& command, DEBUG_INFO& debug_info, OPCODE_INFO& opcode_info, DEBUG_MODULE_DATA& out_module_data)
 {
+    out_module_data.type = D_ED;
+
     std::vector<XString> vt_command;
     if (!XCommandMgr::pins()->get_vt_command(command, vt_command, 3))
     {
@@ -446,8 +479,10 @@ bool __stdcall XCommandMgr::ed_command(const XString& command, tagDebugInfo& deb
     return true;
 }
 
-bool __stdcall XCommandMgr::ea_command(const XString& command, tagDebugInfo& debug_info, OPCODE_INFO& opcode_info, DEBUG_MODULE_DATA& out_module_data)
+bool __stdcall XCommandMgr::ea_command(const XString& command, DEBUG_INFO& debug_info, OPCODE_INFO& opcode_info, DEBUG_MODULE_DATA& out_module_data)
 {
+    out_module_data.type = D_EA;
+
     std::vector<XString> vt_command;
     if (!XCommandMgr::pins()->get_vt_command(command, vt_command, 3))
     {
@@ -468,8 +503,10 @@ bool __stdcall XCommandMgr::ea_command(const XString& command, tagDebugInfo& deb
         str.get_str().length());
 }
 
-bool __stdcall XCommandMgr::eu_command(const XString& command, tagDebugInfo& debug_info, OPCODE_INFO& opcode_info, DEBUG_MODULE_DATA& out_module_data)
+bool __stdcall XCommandMgr::eu_command(const XString& command, DEBUG_INFO& debug_info, OPCODE_INFO& opcode_info, DEBUG_MODULE_DATA& out_module_data)
 {
+    out_module_data.type = D_EU;
+
     std::vector<XString> vt_command;
     if (!XCommandMgr::pins()->get_vt_command(command, vt_command, 3))
     {
@@ -491,7 +528,7 @@ bool XCommandMgr::get_vt_command(const XString& command, std::vector<XString>& v
 {
     XString str_command = command;
     str_command.get_vt_str_seg(vt_command, L" ");
-    if (vt_command.size() < min)
+    if (vt_command.size() < (std::vector<XString>::size_type)min)
     {
         //命令错误，直接飞
         return false;

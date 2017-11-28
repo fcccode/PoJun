@@ -140,7 +140,7 @@ void __stdcall CUIMgr::out_fun(const CONTEXT context, const std::list<DECODEING_
 
 void __stdcall CUIMgr::command_call_back_out(const DEBUG_MODULE_DATA& module_data)
 {
-    if (module_data.type == DEBUG_MODULE_DATA::DM_TYPE::E_BPL)
+    if (module_data.type == D_BPL)
     {
         CUIMgr::pins()->show_break_point_tab(module_data.break_point_tab);
     }

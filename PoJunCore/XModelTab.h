@@ -1,5 +1,5 @@
 #pragma once 
-#include "XPCoreHead.h"
+#include "XPJCoreHead.h"
 
 class XModelTab
 {
@@ -14,12 +14,12 @@ public:
 
     void remove_dll(DWORD base);
 
-    bool get_module_table(std::map<DWORD, tag_module>& modules);
+    bool get_module_table(std::map<DWORD, MODULE_INFO>& modules);
 
 private:
     bool handle_to_path(HANDLE handle, WCHAR* path);
       
 private: 
-    std::map<DWORD, tag_module> modules;
+    std::map<DWORD, MODULE_INFO> modules;
 };
 

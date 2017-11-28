@@ -1,7 +1,7 @@
 #pragma once 
 #include <stdlib.h>
 #include <XString.h>
-#include "XPCoreHead.h"
+#include "XPJCoreHead.h"
 
 class CUIMgr
 {

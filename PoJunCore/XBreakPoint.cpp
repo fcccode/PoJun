@@ -24,7 +24,7 @@ XBreakPoint* XBreakPoint::pins()
     return pThis;
 }
 
-BP_STATUS XBreakPoint::break_point(EXCEPTION_RECORD* er, tagDebugInfo& debug_info)
+BP_STATUS XBreakPoint::break_point(EXCEPTION_RECORD* er, DEBUG_INFO& debug_info)
 { 
     //此时触发的EIP已经指向了CC所在地址之后的一位偏移，修正EIP
     --debug_info.context.Eip;

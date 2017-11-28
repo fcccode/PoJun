@@ -1,5 +1,5 @@
 #include "stdafx.h"
-#include "XPCoreHead.h"
+#include "XPJCoreHead.h"
 
 void XGlobal::show_api_err()
 {

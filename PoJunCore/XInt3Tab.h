@@ -1,5 +1,5 @@
 #pragma once
-#include "XPCoreHead.h"
+#include "XPJCoreHead.h"
 #include <map>
 
 class XInt3Tab

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "XPCoreHead.h"
+#include "XPJCoreHead.h"
   
 #define D_ROW 8
 #define D_COL 16

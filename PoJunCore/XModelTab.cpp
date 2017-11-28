@@ -26,7 +26,7 @@ XModelTab* XModelTab::pins()
 
 void XModelTab::insert_dll(LOAD_DLL_DEBUG_INFO *load_dll)
 { 
-    tag_module module;
+    MODULE_INFO module;
     module.base = (DWORD)load_dll->lpBaseOfDll;
     module.handle = load_dll->hFile;
 
@@ -34,20 +34,20 @@ void XModelTab::insert_dll(LOAD_DLL_DEBUG_INFO *load_dll)
     if (handle_to_path(module.handle, path))
     {
         module.file_path = path;
-        this->modules.insert(std::pair<DWORD, tag_module>(module.base, module));
+        this->modules.insert(std::pair<DWORD, MODULE_INFO>(module.base, module));
     }
 }
 
 void XModelTab::remove_dll(DWORD base)
 {
-    std::map<DWORD, tag_module>::iterator it = this->modules.find(base);
+    std::map<DWORD, MODULE_INFO>::iterator it = this->modules.find(base);
     if (it != this->modules.end())
     {
         this->modules.erase(it);
     }
 }
 
-bool XModelTab::get_module_table(std::map<DWORD, tag_module>& modules)
+bool XModelTab::get_module_table(std::map<DWORD, MODULE_INFO>& modules)
 {
     modules = this->modules;
     return true;

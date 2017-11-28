@@ -43,8 +43,8 @@ void XDebugControl::start_debug_loop(XString& file_path, pfun_in_fun in_fun, pfu
     this->f_out = out_fun;
     this->f_command_out = command_out;
 
-    tagDebugInfo debug_info;
-    memset(&debug_info, 0x0, sizeof(tagDebugInfo));
+    DEBUG_INFO debug_info;
+    memset(&debug_info, 0x0, sizeof(DEBUG_INFO));
     debug_info.process = INVALID_HANDLE_VALUE;
     debug_info.thread = INVALID_HANDLE_VALUE;
     debug_info.context.ContextFlags = CONTEXT_FULL | CONTEXT_DEBUG_REGISTERS;
@@ -115,7 +115,7 @@ void XDebugControl::start_debug_loop(XString& file_path, pfun_in_fun in_fun, pfu
     } while (TRUE);
 }
 
-DWORD XDebugControl::e_acess_violation(tagDebugInfo& debug_info)
+DWORD XDebugControl::e_acess_violation(DEBUG_INFO& debug_info)
 {  
     EXCEPTION_DEBUG_INFO *ed = (EXCEPTION_DEBUG_INFO*)&debug_info.event.u;
     if (ed == nullptr)
@@ -141,7 +141,7 @@ DWORD XDebugControl::e_acess_violation(tagDebugInfo& debug_info)
     return DBG_EXCEPTION_NOT_HANDLED;
 }
 
-DWORD XDebugControl::e_break_point(tagDebugInfo& debug_info)
+DWORD XDebugControl::e_break_point(DEBUG_INFO& debug_info)
 {
     EXCEPTION_DEBUG_INFO *ed = (EXCEPTION_DEBUG_INFO*)&debug_info.event.u;
     if (ed != nullptr)
@@ -189,19 +189,24 @@ DWORD XDebugControl::e_break_point(tagDebugInfo& debug_info)
     return DBG_CONTINUE;
 }
 
-DWORD XDebugControl::e_single_step(tagDebugInfo& debug_info)
+DWORD XDebugControl::e_single_step(DEBUG_INFO& debug_info)
 {
     EXCEPTION_DEBUG_INFO *ed = (EXCEPTION_DEBUG_INFO*)&debug_info.event.u;
     if (ed == nullptr)
     {
         return DBG_EXCEPTION_NOT_HANDLED;
     }
-     
-
+      
     if (debug_info.context.Dr6 != 0 
         && ((debug_info.context.Dr6 & 0x4000) == 0))
     { 
         user_control(debug_info); 
+
+        DWORD address = XBreakPoint::pins()->get_reduction_single_step();
+        if (address != 0)
+        {
+            XBreakPoint::pins()->reduction_cc(debug_info.process, address, true);
+        }
     } 
     else if (XCommandMgr::pins()->is_single_step())
     { 
@@ -241,7 +246,7 @@ DWORD XDebugControl::e_single_step(tagDebugInfo& debug_info)
     return DBG_CONTINUE;
 }
 
-DWORD XDebugControl::create_process_debug_event(tagDebugInfo& debug_info)
+DWORD XDebugControl::create_process_debug_event(DEBUG_INFO& debug_info)
 {
     CREATE_PROCESS_DEBUG_INFO *cp = (CREATE_PROCESS_DEBUG_INFO*)&debug_info.event.u.CreateProcessInfo;
     if (cp  != nullptr)
@@ -252,7 +257,7 @@ DWORD XDebugControl::create_process_debug_event(tagDebugInfo& debug_info)
     return DBG_CONTINUE;
 }
 
-DWORD XDebugControl::create_thread_debug_event(tagDebugInfo& debug_info)
+DWORD XDebugControl::create_thread_debug_event(DEBUG_INFO& debug_info)
 {
     CREATE_THREAD_DEBUG_INFO *ct = (CREATE_THREAD_DEBUG_INFO*)&debug_info.event.u.CreateThread;
     if (ct != nullptr)
@@ -263,19 +268,19 @@ DWORD XDebugControl::create_thread_debug_event(tagDebugInfo& debug_info)
     return DBG_CONTINUE;
 }
 
-DWORD XDebugControl::exit_thread_debug_event(tagDebugInfo& debug_info)
+DWORD XDebugControl::exit_thread_debug_event(DEBUG_INFO& debug_info)
 { 
     //没有有用的信息。
     return DBG_CONTINUE;
 }
 
-DWORD XDebugControl::exit_process_debug_event(tagDebugInfo& debug_info)
+DWORD XDebugControl::exit_process_debug_event(DEBUG_INFO& debug_info)
 { 
     //没有有用的信息。 
     return DBG_CONTINUE;
 }
  
-DWORD XDebugControl::load_dll_debug_event(tagDebugInfo& debug_info)
+DWORD XDebugControl::load_dll_debug_event(DEBUG_INFO& debug_info)
 {
     LOAD_DLL_DEBUG_INFO *ld = (LOAD_DLL_DEBUG_INFO*)&debug_info.event.u.LoadDll;
     if (ld != nullptr)
@@ -286,7 +291,7 @@ DWORD XDebugControl::load_dll_debug_event(tagDebugInfo& debug_info)
     return DBG_CONTINUE;
 }
 
-DWORD XDebugControl::unload_dll_debug_event(tagDebugInfo& debug_info)
+DWORD XDebugControl::unload_dll_debug_event(DEBUG_INFO& debug_info)
 {
     UNLOAD_DLL_DEBUG_INFO *ud = (UNLOAD_DLL_DEBUG_INFO*)&debug_info.event.u.UnloadDll;
     if (ud != nullptr)
@@ -297,7 +302,7 @@ DWORD XDebugControl::unload_dll_debug_event(tagDebugInfo& debug_info)
     return DBG_CONTINUE;
 }
 
-DWORD XDebugControl::output_debug_string_event(tagDebugInfo& debug_info)
+DWORD XDebugControl::output_debug_string_event(DEBUG_INFO& debug_info)
 {
     OUTPUT_DEBUG_STRING_INFO *ods = (OUTPUT_DEBUG_STRING_INFO*)&debug_info.event.u.DebugString;
     if (ods != nullptr)
@@ -308,14 +313,14 @@ DWORD XDebugControl::output_debug_string_event(tagDebugInfo& debug_info)
     return DBG_CONTINUE;
 }
 
-DWORD XDebugControl::irp_event(tagDebugInfo& debug_info)
+DWORD XDebugControl::irp_event(DEBUG_INFO& debug_info)
 { 
     //没有有用的信息
     return DBG_CONTINUE;
 } 
  
 
-void XDebugControl::user_control(tagDebugInfo& debug_info)
+void XDebugControl::user_control(DEBUG_INFO& debug_info)
 {
     std::list<DECODEING_ASM> asm_tab;
     bool ok = XDecodingASM::pins()->decoding_asm(
@@ -354,7 +359,7 @@ void XDebugControl::user_control(tagDebugInfo& debug_info)
     } while (scan_command(str_command));
 }
 
-void XDebugControl::command_explanation(XString& command, tagDebugInfo& debug_info, OPCODE_INFO& opcode_info, DEBUG_MODULE_DATA& out_module_data)
+void XDebugControl::command_explanation(XString& command, DEBUG_INFO& debug_info, OPCODE_INFO& opcode_info, DEBUG_MODULE_DATA& out_module_data)
 {
     XCommandMgr::pins()->command_call_back(command, debug_info, opcode_info, out_module_data);
 }

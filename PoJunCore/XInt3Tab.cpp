@@ -95,7 +95,9 @@ bool XInt3Tab::insert_cc(HANDLE handle, DWORD address)
         cbp.activation = true;
         cbp.number = -1;
 
-        for (int i = 0; i < this->cc_table.size() + 1; i++)
+        for (std::map<DWORD, CC_BREAK_POINT>::size_type i = 0; 
+            i < this->cc_table.size() + 1; 
+            i++)
         {
             std::vector<int>::iterator it = std::find(cc_table_num_mgr.begin(), cc_table_num_mgr.end(), i);
             if (it == cc_table_num_mgr.end())
