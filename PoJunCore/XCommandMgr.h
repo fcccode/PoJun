@@ -7,6 +7,7 @@ enum OPCODE
     E_CALL_E8 = 0xE8,
     E_CALL_FF = 0xFF,
     E_REP = 0xF3,
+    E_REPNE = 0xF2
 };
 
 class XCommandMgr

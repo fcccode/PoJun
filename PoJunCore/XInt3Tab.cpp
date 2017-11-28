@@ -8,6 +8,7 @@ XInt3Tab::XInt3Tab()
     this->start_oep = 0; 
     this->int3 = 0xCC;
     this->start_opcode = 0;
+    reduction_address = 0;
 }
  
 XInt3Tab::~XInt3Tab()
@@ -67,6 +68,20 @@ bool XInt3Tab::reduction_cc(HANDLE handle, DWORD address, bool status)
     {
         return set_opcode(handle, address, it->second.opcode, opcode); 
     }
+}
+
+bool XInt3Tab::set_reduction_single_step(CONTEXT& context)
+{ 
+    this->reduction_address = context.Eip;
+    context.EFlags |= 0x100;
+    return true;
+}
+  
+DWORD XInt3Tab::get_reduction_single_step()
+{
+    DWORD address = this->reduction_address;
+    this->reduction_address = 0;
+    return address;
 }
 
 bool XInt3Tab::insert_cc(HANDLE handle, DWORD address)
@@ -174,7 +189,7 @@ bool XInt3Tab::delete_cc_inedx(int inedx)
     return false;
 }
 
-bool XInt3Tab::insert_single_step(HANDLE handle, DWORD address)
+bool XInt3Tab::insert_p_single_step(HANDLE handle, DWORD address)
 {
     BYTE opcode = 0;
     bool status = set_opcode(handle, address, this->int3, opcode);
@@ -185,7 +200,7 @@ bool XInt3Tab::insert_single_step(HANDLE handle, DWORD address)
     return status;
 }
 
-bool XInt3Tab::is_single_step(HANDLE handle, DWORD address)
+bool XInt3Tab::is_p_single_step(HANDLE handle, DWORD address)
 {
     std::map<DWORD, BYTE>::iterator it = this->single_step_table.find(address);
     if (it != this->single_step_table.end())

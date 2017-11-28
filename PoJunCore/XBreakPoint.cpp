@@ -33,10 +33,10 @@ BP_STATUS XBreakPoint::break_point(EXCEPTION_RECORD* er, tagDebugInfo& debug_inf
     {
         return BP_CC; 
     }
-    else if (XInt3Tab::pins()->is_single_step(debug_info.process, debug_info.context.Eip))
+    else if (XInt3Tab::pins()->is_p_single_step(debug_info.process, debug_info.context.Eip))
     {
-        return BP_SINGLE_STEP;
-    }
+        return BP_P_SINGLE_STEP;
+    } 
     else if (XInt3Tab::pins()->is_start_opcode(*(DWORD*)&er->ExceptionAddress))
     {  
         return BP_OEP;
@@ -57,6 +57,17 @@ BP_STATUS XBreakPoint::reduction_cc(HANDLE handle, DWORD address, bool status)
     return status ? BP_OK : BP_NULL;
 }
 
+DWORD XBreakPoint::get_reduction_single_step()
+{
+    return XInt3Tab::pins()->get_reduction_single_step();
+}
+
+BP_STATUS XBreakPoint::set_reduction_single_step(CONTEXT& context)
+{
+    bool status = XInt3Tab::pins()->set_reduction_single_step(context);
+    return status ? BP_OK : BP_NULL;
+}
+  
 BP_STATUS XBreakPoint::insert_cc(HANDLE handle, DWORD address)
 {
     bool status = XInt3Tab::pins()->insert_cc(handle, address); 
@@ -81,9 +92,9 @@ BP_STATUS XBreakPoint::delete_cc_inedx(int inedx)
     return status ? BP_OK : BP_NULL;
 }
 
-BP_STATUS XBreakPoint::insert_single_step(HANDLE handle, DWORD address)
+BP_STATUS XBreakPoint::insert_p_single_step(HANDLE handle, DWORD address)
 {
-    bool status = XInt3Tab::pins()->insert_single_step(handle, address);
+    bool status = XInt3Tab::pins()->insert_p_single_step(handle, address);
     return status ? BP_OK : BP_NULL; 
 }
 

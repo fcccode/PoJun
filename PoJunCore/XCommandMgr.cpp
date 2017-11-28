@@ -104,10 +104,11 @@ bool __stdcall XCommandMgr::p_command(const XString& command, tagDebugInfo& debu
     out_module_data.type = DEBUG_MODULE_DATA::DM_TYPE::E_P;
     if (opcode_info.current_opcode == E_CALL_E8 
         || opcode_info.current_opcode == E_CALL_FF
-        || opcode_info.current_opcode == E_REP)
+        || opcode_info.current_opcode == E_REP
+        || opcode_info.current_opcode == E_REPNE)
     {
         XCommandMgr::pins()->single_step = false;
-        XBreakPoint::pins()->insert_single_step(debug_info.process, opcode_info.next_address);
+        XBreakPoint::pins()->insert_p_single_step(debug_info.process, opcode_info.next_address);
     }
     else
     {
@@ -131,7 +132,7 @@ bool __stdcall XCommandMgr::g_command(const XString& command, tagDebugInfo& debu
     std::vector<XString>::iterator it = vt_command.begin();
     it++;
        
-    XBreakPoint::pins()->insert_single_step(debug_info.process, it->to_int_0x());
+    XBreakPoint::pins()->insert_p_single_step(debug_info.process, it->to_int_0x());
     return true;
 }
 

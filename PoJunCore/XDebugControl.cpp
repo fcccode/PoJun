@@ -130,8 +130,9 @@ DWORD XDebugControl::e_acess_violation(tagDebugInfo& debug_info)
     }
      
     if (status == CXMEMORY_MGR::E_TRUE)
-    {
+    { 
         XMemoryMgr::pins()->reset_protect(debug_info.process, ed->ExceptionRecord.ExceptionInformation[1]);
+         
         user_control(debug_info);
         debug_info.context.EFlags |= 0x100;
         return DBG_CONTINUE;
@@ -158,16 +159,30 @@ DWORD XDebugControl::e_break_point(tagDebugInfo& debug_info)
             case BP_OEP: 
                 this->teb = XThread::get_thread_teb(debug_info.thread, debug_info.context.SegFs);
                 XBreakPoint::pins()->reduction_oep(debug_info.process);
-            case BP_SINGLE_STEP:
+            case BP_P_SINGLE_STEP:
             case BP_CC:
-                XBreakPoint::pins()->reduction_cc(debug_info.process, debug_info.context.Eip, false);
-                user_control(debug_info);
-                //XBreakPoint::pins()->reduction_cc(debug_info.process, debug_info.context.Eip, true);
-                break;
+                { 
+                    XBreakPoint::pins()->reduction_cc(debug_info.process, debug_info.context.Eip, false);
+                     
+                    user_control(debug_info);
+
+                    DWORD address = XBreakPoint::pins()->get_reduction_single_step();
+                    if (address != 0)
+                    {
+                        //上一条命令走过CC，还原上个CC断点
+                        XBreakPoint::pins()->reduction_cc(debug_info.process, address, true);
+                    } 
+                      
+                    if (status != BP_OEP)
+                    {
+                        //OEP的CC就不用还原了
+                        XBreakPoint::pins()->set_reduction_single_step(debug_info.context);
+                    } 
+                    break;
+                }   
             default:
                 break;
-            } 
-             
+            }  
         }
     } 
 
@@ -181,16 +196,46 @@ DWORD XDebugControl::e_single_step(tagDebugInfo& debug_info)
     {
         return DBG_EXCEPTION_NOT_HANDLED;
     }
+     
 
     if (debug_info.context.Dr6 != 0 
         && ((debug_info.context.Dr6 & 0x400) == 0))
-    {
-        user_control(debug_info);
-
+    { 
+        user_control(debug_info); 
     } 
     else if (XCommandMgr::pins()->is_single_step())
-    {
-        user_control(debug_info); 
+    { 
+        //判断当前单步上释放存在CC断点
+        bool current_cc = XInt3Tab::pins()->is_my_cc(debug_info.process, debug_info.context.Eip);
+        if (current_cc)
+        {  
+            //存在则还原，主要用于展示反汇编和跳过当前指令
+            XBreakPoint::pins()->reduction_cc(debug_info.process, debug_info.context.Eip, false);
+        }
+
+        user_control(debug_info);
+
+        DWORD address = XBreakPoint::pins()->get_reduction_single_step();
+        if (address != 0)
+        {
+            //如果上一条指令触发的是CC，那么将上一条的CC断点还原
+            XBreakPoint::pins()->reduction_cc(debug_info.process, address, true);
+        }
+
+        if (current_cc)
+        {
+            //这里刚好也是CC，那么将这条CC给记录下
+            XBreakPoint::pins()->set_reduction_single_step(debug_info.context);
+        }
+    }
+    else 
+    { 
+        //能到这里肯定是在CALL之类的跳过单步上下了断点，然后单步P了
+        DWORD address = XBreakPoint::pins()->get_reduction_single_step();
+        if (address != 0)
+        { 
+            XBreakPoint::pins()->reduction_cc(debug_info.process, address, true);
+        }
     }
 
     return DBG_CONTINUE;
@@ -282,8 +327,7 @@ void XDebugControl::user_control(tagDebugInfo& debug_info)
     {   
         return;
     }
-
-    XString str_command;
+     
     OPCODE_INFO opcode_info;
     if (asm_tab.size())
     {
@@ -296,7 +340,8 @@ void XDebugControl::user_control(tagDebugInfo& debug_info)
     this->f_out(debug_info.context, asm_tab);
 
     asm_tab.clear();
-    
+
+    XString str_command;
     //命令不等于 t,p,g则一直循环
     do 
     {

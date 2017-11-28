@@ -19,6 +19,10 @@ public:
 
     bool reduction_cc(HANDLE handle, DWORD address, bool status);
 
+    bool set_reduction_single_step(CONTEXT& context);
+      
+    DWORD get_reduction_single_step(); 
+
     bool insert_cc(HANDLE handle, DWORD address);
 
     bool remove_cc(HANDLE handle, DWORD address);
@@ -31,9 +35,9 @@ public:
 
     bool delete_cc_inedx(int inedx);
 
-    bool insert_single_step(HANDLE handle, DWORD address);
+    bool insert_p_single_step(HANDLE handle, DWORD address);
 
-    bool is_single_step(HANDLE handle, DWORD address);
+    bool is_p_single_step(HANDLE handle, DWORD address);
 
 private:
     bool set_opcode(HANDLE handle, DWORD address, BYTE& i_opcode, BYTE& o_opcode);
@@ -50,5 +54,7 @@ private:
 
     //µ¥²½±í
     std::map<DWORD, BYTE> single_step_table;
+
+    DWORD reduction_address; 
 };
 

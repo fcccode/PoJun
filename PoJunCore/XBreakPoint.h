@@ -7,8 +7,8 @@ typedef enum _BP_STATUS
     BP_NULL = -1,
     BP_OK,
     BP_OEP,
-    BP_SINGLE_STEP,
-    BP_CC
+    BP_P_SINGLE_STEP,
+    BP_CC, 
 }BP_STATUS;
   
 class XBreakPoint
@@ -26,6 +26,10 @@ public:
 
     BP_STATUS reduction_cc(HANDLE handle, DWORD address, bool status);
 
+    DWORD get_reduction_single_step();
+
+    BP_STATUS set_reduction_single_step(CONTEXT& context);
+      
     BP_STATUS insert_cc(HANDLE handle, DWORD address);
       
     BP_STATUS set_cc_status(int inedx, bool status);
@@ -34,13 +38,12 @@ public:
 
     BP_STATUS delete_cc_inedx(int inedx);
       
-    BP_STATUS insert_single_step(HANDLE handle, DWORD address);
+    BP_STATUS insert_p_single_step(HANDLE handle, DWORD address);
 
     BP_STATUS insert_hard_break(std::vector<XString>& vt_command, CONTEXT& context);
 
     BP_STATUS get_hard_ware_break_tab(std::vector<HARD_DWARE_BREAK_POINT>& out_map);
 
-    BP_STATUS delete_hard_ware_break_inedx(CONTEXT& context, int inedx);
-     
+    BP_STATUS delete_hard_ware_break_inedx(CONTEXT& context, int inedx); 
 };
 
