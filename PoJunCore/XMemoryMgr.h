@@ -34,6 +34,8 @@ public:
 
     bool delete_memory_break_point_inedx(HANDLE process, DWORD inedx);
 
+    DWORD get_reduction_memory_break_point();
+
 public:
     bool read_memory(HANDLE process, DWORD address, LPVOID* buf, int size = D_ROW * D_COL);
 
@@ -51,4 +53,6 @@ private:
 private:
     std::map<DWORD, MEMORY_BREAK_POINT> memory_break_point;
     std::vector<DWORD> mb_table_num_mgr;
+
+    DWORD reduction_address;
 };

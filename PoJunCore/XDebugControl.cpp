@@ -124,7 +124,7 @@ DWORD XDebugControl::e_acess_violation(DEBUG_INFO& debug_info)
     }
 
     CXMEMORY_MGR status = XMemoryMgr::pins()->is_my_break_point(ed);
-    if (status == CXMEMORY_MGR::E_FLASE)
+    if (status == CXMEMORY_MGR::E_NOT_TYPE)
     {
         return DBG_EXCEPTION_NOT_HANDLED;
     }
@@ -132,13 +132,13 @@ DWORD XDebugControl::e_acess_violation(DEBUG_INFO& debug_info)
     if (status == CXMEMORY_MGR::E_TRUE)
     { 
         XMemoryMgr::pins()->reset_protect(debug_info.process, ed->ExceptionRecord.ExceptionInformation[1]);
-         
-        user_control(debug_info);
-        debug_info.context.EFlags |= 0x100;
-        return DBG_CONTINUE;
-    }
 
-    return DBG_EXCEPTION_NOT_HANDLED;
+        user_control(debug_info);
+        
+        debug_info.context.EFlags |= 0x100; 
+    } 
+
+    return DBG_CONTINUE;;
 }
 
 DWORD XDebugControl::e_break_point(DEBUG_INFO& debug_info)
@@ -165,13 +165,8 @@ DWORD XDebugControl::e_break_point(DEBUG_INFO& debug_info)
                     XBreakPoint::pins()->reduction_cc(debug_info.process, debug_info.context.Eip, false);
                      
                     user_control(debug_info);
-
-                    DWORD address = XBreakPoint::pins()->get_reduction_single_step();
-                    if (address != 0)
-                    {
-                        //上一条命令走过CC，还原上个CC断点
-                        XBreakPoint::pins()->reduction_cc(debug_info.process, address, true);
-                    } 
+                     
+                    reduction_break_point(debug_info.process, true);
                       
                     if (status != BP_OEP)
                     {
@@ -202,11 +197,7 @@ DWORD XDebugControl::e_single_step(DEBUG_INFO& debug_info)
     { 
         user_control(debug_info); 
 
-        DWORD address = XBreakPoint::pins()->get_reduction_single_step();
-        if (address != 0)
-        {
-            XBreakPoint::pins()->reduction_cc(debug_info.process, address, true);
-        }
+        reduction_break_point(debug_info.process, true);
     } 
     else if (XCommandMgr::pins()->is_single_step())
     { 
@@ -219,13 +210,8 @@ DWORD XDebugControl::e_single_step(DEBUG_INFO& debug_info)
         }
 
         user_control(debug_info);
-
-        DWORD address = XBreakPoint::pins()->get_reduction_single_step();
-        if (address != 0)
-        {
-            //如果上一条指令触发的是CC，那么将上一条的CC断点还原
-            XBreakPoint::pins()->reduction_cc(debug_info.process, address, true);
-        }
+         
+        reduction_break_point(debug_info.process, true);
 
         if (current_cc)
         {
@@ -235,12 +221,7 @@ DWORD XDebugControl::e_single_step(DEBUG_INFO& debug_info)
     }
     else 
     { 
-        //能到这里肯定是在CALL之类的跳过单步上下了断点，然后单步P了
-        DWORD address = XBreakPoint::pins()->get_reduction_single_step();
-        if (address != 0)
-        { 
-            XBreakPoint::pins()->reduction_cc(debug_info.process, address, true);
-        }
+        reduction_break_point(debug_info.process, true); 
     }
 
     return DBG_CONTINUE;
@@ -384,4 +365,23 @@ bool XDebugControl::scan_command(XString& command)
     }
 
     return true;
+}
+
+void XDebugControl::reduction_break_point(HANDLE handle, bool status)
+{ 
+    DWORD address = XBreakPoint::pins()->get_reduction_single_step();
+    if (address != 0)
+    {
+        //如果上一条指令触发的是CC，那么将上一条的CC断点还原
+        XBreakPoint::pins()->reduction_cc(handle, address, true);
+    }
+
+    address = XMemoryMgr::pins()->get_reduction_memory_break_point();
+    if (address != 0)
+    {
+        //如果上一条断点触发的是内存断点，那么将上一条的内存断点还原
+        XMemoryMgr::pins()->reset_protect(handle, address, true); 
+    }
+
+    return;
 }

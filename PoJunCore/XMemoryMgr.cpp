@@ -5,6 +5,7 @@
 XMemoryMgr* XMemoryMgr::m_This = nullptr;
 XMemoryMgr::XMemoryMgr()
 {
+    reduction_address = 0;
 }
 
 
@@ -71,7 +72,13 @@ CXMEMORY_MGR XMemoryMgr::is_my_break_point(EXCEPTION_DEBUG_INFO *ed)
         return E_FLASE;
     }
 
-    if (ed->ExceptionRecord.ExceptionInformation[0] == it->second.type)
+    if (ed->ExceptionRecord.ExceptionInformation[0] != it->second.type)
+    {
+        return E_FLASE;
+    }
+
+    DWORD address = ed->ExceptionRecord.ExceptionInformation[1];
+    if (address >= it->second.address && address <= it->second.address + it->second.length)
     {
         return E_TRUE;
     }
@@ -106,7 +113,8 @@ bool XMemoryMgr::delete_memory_break_point_inedx(HANDLE process, DWORD inedx)
         {
             reset_protect(process, it->second.page_base);
             
-            std::vector<DWORD>::iterator iit = std::find(this->mb_table_num_mgr.begin(), this->mb_table_num_mgr.end(), inedx);
+            std::vector<DWORD>::iterator iit 
+                = std::find(this->mb_table_num_mgr.begin(), this->mb_table_num_mgr.end(), inedx);
             if (iit != this->mb_table_num_mgr.end())
             {
                 this->mb_table_num_mgr.erase(iit);
@@ -116,6 +124,11 @@ bool XMemoryMgr::delete_memory_break_point_inedx(HANDLE process, DWORD inedx)
     }
 
     return false;
+}
+
+DWORD XMemoryMgr::get_reduction_memory_break_point()
+{
+    return this->reduction_address;
 }
 
 bool XMemoryMgr::read_memory(HANDLE process, DWORD address, LPVOID* buf, int size)
@@ -190,12 +203,14 @@ bool XMemoryMgr::set_protect(HANDLE process, DWORD address, DWORD protect, bool 
 
     if (status)
     {
+        this->reduction_address = 0;
         return set_break_point(process, address, dw);
     }
 
     BOOL ret = ::VirtualProtectEx(process, (LPVOID)address, 1, protect, &dw);
     if (ret)
     {
+        this->reduction_address = address;
         return true;
     }
 

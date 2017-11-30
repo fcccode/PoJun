@@ -41,6 +41,8 @@ private:
 
     bool scan_command(XString& command);
 
+    void reduction_break_point(HANDLE handle, bool status);
+
 private:
     XString file_path;
 

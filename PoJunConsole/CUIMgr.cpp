@@ -133,8 +133,7 @@ void __stdcall CUIMgr::out_fun(const CONTEXT context, const std::list<DECODEING_
     for (it; it != asm_tab.cend() && i < 1; it++, i++)
     {
         XString asm_str = it->asm_str;
-        XString opcode(it->opcode, it->opcode_length);
-        wprintf(L"%p:%-14s   %s [%d] \r\n", it->address, opcode.w_cstr(), asm_str.w_cstr(), it->opcode_length);
+        wprintf(L"%p:   %s \r\n", it->address, asm_str.w_cstr());
     } 
 }
 
