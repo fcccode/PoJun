@@ -3,10 +3,11 @@
     
 class XEXP XDebugControl
 {
-public:
+private:
     XDebugControl();
     ~XDebugControl();
 
+public:
     static XDebugControl* m_This;
     static XDebugControl* pins();
 

@@ -9,6 +9,8 @@
 #include "XDecodingASM.h"
 #include "XCommandMgr.h" 
 #include "XMemoryMgr.h"
+#include "XSQLite3.h"
+#include <XProcess.h>
 
 XDebugControl* XDebugControl::m_This = nullptr;
 XDebugControl::XDebugControl()
@@ -43,6 +45,13 @@ void XDebugControl::start_debug_loop(XString& file_path, pfun_in_fun in_fun, pfu
     this->f_out = out_fun;
     this->f_command_out = command_out;
 
+    XSQLite3::pins()->init_sql(file_path);
+
+    if (!XProcess::create_process(file_path))
+    {
+        return;
+    }
+    
     DEBUG_INFO debug_info;
     memset(&debug_info, 0x0, sizeof(DEBUG_INFO));
     debug_info.process = INVALID_HANDLE_VALUE;
@@ -230,7 +239,7 @@ DWORD XDebugControl::e_single_step(DEBUG_INFO& debug_info)
 DWORD XDebugControl::create_process_debug_event(DEBUG_INFO& debug_info)
 {
     CREATE_PROCESS_DEBUG_INFO *cp = (CREATE_PROCESS_DEBUG_INFO*)&debug_info.event.u.CreateProcessInfo;
-    if (cp  != nullptr)
+    if (cp != nullptr)
     {
         XInt3Tab::pins()->create_process(cp, debug_info.process);
     }

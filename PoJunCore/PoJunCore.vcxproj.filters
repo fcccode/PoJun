@@ -72,6 +72,9 @@
     <ClInclude Include="XPJCoreHead.h">
       <Filter>File</Filter>
     </ClInclude>
+    <ClInclude Include="XSQLite3.h">
+      <Filter>File\Control</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -115,6 +118,9 @@
     </ClCompile>
     <ClCompile Include="XPJCoreHead.cpp">
       <Filter>File</Filter>
+    </ClCompile>
+    <ClCompile Include="XSQLite3.cpp">
+      <Filter>File\Control</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

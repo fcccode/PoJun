@@ -10,10 +10,11 @@ enum
   
 class XDecodingASM
 {
-public:
+private:
     XDecodingASM();
     ~XDecodingASM();
 
+public:
     static XDecodingASM* m_This;
     static XDecodingASM* pins();
 

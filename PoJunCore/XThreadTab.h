@@ -4,10 +4,11 @@
 
 class XThreadTab
 {
-public:
+private:
     XThreadTab();
     ~XThreadTab();
 
+public:
     static XThreadTab* m_This;
     static XThreadTab* pins();
 

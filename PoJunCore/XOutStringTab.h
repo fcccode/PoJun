@@ -4,10 +4,11 @@
 
 class XOutStringTab
 {
-public:
+private:
     XOutStringTab();
     ~XOutStringTab();
 
+public:
     static XOutStringTab* m_This;
     static XOutStringTab* pins();
 

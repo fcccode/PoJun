@@ -2,11 +2,12 @@
 #include "XPJCoreHead.h"
 
 class XModelTab
-{
-public:
+{ 
+private:
     XModelTab();
     ~XModelTab();
 
+public:
     static XModelTab* m_This;
     static XModelTab* pins();
 

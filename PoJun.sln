@@ -13,6 +13,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "XuWu", "..\虚无\XuWu\XuWu
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DebugTest", "DebugTest\DebugTest.vcxproj", "{AA39F553-B0ED-451C-BB1C-293E3F3EE75B}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "sqlite3", "sqlite3\sqlite3.vcxproj", "{D27888B5-C9DB-43D7-BE2B-757D984FF860}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -53,6 +55,12 @@ Global
 		{AA39F553-B0ED-451C-BB1C-293E3F3EE75B}.Release|Win32.ActiveCfg = Release|Win32
 		{AA39F553-B0ED-451C-BB1C-293E3F3EE75B}.Release|Win32.Build.0 = Release|Win32
 		{AA39F553-B0ED-451C-BB1C-293E3F3EE75B}.Release|x64.ActiveCfg = Release|Win32
+		{D27888B5-C9DB-43D7-BE2B-757D984FF860}.Debug|Win32.ActiveCfg = Debug|Win32
+		{D27888B5-C9DB-43D7-BE2B-757D984FF860}.Debug|Win32.Build.0 = Debug|Win32
+		{D27888B5-C9DB-43D7-BE2B-757D984FF860}.Debug|x64.ActiveCfg = Debug|Win32
+		{D27888B5-C9DB-43D7-BE2B-757D984FF860}.Release|Win32.ActiveCfg = Release|Win32
+		{D27888B5-C9DB-43D7-BE2B-757D984FF860}.Release|Win32.Build.0 = Release|Win32
+		{D27888B5-C9DB-43D7-BE2B-757D984FF860}.Release|x64.ActiveCfg = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

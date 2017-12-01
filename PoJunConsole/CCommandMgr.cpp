@@ -35,12 +35,7 @@ void CCommandMgr::command_ui(int type)
             {
                 break;    
             } 
-
-            if (!XProcess::create_process(FilePath))
-            {
-                break;
-            }
-
+             
             XDebugControl::pins()->start_debug_loop(FilePath, CUIMgr::in_fun, CUIMgr::out_fun, CUIMgr::command_call_back_out, 1);
             break;
         }

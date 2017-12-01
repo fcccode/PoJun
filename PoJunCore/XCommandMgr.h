@@ -12,10 +12,11 @@ enum OPCODE
 
 class XCommandMgr
 {
-public:
+private:
     XCommandMgr();
     ~XCommandMgr();
 
+public:
     static XCommandMgr* m_This;
     static XCommandMgr* pins();
 
