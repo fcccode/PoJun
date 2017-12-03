@@ -15,10 +15,12 @@ public:
     bool init_sql(XString& path);
 
 private:
+    bool co_db();
+    
     bool init_db();
 
     bool open_db();
-
+     
 
 private:
     XString sql_path;
