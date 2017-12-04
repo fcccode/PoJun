@@ -1,12 +1,11 @@
 #pragma once
 
 #include "XPJCoreHead.h"
-  
+#include "XModelTab.h"
+ 
 #define D_ROW 8
 #define D_COL 16
-#define PAGE_SIZE 0x1000
-#define PAGE_BASE(pos) pos & 0xFFFFF000 
-
+#define PAGE_SIZE 0x1000  
 
 typedef enum
 {

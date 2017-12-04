@@ -1,5 +1,14 @@
 #pragma once 
 #include "XPJCoreHead.h"
+
+typedef enum _BP_STATUS
+{
+    BP_NULL = -1,
+    BP_OK,
+    BP_OEP,
+    BP_P_SINGLE_STEP,
+    BP_CC,
+}BP_STATUS;
     
 class XEXP XDebugControl
 {
@@ -12,6 +21,8 @@ public:
     static XDebugControl* pins();
 
     void start_debug_loop(XString& file_path, pfun_in_fun in_fun, pfun_out_fun out_fun, pfun_command_call_back_out command_out, DWORD count);
+
+    bool create_process(XString& file_path);
 
     DWORD e_acess_violation(DEBUG_INFO& debug_info);
 
@@ -36,6 +47,8 @@ public:
     DWORD irp_event(DEBUG_INFO& debug_info);
 
 private:
+    BP_STATUS break_point(EXCEPTION_RECORD* er, DEBUG_INFO& debug_info);
+
     void user_control(DEBUG_INFO& debug_info);
 
     void command_explanation(XString& command, DEBUG_INFO& debug_info, OPCODE_INFO& opcode_info, DEBUG_MODULE_DATA& out_module_data);

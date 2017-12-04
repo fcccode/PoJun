@@ -39,9 +39,6 @@
     <ClInclude Include="targetver.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="XBreakPoint.h">
-      <Filter>File\break_point</Filter>
-    </ClInclude>
     <ClInclude Include="XInt3Tab.h">
       <Filter>File\break_point</Filter>
     </ClInclude>
@@ -85,9 +82,6 @@
     </ClCompile>
     <ClCompile Include="PoJunCore.cpp">
       <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="XBreakPoint.cpp">
-      <Filter>File\break_point</Filter>
     </ClCompile>
     <ClCompile Include="XInt3Tab.cpp">
       <Filter>File\break_point</Filter>

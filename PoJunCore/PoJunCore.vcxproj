@@ -85,7 +85,6 @@
     <Text Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="XBreakPoint.h" />
     <ClInclude Include="XCommandMgr.h" />
     <ClInclude Include="XDebugControl.h" />
     <ClInclude Include="XDecodingASM.h" />
@@ -101,7 +100,6 @@
     <ClInclude Include="XThreadTab.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="XBreakPoint.cpp" />
     <ClCompile Include="XCommandMgr.cpp" />
     <ClCompile Include="XDebugControl.cpp" />
     <ClCompile Include="dllmain.cpp">

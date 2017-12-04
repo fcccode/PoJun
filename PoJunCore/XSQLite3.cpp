@@ -4,6 +4,7 @@
 #include <XFile.h>
 #include <XEnvironment.h>
 #include <sqlite3.h> 
+#include "XInt3Tab.h"
 
 
 XSQLite3* XSQLite3::m_This = nullptr;
@@ -85,71 +86,40 @@ bool XSQLite3::co_db()
 bool XSQLite3::init_db()
 {   
     if (!co_db())
-    {
-        //fprintf(stderr, "Can't open database: %s\n", sqlite3_errmsg(db));
+    { 
         return false;
     }
-
-    char *cc = "CREATE TABLE cc_break_point(" \
-        "address     INT," \
-        "number      INT," \
-        "opcode      INT," \
-        "activation  BOOL);";
-
-    char *hard = "CREATE TABLE hard_break_point(" \
-        "address    INT," \
-        "dr_number  INT," \
-        "length     INT," \
-        "type       INT);";
-
-    char *memory = "CREATE TABLE memory_break_point(" \
-        "number      INT," \
-        "page_base   INT," \
-        "address     INT," \
-        "length      INT," \
-        "type        INT," \
-        "old_protect INT);";
-
-    char *comments = "CREATE TABLE comments(" \
-        "address    INT," \
-        "str        TEXT" \
-        "type       BOOL);";
-
-    char *alias = "CREATE TABLE alias(" \
-        "address    INT," \
-        "str        TEXT);";
      
-    /* Execute SQL statement */
     char *zErrMsg = 0;
-    int rc = sqlite3_exec(db, cc, nullptr, 0, &zErrMsg);
+    int rc = sqlite3_exec(db, CC_TAB, nullptr, 0, &zErrMsg);
     if (rc != SQLITE_OK && zErrMsg != nullptr)
     { 
         sqlite3_free(zErrMsg);
         return false;
     }
 
-    rc = sqlite3_exec(db, hard, nullptr, 0, &zErrMsg);
+    rc = sqlite3_exec(db, HARD_TAB, nullptr, 0, &zErrMsg);
     if (rc != SQLITE_OK && zErrMsg != nullptr)
     {
         sqlite3_free(zErrMsg);
         return false;
     }
 
-    rc = sqlite3_exec(db, memory, nullptr, 0, &zErrMsg);
+    rc = sqlite3_exec(db, MEMORY_TAB, nullptr, 0, &zErrMsg);
     if (rc != SQLITE_OK && zErrMsg != nullptr)
     {
         sqlite3_free(zErrMsg);
         return false;
     }
 
-    rc = sqlite3_exec(db, comments, nullptr, 0, &zErrMsg);
+    rc = sqlite3_exec(db, COMMENT_TAB, nullptr, 0, &zErrMsg);
     if (rc != SQLITE_OK && zErrMsg != nullptr)
     {
         sqlite3_free(zErrMsg);
         return false;
     }
 
-    rc = sqlite3_exec(db, alias, nullptr, 0, &zErrMsg);
+    rc = sqlite3_exec(db, ALIAS_TAB, nullptr, 0, &zErrMsg);
     if (rc != SQLITE_OK && zErrMsg != nullptr)
     {
         sqlite3_free(zErrMsg);
@@ -166,6 +136,92 @@ bool XSQLite3::open_db()
         //fprintf(stderr, "Can't open database: %s\n", sqlite3_errmsg(db));
         return false;
     }
+
+    char *zErrMsg = 0;
+    int rc = sqlite3_exec(db, SELECT_CC_TAB, cc_callback, nullptr, &zErrMsg);
+    if (rc != SQLITE_OK){ 
+        sqlite3_free(zErrMsg);
+    }
+     
+    rc = sqlite3_exec(db, SELECT_HARD_TAB, hard_callback, nullptr, &zErrMsg);
+    if (rc != SQLITE_OK){
+        sqlite3_free(zErrMsg);
+    }
+
+    rc = sqlite3_exec(db, SELECT_MEMORY_TAB, memory_callback, nullptr, &zErrMsg);
+    if (rc != SQLITE_OK){
+        sqlite3_free(zErrMsg);
+    }
+
+    rc = sqlite3_exec(db, SELECT_COMMENTS_TAB, comments_callback, nullptr, &zErrMsg);
+    if (rc != SQLITE_OK){
+        sqlite3_free(zErrMsg);
+    }
+
+    rc = sqlite3_exec(db, SELECT_ALIAS_TAB, alias_callback, nullptr, &zErrMsg);
+    if (rc != SQLITE_OK){
+        sqlite3_free(zErrMsg);
+    }
      
     return true;
 } 
+
+int XSQLite3::cc_callback(void *data, int argc, char **argv, char **azColName)
+{
+    if (argc != 5)
+    {
+        return 1;
+    }
+
+    CC_BREAK_POINT bp;
+    bp.module_name = argv[0];
+    bp.offset = XString(argv[1]).to_int();
+    bp.number = XString(argv[2]).to_int();
+    bp.opcode = XString(argv[3]).to_int();
+    bp.activation = XString(argv[4]).to_int()? true : false;
+    XInt3Tab::pins()->insert_table(bp); 
+
+    return 0;
+}
+
+int XSQLite3::hard_callback(void *data, int argc, char **argv, char **azColName)
+{
+    return 0;
+}
+
+int XSQLite3::memory_callback(void *data, int argc, char **argv, char **azColName)
+{
+    return 0;
+}
+
+int XSQLite3::comments_callback(void *data, int argc, char **argv, char **azColName)
+{
+    return 0;
+}
+
+int XSQLite3::alias_callback(void *data, int argc, char **argv, char **azColName)
+{
+    return 0;
+}
+
+bool XSQLite3::insert_break_point(CC_BREAK_POINT& bp)
+{
+    int status = bp.activation;
+    XString sql;
+    sql << L"INSERT INTO cc_break_point VALUES ("
+        << L"\"" << bp.module_name << L"\", "
+        << bp.offset << L", "
+        << bp.number << L", "
+        << bp.opcode << L", "
+        << status << L");";
+
+    char* zErrMsg = nullptr;
+    int rc = sqlite3_exec(this->db, sql.get_str().c_str(), nullptr, 0, &zErrMsg);
+    if (rc != SQLITE_OK)
+    {
+        sqlite3_free(zErrMsg);
+        return false;
+    }
+
+    return true;
+}

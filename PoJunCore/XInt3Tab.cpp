@@ -1,5 +1,8 @@
 #include "stdafx.h"
-#include "XInt3Tab.h"
+#include "XInt3Tab.h" 
+#include "XModelTab.h" 
+#include "XSQLite3.h" 
+#include <XModule.h>
 
 
 XInt3Tab* XInt3Tab::m_This = 0;
@@ -33,6 +36,16 @@ void XInt3Tab::create_process(CREATE_PROCESS_DEBUG_INFO* cp, HANDLE process)
     { 
         XGlobal::show_api_err();
     }
+
+    //插入进程模块
+    MODULE_INFO mi;
+    mi.handle = process;
+    mi.base = PAGE_BASE((DWORD)cp->lpStartAddress);
+    mi.enter = (DWORD)cp->lpStartAddress;  
+    XModule::handle_to_path(cp->hFile, mi.file_path);
+    mi.size = 0;
+    mi.file_version = 0; 
+    XModelTab::pins()->insert_exe(mi); 
 }
 
 bool XInt3Tab::is_start_opcode(DWORD opcode)
@@ -61,13 +74,62 @@ bool XInt3Tab::reduction_cc(HANDLE handle, DWORD address, bool status)
      
     BYTE opcode = 0;
     if (status)
-    {
-        return set_opcode(handle, address, this->int3, opcode);
+    { 
+        return set_opcode(handle, address, this->int3, it->second.opcode);
     } 
     else
     {
         return set_opcode(handle, address, it->second.opcode, opcode); 
     }
+}
+
+bool XInt3Tab::reduction_break_point(HANDLE process, const XString& file_name, DWORD address)
+{
+    DWORD base = PAGE_BASE(address);
+
+    bool prompt = false;
+
+    std::map<DWORD, CC_BREAK_POINT> old_table = this->cc_table;
+     
+    std::map<DWORD, CC_BREAK_POINT>::iterator it = old_table.begin();
+    for (it; it != old_table.end(); it++)
+    {
+        if (it->second.module_name != file_name)
+        {
+            continue;
+        }
+
+        CC_BREAK_POINT bp = it->second;
+        
+        DWORD bp_address = base + it->second.offset;
+        if (!set_opcode(process, bp_address, this->int3, bp.opcode))
+        {
+            continue;
+        }
+
+        if (bp.opcode != it->second.opcode && !prompt)
+        {
+            prompt = true;
+
+            XString msg;
+            msg << L"当前地址: " << bp_address << L"与上次设置断点编码不一致，可能存在压缩。请手动激活断点";
+            ::MessageBox(nullptr, msg.w_cstr(), L"提示", MB_OK);
+
+            bp.activation = false;
+            BYTE opcode = 0;
+            set_opcode(process, bp_address, bp.opcode, opcode);
+        }
+
+        this->cc_table.insert(std::pair<DWORD, CC_BREAK_POINT>(bp_address, bp));
+         
+        std::map<DWORD, CC_BREAK_POINT>::iterator cit = this->cc_table.find(it->first);
+        if (cit != this->cc_table.end())
+        {
+            this->cc_table.erase(cit);
+        } 
+    }
+           
+    return true;
 }
 
 bool XInt3Tab::set_reduction_single_step(CONTEXT& context)
@@ -84,37 +146,49 @@ DWORD XInt3Tab::get_reduction_single_step()
     return address;
 }
 
+bool XInt3Tab::insert_table(CC_BREAK_POINT& table)
+{
+    std::map<DWORD, CC_BREAK_POINT>::_Pairib ret =
+        this->cc_table.insert(std::pair<DWORD, CC_BREAK_POINT>(this->cc_table.size(), table));
+    return ret.second;
+}
+
 bool XInt3Tab::insert_cc(HANDLE handle, DWORD address)
 {
     BYTE opcode = 0;
     bool status = set_opcode(handle, address, this->int3, opcode);
     if (status)
     {
-        CC_BREAK_POINT cbp;
-        cbp.opcode = opcode;
-        cbp.activation = true;
-        cbp.number = -1;
-
-        for (std::map<DWORD, CC_BREAK_POINT>::size_type i = 0; 
-            i < this->cc_table.size() + 1; 
-            i++)
+        DWORD base;
+        DWORD offset;
+        XString name;
+        if (XModelTab::pins()->get_name_base_offset(address, base, offset, name))
         {
-            std::vector<int>::iterator it = std::find(cc_table_num_mgr.begin(), cc_table_num_mgr.end(), i);
-            if (it == cc_table_num_mgr.end())
+            CC_BREAK_POINT cbp;
+            cbp.opcode = opcode;
+            cbp.module_name = name;
+            cbp.offset = offset;
+            cbp.activation = true;
+            cbp.number = get_index(); 
+            if (cbp.number == -1)
             {
-                cbp.number = i;
-                cc_table_num_mgr.push_back(i);
-                break;
+                cbp.number = this->cc_table.size() + 1;
             }
-        }
 
-        if (cbp.number == -1)
-        {
-            cbp.number = this->cc_table.size() + 1;
-        }
-
-        this->cc_table.insert(std::pair<DWORD, CC_BREAK_POINT>(address, cbp));
+            std::map<DWORD, CC_BREAK_POINT>::_Pairib ret =
+                this->cc_table.insert(std::pair<DWORD, CC_BREAK_POINT>(address, cbp));
+            if (!ret.second)
+            {
+                set_opcode(handle, address, opcode, opcode);
+                status = ret.second;
+            }
+            else
+            {
+                XSQLite3::pins()->insert_break_point(cbp);
+            }
+        } 
     } 
+
     return status;
 }
 
@@ -147,14 +221,23 @@ bool XInt3Tab::is_my_cc(HANDLE handle, DWORD address)
     return false;
 } 
 
-bool XInt3Tab::set_cc_status(int inedx, bool status)
+bool XInt3Tab::set_cc_status(HANDLE handle, int index, bool status)
 {
     std::map<DWORD, CC_BREAK_POINT>::iterator it = this->cc_table.begin();
     for (it; it != this->cc_table.end(); it++)
     {
-        if (it->second.number == inedx)
+        if (it->second.number == index)
         {
+            BYTE opcode = 0;
             it->second.activation = status;
+            if (status)
+            {
+                set_opcode(handle, it->first, this->int3, opcode);
+            } 
+            else
+            {
+                set_opcode(handle, it->first, it->second.opcode, opcode);
+            }
             return true;
         }
     }
@@ -235,4 +318,21 @@ bool XInt3Tab::set_opcode(HANDLE handle, DWORD address, BYTE& i_opcode, BYTE& o_
     }
 
     return true;
+}
+
+int XInt3Tab::get_index()
+{
+    for (std::map<DWORD, CC_BREAK_POINT>::size_type i = 0;
+        i < this->cc_table.size() + 1;
+        i++)
+    {
+        std::vector<int>::iterator it = std::find(cc_table_num_mgr.begin(), cc_table_num_mgr.end(), i);
+        if (it == cc_table_num_mgr.end())
+        { 
+            cc_table_num_mgr.push_back(i);
+            return i;
+        }
+    }
+
+    return -1;
 }

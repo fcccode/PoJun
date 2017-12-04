@@ -47,6 +47,8 @@ typedef struct TAG_OPCODE_INFO
 //CC断点结构体
 typedef struct TAG_CC_BREAK_POINT
 {
+    XString module_name;
+    DWORD offset;
     int number;
     BYTE opcode;
     bool activation;

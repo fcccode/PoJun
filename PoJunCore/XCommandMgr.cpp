@@ -1,6 +1,7 @@
 #include "stdafx.h"
-#include "XCommandMgr.h"
-#include "XBreakPoint.h"
+#include "XCommandMgr.h" 
+#include "XInt3Tab.h"
+#include "XHardwareBreak.h"
 #include "XDecodingASM.h"
 #include "XMemoryMgr.h"
 #include "XModelTab.h"
@@ -108,7 +109,7 @@ bool __stdcall XCommandMgr::p_command(const XString& command, DEBUG_INFO& debug_
         || opcode_info.current_opcode == E_REPNE)
     {
         XCommandMgr::pins()->single_step = false;
-        XBreakPoint::pins()->insert_p_single_step(debug_info.process, opcode_info.next_address);
+        XInt3Tab::pins()->insert_p_single_step(debug_info.process, opcode_info.next_address);
     }
     else
     {
@@ -132,8 +133,7 @@ bool __stdcall XCommandMgr::g_command(const XString& command, DEBUG_INFO& debug_
     std::vector<XString>::iterator it = vt_command.begin();
     it++;
        
-    XBreakPoint::pins()->insert_p_single_step(debug_info.process, it->to_int_0x());
-    return true;
+    return XInt3Tab::pins()->insert_p_single_step(debug_info.process, it->to_int_0x());
 }
 
 bool XCommandMgr::is_single_step()
@@ -154,15 +154,13 @@ bool __stdcall XCommandMgr::bp_command(const XString& command, DEBUG_INFO& debug
     std::vector<XString>::iterator it = vt_command.begin();
     it++;
      
-    XBreakPoint::pins()->insert_cc(debug_info.process, it->to_int_0x());
-    return true;
+    return XInt3Tab::pins()->insert_cc(debug_info.process, it->to_int_0x());
 }
 
 bool __stdcall XCommandMgr::bpl_command(const XString& command, DEBUG_INFO& debug_info, OPCODE_INFO& opcode_info, DEBUG_MODULE_DATA& out_module_data)
 {
     out_module_data.type = D_BPL;
-    XBreakPoint::pins()->get_cc_table(out_module_data.break_point_tab);
-    return true;
+    return XInt3Tab::pins()->get_cc_table(out_module_data.break_point_tab);
 }
 
 bool __stdcall XCommandMgr::bpc_command(const XString& command, DEBUG_INFO& debug_info, OPCODE_INFO& opcode_info, DEBUG_MODULE_DATA& out_module_data)
@@ -178,8 +176,7 @@ bool __stdcall XCommandMgr::bpc_command(const XString& command, DEBUG_INFO& debu
     std::vector<XString>::iterator it = vt_command.begin();
     it++;
      
-    XBreakPoint::pins()->delete_cc_inedx(it->to_int());
-    return true;
+    return XInt3Tab::pins()->delete_cc_inedx(it->to_int());
 }
 
 bool __stdcall XCommandMgr::bh_command(const XString& command, DEBUG_INFO& debug_info, OPCODE_INFO& opcode_info, DEBUG_MODULE_DATA& out_module_data)
@@ -193,16 +190,14 @@ bool __stdcall XCommandMgr::bh_command(const XString& command, DEBUG_INFO& debug
         return false;
     } 
      
-    XBreakPoint::pins()->insert_hard_break(vt_command, debug_info.context);
-    return true;
+    return XHardwareBreak::pins()->insert(vt_command, debug_info.context);
 }
 
 bool __stdcall XCommandMgr::bhl_command(const XString& command, DEBUG_INFO& debug_info, OPCODE_INFO& opcode_info, DEBUG_MODULE_DATA& out_module_data)
 {
     out_module_data.type = D_BHL;
 
-    XBreakPoint::pins()->get_hard_ware_break_tab(out_module_data.hard_dware_break_tab);
-    return true;
+    return XHardwareBreak::pins()->get_hard_dware_break_table(out_module_data.hard_dware_break_tab);
 }
 
 bool __stdcall XCommandMgr::bhc_command(const XString& command, DEBUG_INFO& debug_info, OPCODE_INFO& opcode_info, DEBUG_MODULE_DATA& out_module_data)
@@ -219,8 +214,7 @@ bool __stdcall XCommandMgr::bhc_command(const XString& command, DEBUG_INFO& debu
     std::vector<XString>::iterator it = vt_command.begin();
     it++;
       
-    XBreakPoint::pins()->delete_hard_ware_break_inedx(debug_info.context, it->to_int());
-    return true;
+    return XHardwareBreak::pins()->delete_hard_ware_break_inedx(debug_info.context, it->to_int());
 }
 
 bool __stdcall XCommandMgr::bm_command(const XString& command, DEBUG_INFO& debug_info, OPCODE_INFO& opcode_info, DEBUG_MODULE_DATA& out_module_data)

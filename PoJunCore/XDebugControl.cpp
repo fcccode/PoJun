@@ -1,7 +1,7 @@
 #include "stdafx.h"
-#include "XDebugControl.h"  
-#include "XBreakPoint.h"
+#include "XDebugControl.h"   
 #include "XInt3Tab.h"
+#include "XHardwareBreak.h"
 #include "XThreadTab.h"
 #include "XModelTab.h"   
 #include "XOutStringTab.h"
@@ -9,8 +9,8 @@
 #include "XDecodingASM.h"
 #include "XCommandMgr.h" 
 #include "XMemoryMgr.h"
-#include "XSQLite3.h"
-#include <XProcess.h>
+#include "XSQLite3.h"   
+#include <XModule.h>
 
 XDebugControl* XDebugControl::m_This = nullptr;
 XDebugControl::XDebugControl()
@@ -47,7 +47,7 @@ void XDebugControl::start_debug_loop(XString& file_path, pfun_in_fun in_fun, pfu
 
     XSQLite3::pins()->init_sql(file_path);
 
-    if (!XProcess::create_process(file_path))
+    if (!create_process(file_path))
     {
         return;
     }
@@ -124,6 +124,22 @@ void XDebugControl::start_debug_loop(XString& file_path, pfun_in_fun in_fun, pfu
     } while (TRUE);
 }
 
+bool XDebugControl::create_process(XString& file_path)
+{
+    STARTUPINFO si = { 0 };
+    PROCESS_INFORMATION pi = { 0 };
+    BOOL bRet = FALSE;
+
+    bRet = ::CreateProcessW(file_path.w_cstr(), NULL, NULL, NULL, FALSE,
+        DEBUG_ONLY_THIS_PROCESS, NULL, NULL, &si, &pi);
+    if (bRet != TRUE && pi.hProcess == INVALID_HANDLE_VALUE)
+    { 
+        return false;
+    }
+     
+    return true;
+}
+
 DWORD XDebugControl::e_acess_violation(DEBUG_INFO& debug_info)
 {  
     EXCEPTION_DEBUG_INFO *ed = (EXCEPTION_DEBUG_INFO*)&debug_info.event.u;
@@ -160,19 +176,27 @@ DWORD XDebugControl::e_break_point(DEBUG_INFO& debug_info)
         { 
             DWORD next_address = 0;
             BYTE opcode = 0;
-            BP_STATUS status = XBreakPoint::pins()->break_point(er, debug_info);
+            BP_STATUS status = break_point(er, debug_info);
             switch (status)
             {
             case BP_NULL:
                 return DBG_EXCEPTION_NOT_HANDLED;
             case BP_OEP: 
                 this->teb = XThread::get_thread_teb(debug_info.thread, debug_info.context.SegFs);
-                XBreakPoint::pins()->reduction_oep(debug_info.process);
+                XInt3Tab::pins()->reduction_oep(debug_info.process);
+
+                //还原断点
+                XInt3Tab::pins()->reduction_break_point(
+                    debug_info.process, 
+                    file_path.get_short_name(), 
+                    debug_info.context.Eip);
+
+
             case BP_P_SINGLE_STEP:
             case BP_CC:
                 { 
-                    XBreakPoint::pins()->reduction_cc(debug_info.process, debug_info.context.Eip, false);
-                     
+                    XInt3Tab::pins()->reduction_cc(debug_info.process, debug_info.context.Eip, false);
+
                     user_control(debug_info);
                      
                     reduction_break_point(debug_info.process, true);
@@ -180,7 +204,7 @@ DWORD XDebugControl::e_break_point(DEBUG_INFO& debug_info)
                     if (status != BP_OEP)
                     {
                         //OEP的CC就不用还原了
-                        XBreakPoint::pins()->set_reduction_single_step(debug_info.context);
+                        XInt3Tab::pins()->set_reduction_single_step(debug_info.context);
                     } 
                     break;
                 }   
@@ -191,6 +215,27 @@ DWORD XDebugControl::e_break_point(DEBUG_INFO& debug_info)
     } 
 
     return DBG_CONTINUE;
+}
+
+BP_STATUS XDebugControl::break_point(EXCEPTION_RECORD* er, DEBUG_INFO& debug_info)
+{
+    //此时触发的EIP已经指向了CC所在地址之后的一位偏移，修正EIP
+    --debug_info.context.Eip;
+
+    if (XInt3Tab::pins()->is_my_cc(debug_info.process, debug_info.context.Eip))
+    {
+        return BP_CC;
+    }
+    else if (XInt3Tab::pins()->is_p_single_step(debug_info.process, debug_info.context.Eip))
+    {
+        return BP_P_SINGLE_STEP;
+    }
+    else if (XInt3Tab::pins()->is_start_opcode(*(DWORD*)&er->ExceptionAddress))
+    {
+        return BP_OEP;
+    }
+
+    return BP_NULL;
 }
 
 DWORD XDebugControl::e_single_step(DEBUG_INFO& debug_info)
@@ -215,7 +260,7 @@ DWORD XDebugControl::e_single_step(DEBUG_INFO& debug_info)
         if (current_cc)
         {  
             //存在则还原，主要用于展示反汇编和跳过当前指令
-            XBreakPoint::pins()->reduction_cc(debug_info.process, debug_info.context.Eip, false);
+            XInt3Tab::pins()->reduction_cc(debug_info.process, debug_info.context.Eip, false);
         }
 
         user_control(debug_info);
@@ -225,7 +270,7 @@ DWORD XDebugControl::e_single_step(DEBUG_INFO& debug_info)
         if (current_cc)
         {
             //这里刚好也是CC，那么将这条CC给记录下
-            XBreakPoint::pins()->set_reduction_single_step(debug_info.context);
+            XInt3Tab::pins()->set_reduction_single_step(debug_info.context);
         }
     }
     else 
@@ -276,6 +321,12 @@ DWORD XDebugControl::load_dll_debug_event(DEBUG_INFO& debug_info)
     if (ld != nullptr)
     {
         XModelTab::pins()->insert_dll(ld);
+        
+        XString file_path;
+        if (XModule::handle_to_path(ld->hFile, file_path))
+        {
+            XInt3Tab::pins()->reduction_break_point(debug_info.process, file_path, (DWORD)ld->lpBaseOfDll);
+        } 
     }
       
     return DBG_CONTINUE;
@@ -378,11 +429,11 @@ bool XDebugControl::scan_command(XString& command)
 
 void XDebugControl::reduction_break_point(HANDLE handle, bool status)
 { 
-    DWORD address = XBreakPoint::pins()->get_reduction_single_step();
+    DWORD address = XInt3Tab::pins()->get_reduction_single_step();
     if (address != 0)
     {
         //如果上一条指令触发的是CC，那么将上一条的CC断点还原
-        XBreakPoint::pins()->reduction_cc(handle, address, true);
+        XInt3Tab::pins()->reduction_cc(handle, address, true);
     }
 
     address = XMemoryMgr::pins()->get_reduction_memory_break_point();

@@ -19,9 +19,13 @@ public:
 
     bool reduction_cc(HANDLE handle, DWORD address, bool status);
 
+    bool reduction_break_point(HANDLE process, const XString& file_name, DWORD address);
+
     bool set_reduction_single_step(CONTEXT& context);
       
     DWORD get_reduction_single_step(); 
+
+    bool insert_table(CC_BREAK_POINT& table);
 
     bool insert_cc(HANDLE handle, DWORD address);
 
@@ -29,7 +33,7 @@ public:
       
     bool is_my_cc(HANDLE handle, DWORD address);
 
-    bool set_cc_status(int inedx, bool status);
+    bool set_cc_status(HANDLE handle, int index, bool status);
     
     bool get_cc_table(std::map<DWORD, CC_BREAK_POINT>& out_map);
 
@@ -41,6 +45,8 @@ public:
 
 private:
     bool set_opcode(HANDLE handle, DWORD address, BYTE& i_opcode, BYTE& o_opcode);
+
+    int get_index();
 
 private:
     BYTE int3;
