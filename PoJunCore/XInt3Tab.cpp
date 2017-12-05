@@ -89,8 +89,7 @@ bool XInt3Tab::reduction_break_point(HANDLE process, const XString& file_name, D
 
     bool prompt = false;
 
-    std::map<DWORD, CC_BREAK_POINT> old_table = this->cc_table;
-     
+    std::map<DWORD, CC_BREAK_POINT> old_table = this->cc_table; 
     std::map<DWORD, CC_BREAK_POINT>::iterator it = old_table.begin();
     for (it; it != old_table.end(); it++)
     {

@@ -195,9 +195,8 @@ bool __stdcall XCommandMgr::bh_command(const XString& command, DEBUG_INFO& debug
 
 bool __stdcall XCommandMgr::bhl_command(const XString& command, DEBUG_INFO& debug_info, OPCODE_INFO& opcode_info, DEBUG_MODULE_DATA& out_module_data)
 {
-    out_module_data.type = D_BHL;
-
-    return XHardwareBreak::pins()->get_hard_dware_break_table(out_module_data.hard_dware_break_tab);
+    out_module_data.type = D_BHL; 
+    return XHardwareBreak::pins()->get_hardware_break_table(out_module_data.hard_dware_break_tab);
 }
 
 bool __stdcall XCommandMgr::bhc_command(const XString& command, DEBUG_INFO& debug_info, OPCODE_INFO& opcode_info, DEBUG_MODULE_DATA& out_module_data)
@@ -214,7 +213,7 @@ bool __stdcall XCommandMgr::bhc_command(const XString& command, DEBUG_INFO& debu
     std::vector<XString>::iterator it = vt_command.begin();
     it++;
       
-    return XHardwareBreak::pins()->delete_hard_ware_break_inedx(debug_info.context, it->to_int());
+    return XHardwareBreak::pins()->delete_hardware_break_inedx(debug_info.context, it->to_int());
 }
 
 bool __stdcall XCommandMgr::bm_command(const XString& command, DEBUG_INFO& debug_info, OPCODE_INFO& opcode_info, DEBUG_MODULE_DATA& out_module_data)
@@ -317,8 +316,7 @@ bool __stdcall XCommandMgr::lm_command(const XString& command, DEBUG_INFO& debug
 
 bool __stdcall XCommandMgr::thread_command(const XString& command, DEBUG_INFO& debug_info, OPCODE_INFO& opcode_info, DEBUG_MODULE_DATA& out_module_data)
 {
-    out_module_data.type = D_THREAD;
-
+    out_module_data.type = D_THREAD; 
     return XThreadTab::pins()->get_thread_table(out_module_data.thread_table);
 }
 
@@ -393,8 +391,7 @@ bool __stdcall XCommandMgr::dd_command(const XString& command, DEBUG_INFO& debug
 
 bool __stdcall XCommandMgr::dq_command(const XString& command, DEBUG_INFO& debug_info, OPCODE_INFO& opcode_info, DEBUG_MODULE_DATA& out_module_data)
 {
-    out_module_data.type = D_DQ;
-
+    out_module_data.type = D_DQ; 
     return true;
 }
 
@@ -512,8 +509,7 @@ bool __stdcall XCommandMgr::eu_command(const XString& command, DEBUG_INFO& debug
     XCommandMgr::pins()->get_e_address(vt_command, address);
     
     XString str;
-    str.vtx2str(vt_command, L" ");
-     
+    str.vtx2str(vt_command, L" "); 
     return XMemoryMgr::pins()->write_memory(debug_info.process, address, str.w_cstr(), str.length());
 }
 

@@ -191,6 +191,7 @@ DWORD XDebugControl::e_break_point(DEBUG_INFO& debug_info)
                     file_path.get_short_name(), 
                     debug_info.context.Eip);
 
+                XHardwareBreak::pins()->reduction_hardware_break_point(debug_info.context);
 
             case BP_P_SINGLE_STEP:
             case BP_CC:
@@ -360,7 +361,6 @@ DWORD XDebugControl::irp_event(DEBUG_INFO& debug_info)
     return DBG_CONTINUE;
 } 
  
-
 void XDebugControl::user_control(DEBUG_INFO& debug_info)
 {
     std::list<DECODEING_ASM> asm_tab;

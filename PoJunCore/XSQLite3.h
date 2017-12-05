@@ -14,15 +14,7 @@
         "dr_number  INT," \
         "length     INT," \
         "type       INT);"
-
-#define MEMORY_TAB "CREATE TABLE memory_break_point(" \
-        "number      INT," \
-        "page_base   INT," \
-        "address     INT," \
-        "length      INT," \
-        "type        INT," \
-        "old_protect INT);"
- 
+  
 #define COMMENT_TAB "CREATE TABLE comments(" \
         "address    INT," \
         "str        TEXT" \
@@ -34,9 +26,7 @@
 
 #define SELECT_CC_TAB "SELECT * from cc_break_point"
 
-#define SELECT_HARD_TAB "SELECT * from hard_break_point"
-
-#define SELECT_MEMORY_TAB "SELECT * from memory_break_point"
+#define SELECT_HARD_TAB "SELECT * from hard_break_point" 
 
 #define SELECT_COMMENTS_TAB "SELECT * from comments"
 
@@ -56,6 +46,8 @@ public:
 
     bool insert_break_point(CC_BREAK_POINT& bp);
 
+    bool insert_hardwate_break(HARD_DWARE_BREAK_POINT& hb);
+
 private:
     bool co_db();
     
@@ -65,9 +57,7 @@ private:
     
     static int cc_callback(void *data, int argc, char **argv, char **azColName);
 
-    static int hard_callback(void *data, int argc, char **argv, char **azColName);
-
-    static int memory_callback(void *data, int argc, char **argv, char **azColName);
+    static int hard_callback(void *data, int argc, char **argv, char **azColName); 
 
     static int comments_callback(void *data, int argc, char **argv, char **azColName);
 

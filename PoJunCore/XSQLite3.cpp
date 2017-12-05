@@ -5,6 +5,7 @@
 #include <XEnvironment.h>
 #include <sqlite3.h> 
 #include "XInt3Tab.h"
+#include "XHardwareBreak.h"
 
 
 XSQLite3* XSQLite3::m_This = nullptr;
@@ -103,14 +104,7 @@ bool XSQLite3::init_db()
     {
         sqlite3_free(zErrMsg);
         return false;
-    }
-
-    rc = sqlite3_exec(db, MEMORY_TAB, nullptr, 0, &zErrMsg);
-    if (rc != SQLITE_OK && zErrMsg != nullptr)
-    {
-        sqlite3_free(zErrMsg);
-        return false;
-    }
+    } 
 
     rc = sqlite3_exec(db, COMMENT_TAB, nullptr, 0, &zErrMsg);
     if (rc != SQLITE_OK && zErrMsg != nullptr)
@@ -147,12 +141,7 @@ bool XSQLite3::open_db()
     if (rc != SQLITE_OK){
         sqlite3_free(zErrMsg);
     }
-
-    rc = sqlite3_exec(db, SELECT_MEMORY_TAB, memory_callback, nullptr, &zErrMsg);
-    if (rc != SQLITE_OK){
-        sqlite3_free(zErrMsg);
-    }
-
+      
     rc = sqlite3_exec(db, SELECT_COMMENTS_TAB, comments_callback, nullptr, &zErrMsg);
     if (rc != SQLITE_OK){
         sqlite3_free(zErrMsg);
@@ -186,14 +175,21 @@ int XSQLite3::cc_callback(void *data, int argc, char **argv, char **azColName)
 
 int XSQLite3::hard_callback(void *data, int argc, char **argv, char **azColName)
 {
+    if (argc != 4)
+    {
+        return 1;
+    }
+
+    HARD_DWARE_BREAK_POINT hb;
+    hb.address = XString(argv[0]).to_int();
+    hb.dr_number = XString(argv[1]).to_int();
+    hb.length = XString(argv[2]).to_int();
+    hb.type = XString(argv[3]).to_int();
+    XHardwareBreak::pins()->insert(hb);
+
     return 0;
 }
-
-int XSQLite3::memory_callback(void *data, int argc, char **argv, char **azColName)
-{
-    return 0;
-}
-
+ 
 int XSQLite3::comments_callback(void *data, int argc, char **argv, char **azColName)
 {
     return 0;
@@ -214,6 +210,26 @@ bool XSQLite3::insert_break_point(CC_BREAK_POINT& bp)
         << bp.number << L", "
         << bp.opcode << L", "
         << status << L");";
+
+    char* zErrMsg = nullptr;
+    int rc = sqlite3_exec(this->db, sql.get_str().c_str(), nullptr, 0, &zErrMsg);
+    if (rc != SQLITE_OK)
+    {
+        sqlite3_free(zErrMsg);
+        return false;
+    }
+
+    return true;
+}
+
+bool XSQLite3::insert_hardwate_break(HARD_DWARE_BREAK_POINT& hb)
+{
+    XString sql;
+    sql << L"INSERT INTO hard_break_point VALUES ("
+        << hb.address   << L", "
+        << hb.dr_number << L", "
+        << hb.length    << L", "
+        << hb.type      << L");";
 
     char* zErrMsg = nullptr;
     int rc = sqlite3_exec(this->db, sql.get_str().c_str(), nullptr, 0, &zErrMsg);
