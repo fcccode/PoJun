@@ -6,13 +6,15 @@
 #include "XMemoryMgr.h"
 #include "XModelTab.h"
 #include "XThreadTab.h"
- 
+#include <DbgHelp.h>
+#include "XDebugProcessInfo.h"
+
 XCommandMgr* XCommandMgr::m_This = nullptr;
 XCommandMgr::XCommandMgr()
 {
     insert(L"t", XCommandMgr::t_command);
     insert(L"p", XCommandMgr::p_command); 
-    insert(L"g", XCommandMgr::g_command);
+    insert(L"g", XCommandMgr::g_command); 
 
     insert(L"bp", XCommandMgr::bp_command);
     insert(L"bpl", XCommandMgr::bpl_command);
@@ -30,6 +32,7 @@ XCommandMgr::XCommandMgr()
     insert(L"r", XCommandMgr::r_command);
     insert(L"lm", XCommandMgr::lm_command);
     insert(L"~", XCommandMgr::thread_command);
+    insert(L"k", XCommandMgr::k_command);
 
     insert(L"db", XCommandMgr::db_command);
     insert(L"dw", XCommandMgr::dw_command);
@@ -139,7 +142,7 @@ bool __stdcall XCommandMgr::g_command(const XString& command, DEBUG_INFO& debug_
 bool XCommandMgr::is_single_step()
 {
     return this->single_step;
-}
+} 
 
 bool __stdcall XCommandMgr::bp_command(const XString& command, DEBUG_INFO& debug_info, OPCODE_INFO& opcode_info, DEBUG_MODULE_DATA& out_module_data)
 {
@@ -318,6 +321,79 @@ bool __stdcall XCommandMgr::thread_command(const XString& command, DEBUG_INFO& d
 {
     out_module_data.type = D_THREAD; 
     return XThreadTab::pins()->get_thread_table(out_module_data.thread_table);
+}
+  
+BOOL CALLBACK funaaaa(PCTSTR ModuleName, DWORD64 ModuleBase, ULONG ModuleSize, PVOID UserContext)
+{ 
+    std::map<DWORD, std::wstring>* pModuleMap = (std::map<DWORD, std::wstring>*)UserContext;
+
+    XString name = ModuleName;
+
+    (*pModuleMap)[(DWORD)ModuleBase] = name.w_cstr();
+
+    return TRUE;
+}
+ 
+bool XCommandMgr::k_command(const XString& command, DEBUG_INFO& debug_info, OPCODE_INFO& opcode_info, DEBUG_MODULE_DATA& out_module_data)
+{ 
+    std::map<DWORD, std::wstring> moduleMap;
+    if (::EnumerateLoadedModules64(
+        XDebugProcessInfo::pins()->get_process_handle(),
+        funaaaa,
+        &moduleMap) == FALSE) 
+    { 
+        //std::wcout << TEXT("EnumerateLoadedModules64 failed: ") << GetLastError() << std::endl;
+        return true;
+    }
+
+    STACKFRAME64 stackFrame = { 0 };
+    stackFrame = { 0 };
+    stackFrame.AddrPC.Mode = AddrModeFlat;
+    stackFrame.AddrPC.Offset = debug_info.context.Eip;
+    stackFrame.AddrStack.Mode = AddrModeFlat;
+    stackFrame.AddrStack.Offset = debug_info.context.Esp;
+    stackFrame.AddrFrame.Mode = AddrModeFlat;
+    stackFrame.AddrFrame.Offset = debug_info.context.Ebp;
+
+    //获取栈帧
+    while (::StackWalk64(
+        IMAGE_FILE_MACHINE_I386,
+        XDebugProcessInfo::pins()->get_process_handle(),
+        XDebugProcessInfo::pins()->get_thread_handle(),
+        &stackFrame,
+        &debug_info.context,
+        NULL,
+        ::SymFunctionTableAccess64,
+        ::SymGetModuleBase64,
+        NULL))
+    {     
+        //显示模块名称
+        DWORD64 moduleBase = (DWORD)::SymGetModuleBase64(
+            XDebugProcessInfo::pins()->get_process_handle(), 
+            stackFrame.AddrPC.Offset);
+
+        XString module_name = XModelTab::pins()->get_base_name(moduleBase); 
+          
+        //显示函数名称
+        BYTE buffer[sizeof(SYMBOL_INFO) + MAX_SYM_NAME * sizeof(TCHAR)] = { 0 };
+        PSYMBOL_INFO pSymInfo = (PSYMBOL_INFO)buffer;
+        pSymInfo->SizeOfStruct = sizeof(SYMBOL_INFO);
+        pSymInfo->MaxNameLen = MAX_SYM_NAME;
+
+        DWORD64 displacement = 0;
+
+        if (::SymFromAddr(
+                XDebugProcessInfo::pins()->get_process_handle(),
+                stackFrame.AddrPC.Offset,
+                &displacement,
+                pSymInfo) == TRUE) 
+        {
+            int i = 0;
+        }
+
+    }
+
+    return true;
 }
 
 bool __stdcall XCommandMgr::db_command(const XString& command, DEBUG_INFO& debug_info, OPCODE_INFO& opcode_info, DEBUG_MODULE_DATA& out_module_data)

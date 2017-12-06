@@ -50,7 +50,7 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;POJUNCORE_EXPORTS;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;POJUNCORE_EXPORTS;_CRT_SECURE_NO_WARNINGS;DBGHELP_TRANSLATE_TCHAR;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
       <AdditionalIncludeDirectories>..\capstone\include\;..\..\虚无\XuWu\;..\sqlite3\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
@@ -58,7 +58,7 @@
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>..\Debug\</AdditionalLibraryDirectories>
-      <AdditionalDependencies>capstone_dll.lib;XuWu.lib;sqlite3.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>capstone_dll.lib;XuWu.lib;sqlite3.lib;dbghelp.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -87,6 +87,7 @@
   <ItemGroup>
     <ClInclude Include="XCommandMgr.h" />
     <ClInclude Include="XDebugControl.h" />
+    <ClInclude Include="XDebugProcessInfo.h" />
     <ClInclude Include="XDecodingASM.h" />
     <ClInclude Include="XHardwareBreak.h" />
     <ClInclude Include="XInt3Tab.h" />
@@ -111,6 +112,7 @@
       </PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="PoJunCore.cpp" />
+    <ClCompile Include="XDebugProcessInfo.cpp" />
     <ClCompile Include="XDecodingASM.cpp" />
     <ClCompile Include="XHardwareBreak.cpp" />
     <ClCompile Include="XInt3Tab.cpp" />

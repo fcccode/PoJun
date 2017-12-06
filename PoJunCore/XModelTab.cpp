@@ -71,3 +71,14 @@ bool XModelTab::get_name_base_offset(DWORD address, DWORD& base, DWORD& offset, 
     name = it->second.file_path.get_short_name(); 
     return true;
 }
+
+XString XModelTab::get_base_name(DWORD base)
+{
+    std::map<DWORD, MODULE_INFO>::iterator it = this->modules.find(base);
+    if (it == this->modules.end())
+    {
+        return L"";
+    }
+
+    return it->second.file_path.get_short_name();
+}

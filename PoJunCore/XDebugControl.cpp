@@ -11,6 +11,8 @@
 #include "XMemoryMgr.h"
 #include "XSQLite3.h"   
 #include <XModule.h>
+#include "XDebugProcessInfo.h"
+#include <DbgHelp.h>
 
 XDebugControl* XDebugControl::m_This = nullptr;
 XDebugControl::XDebugControl()
@@ -136,6 +138,9 @@ bool XDebugControl::create_process(XString& file_path)
     { 
         return false;
     }
+
+    XDebugProcessInfo::pins()->set_process_handle_id(pi.hProcess, pi.dwProcessId);
+    XDebugProcessInfo::pins()->set_thread_handle_id(pi.hProcess, pi.dwThreadId);
      
     return true;
 }
@@ -288,6 +293,26 @@ DWORD XDebugControl::create_process_debug_event(DEBUG_INFO& debug_info)
     if (cp != nullptr)
     {
         XInt3Tab::pins()->create_process(cp, debug_info.process);
+
+        if (::SymInitialize(
+            XDebugProcessInfo::pins()->get_process_handle(), 
+            NULL, 
+            FALSE) == TRUE)
+        {
+
+            //加载模块的调试信息
+            DWORD64 moduleAddress = ::SymLoadModule64(
+                XDebugProcessInfo::pins()->get_process_handle(),
+                cp->hFile,
+                NULL,
+                NULL,
+                (DWORD64)cp->lpBaseOfImage,
+                0);
+
+            CloseHandle(cp->hFile);
+            CloseHandle(cp->hThread);
+            CloseHandle(cp->hProcess);
+        } 
     }
 
     return DBG_CONTINUE;

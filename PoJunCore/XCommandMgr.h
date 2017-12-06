@@ -35,7 +35,7 @@ public:
     //运行
     static bool __stdcall g_command(const XString& command, DEBUG_INFO& debug_info, OPCODE_INFO& opcode_info, DEBUG_MODULE_DATA& out_module_data);
     //是否是单步指令，如果是call返回false
-    bool is_single_step();
+    bool is_single_step(); 
 
     /*
         断点指令
@@ -67,15 +67,14 @@ public:
 
     //反汇编
     static bool __stdcall u_command(const XString& command, DEBUG_INFO& debug_info, OPCODE_INFO& opcode_info, DEBUG_MODULE_DATA& out_module_data);
-
     //寄存器
     static bool __stdcall r_command(const XString& command, DEBUG_INFO& debug_info, OPCODE_INFO& opcode_info, DEBUG_MODULE_DATA& out_module_data);
-
     //模块
     static bool __stdcall lm_command(const XString& command, DEBUG_INFO& debug_info, OPCODE_INFO& opcode_info, DEBUG_MODULE_DATA& out_module_data);
-
     //线程 ~
     static bool __stdcall thread_command(const XString& command, DEBUG_INFO& debug_info, OPCODE_INFO& opcode_info, DEBUG_MODULE_DATA& out_module_data);
+    //k：查看栈
+    static bool __stdcall k_command(const XString& command, DEBUG_INFO& debug_info, OPCODE_INFO& opcode_info, DEBUG_MODULE_DATA& out_module_data);
 
     //字节显示
      
@@ -91,7 +90,7 @@ public:
     static bool __stdcall eu_command(const XString& command, DEBUG_INFO& debug_info, OPCODE_INFO& opcode_info, DEBUG_MODULE_DATA& out_module_data);
       
     //浮点显示 
-
+     
     /*
         记录指令
     */

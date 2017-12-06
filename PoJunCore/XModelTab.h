@@ -1,7 +1,7 @@
 #pragma once 
 #include "XPJCoreHead.h"
 
-#define PAGE_BASE(pos) (pos & 0xFFFFF000) - 0x1000 
+#define PAGE_BASE(pos) (pos & 0xFFFF0000) - 0x10000
 
 class XModelTab
 { 
@@ -22,6 +22,8 @@ public:
     bool get_module_table(std::map<DWORD, MODULE_INFO>& modules);
 
     bool get_name_base_offset(DWORD address, DWORD& base, DWORD& offset, XString& name);
+
+    XString get_base_name(DWORD base);
       
 private: 
     std::map<DWORD, MODULE_INFO> modules;
