@@ -294,12 +294,12 @@ DWORD XDebugControl::create_process_debug_event(DEBUG_INFO& debug_info)
     {
         XInt3Tab::pins()->create_process(cp, debug_info.process);
 
+        //符号初始化
         if (::SymInitialize(
             XDebugProcessInfo::pins()->get_process_handle(), 
             NULL, 
             FALSE) == TRUE)
-        {
-
+        { 
             //加载模块的调试信息
             DWORD64 moduleAddress = ::SymLoadModule64(
                 XDebugProcessInfo::pins()->get_process_handle(),

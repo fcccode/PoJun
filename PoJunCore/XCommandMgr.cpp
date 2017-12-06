@@ -322,30 +322,9 @@ bool __stdcall XCommandMgr::thread_command(const XString& command, DEBUG_INFO& d
     out_module_data.type = D_THREAD; 
     return XThreadTab::pins()->get_thread_table(out_module_data.thread_table);
 }
-  
-BOOL CALLBACK funaaaa(PCTSTR ModuleName, DWORD64 ModuleBase, ULONG ModuleSize, PVOID UserContext)
-{ 
-    std::map<DWORD, std::wstring>* pModuleMap = (std::map<DWORD, std::wstring>*)UserContext;
-
-    XString name = ModuleName;
-
-    (*pModuleMap)[(DWORD)ModuleBase] = name.w_cstr();
-
-    return TRUE;
-}
- 
+   
 bool XCommandMgr::k_command(const XString& command, DEBUG_INFO& debug_info, OPCODE_INFO& opcode_info, DEBUG_MODULE_DATA& out_module_data)
-{ 
-    std::map<DWORD, std::wstring> moduleMap;
-    if (::EnumerateLoadedModules64(
-        XDebugProcessInfo::pins()->get_process_handle(),
-        funaaaa,
-        &moduleMap) == FALSE) 
-    { 
-        //std::wcout << TEXT("EnumerateLoadedModules64 failed: ") << GetLastError() << std::endl;
-        return true;
-    }
-
+{   
     STACKFRAME64 stackFrame = { 0 };
     stackFrame = { 0 };
     stackFrame.AddrPC.Mode = AddrModeFlat;
@@ -354,6 +333,10 @@ bool XCommandMgr::k_command(const XString& command, DEBUG_INFO& debug_info, OPCO
     stackFrame.AddrStack.Offset = debug_info.context.Esp;
     stackFrame.AddrFrame.Mode = AddrModeFlat;
     stackFrame.AddrFrame.Offset = debug_info.context.Ebp;
+     
+    CONTEXT Context;
+    Context.ContextFlags = CONTEXT_FULL;
+    ::GetThreadContext(debug_info.thread, &Context);
 
     //»ñÈ¡Õ»Ö¡
     while (::StackWalk64(
@@ -361,7 +344,7 @@ bool XCommandMgr::k_command(const XString& command, DEBUG_INFO& debug_info, OPCO
         XDebugProcessInfo::pins()->get_process_handle(),
         XDebugProcessInfo::pins()->get_thread_handle(),
         &stackFrame,
-        &debug_info.context,
+        &Context,
         NULL,
         ::SymFunctionTableAccess64,
         ::SymGetModuleBase64,
@@ -387,10 +370,12 @@ bool XCommandMgr::k_command(const XString& command, DEBUG_INFO& debug_info, OPCO
                 stackFrame.AddrPC.Offset,
                 &displacement,
                 pSymInfo) == TRUE) 
-        {
-            int i = 0;
-        }
-
+        { 
+            STACK_TABLE stack;
+            stack.module_name = module_name;
+            stack.fun_name = pSymInfo->Name;
+            out_module_data.stack_table.insert(out_module_data.stack_table.begin(), stack);
+        } 
     }
 
     return true;

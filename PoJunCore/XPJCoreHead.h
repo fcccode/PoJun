@@ -74,6 +74,13 @@ typedef struct TAG_MEMORY_BREAK_POINT
     DWORD type;
     DWORD old_page_protect; 
 }MEMORY_BREAK_POINT;
+
+typedef struct TAG_STACK_TABLE
+{
+    XString module_name;
+    XString fun_name;
+
+}STACK_TABLE;
  
 //内部信息集合
 typedef struct _tagModuleData
@@ -103,6 +110,7 @@ typedef struct _tagModuleData
 #define D_ED L"{F9765DB1-D365-47B2-A504-31668CAFDAD0}"
 #define D_EA L"{E5B926CE-FF1F-45F3-848E-06870F24FD2A}"
 #define D_EU L"{08AC0A67-3C27-42C3-A51C-81E5C0AD564E}"
+#define D_K L"{FE6DBDB1-B1EA-40EC-97A7-0B4DA52FB811}"
 
 
     //指令类型
@@ -119,6 +127,8 @@ typedef struct _tagModuleData
     std::map<DWORD, MODULE_INFO> module_table;
 
     std::vector<CREATE_THREAD_DEBUG_INFO> thread_table;
+
+    std::vector<STACK_TABLE> stack_table;
 
     struct D_MEMORY
     {  
