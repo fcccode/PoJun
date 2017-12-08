@@ -84,6 +84,11 @@ typedef struct TAG_STACK_TABLE
     DWORD fun_ret;
     DWORD call_me_address;
 
+    DWORD param1;
+    DWORD param2;
+    DWORD param3;
+    DWORD param4;
+
 }STACK_TABLE;
  
 //内部信息集合

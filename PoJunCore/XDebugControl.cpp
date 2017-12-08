@@ -353,6 +353,25 @@ DWORD XDebugControl::load_dll_debug_event(DEBUG_INFO& debug_info)
         {
             XInt3Tab::pins()->reduction_break_point(debug_info.process, file_path, (DWORD)ld->lpBaseOfDll);
         } 
+
+        //加载模块的调试信息
+        DWORD64 moduleAddress = ::SymLoadModule64(
+            XDebugProcessInfo::pins()->get_process_handle(),
+            ld->hFile,
+            NULL,
+            NULL,
+            (DWORD64)ld->lpBaseOfDll,
+            0);
+        if (moduleAddress == 0) 
+        { 
+            //load成功不做什么
+        }
+        else
+        {
+            //load失败也不做什么
+        }
+
+        ::CloseHandle(ld->hFile);
     }
       
     return DBG_CONTINUE;

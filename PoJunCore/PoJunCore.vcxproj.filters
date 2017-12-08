@@ -75,6 +75,9 @@
     <ClInclude Include="XDebugProcessInfo.h">
       <Filter>File\Control</Filter>
     </ClInclude>
+    <ClInclude Include="XStackData.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -121,6 +124,9 @@
     </ClCompile>
     <ClCompile Include="XDebugProcessInfo.cpp">
       <Filter>File\Control</Filter>
+    </ClCompile>
+    <ClCompile Include="XStackData.cpp">
+      <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

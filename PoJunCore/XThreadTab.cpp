@@ -36,3 +36,14 @@ bool XThreadTab::get_thread_table(std::vector<CREATE_THREAD_DEBUG_INFO>& tab)
     tab = this->thread_tab;
     return true;
 }
+
+bool XThreadTab::get_thread_data(int pos, CREATE_THREAD_DEBUG_INFO& data)
+{
+    if (this->thread_tab.size() < pos || pos < 0)
+    {
+        return false;
+    }
+
+    data = this->thread_tab[pos];
+    return true;
+}

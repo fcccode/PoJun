@@ -5,8 +5,8 @@
 #include "XDecodingASM.h"
 #include "XMemoryMgr.h"
 #include "XModelTab.h"
-#include "XThreadTab.h"
-#include <DbgHelp.h>
+#include "XThreadTab.h" 
+#include "XStackData.h"
 #include "XDebugProcessInfo.h"
 
 XCommandMgr* XCommandMgr::m_This = nullptr;
@@ -320,81 +320,48 @@ bool __stdcall XCommandMgr::lm_command(const XString& command, DEBUG_INFO& debug
 bool __stdcall XCommandMgr::thread_command(const XString& command, DEBUG_INFO& debug_info, OPCODE_INFO& opcode_info, DEBUG_MODULE_DATA& out_module_data)
 {
     out_module_data.type = D_THREAD; 
-    return XThreadTab::pins()->get_thread_table(out_module_data.thread_table);
+
+    std::vector<XString> vt_command;
+    if (!XCommandMgr::pins()->get_vt_command(command, vt_command, 1))
+    {
+        //命令错误，直接飞
+        return false;
+    }
+
+    if (vt_command.size() == 1)
+    {
+        return XThreadTab::pins()->get_thread_table(out_module_data.thread_table);
+    }
+
+    if (vt_command.size() != 3)
+    {
+        //命令错误，直接飞
+        return false;
+    }
+
+    vt_command.erase(vt_command.begin());
+    std::vector<XString>::iterator it = vt_command.begin();
+    int inedx = it->to_int(); 
+    vt_command.erase(vt_command.begin());
+    it = vt_command.begin();
+
+    if (!it->compare(L"k") == 0)
+    {
+        return false;
+    }
+
+    CREATE_THREAD_DEBUG_INFO data; 
+    if (!XThreadTab::pins()->get_thread_data(inedx, data))
+    {
+        return false;
+    }
+
+    return XStackData::get_thread_stack_data(data.hThread, debug_info.context, out_module_data.stack_table);
 }
    
 bool XCommandMgr::k_command(const XString& command, DEBUG_INFO& debug_info, OPCODE_INFO& opcode_info, DEBUG_MODULE_DATA& out_module_data)
-{   
-    STACKFRAME64 stackFrame = { 0 };
-    stackFrame = { 0 };
-    stackFrame.AddrPC.Mode = AddrModeFlat;
-    stackFrame.AddrPC.Offset = debug_info.context.Eip;
-    stackFrame.AddrStack.Mode = AddrModeFlat;
-    stackFrame.AddrStack.Offset = debug_info.context.Esp;
-    stackFrame.AddrFrame.Mode = AddrModeFlat;
-    stackFrame.AddrFrame.Offset = debug_info.context.Ebp;
-     
-    CONTEXT Context;
-    Context.ContextFlags = CONTEXT_FULL;
-    ::GetThreadContext(debug_info.thread, &Context);
-
-    //获取栈帧
-    while (::StackWalk64(
-        IMAGE_FILE_MACHINE_I386,
-        XDebugProcessInfo::pins()->get_process_handle(),
-        XDebugProcessInfo::pins()->get_thread_handle(),
-        &stackFrame,
-        &Context,
-        NULL,
-        ::SymFunctionTableAccess64,
-        ::SymGetModuleBase64,
-        NULL))
-    {     
-        //显示模块名称
-        DWORD64 moduleBase = (DWORD)::SymGetModuleBase64(
-            XDebugProcessInfo::pins()->get_process_handle(), 
-            stackFrame.AddrPC.Offset);
-
-        XString module_name = XModelTab::pins()->get_base_name((DWORD)moduleBase); 
-          
-        //显示函数名称
-        BYTE buffer[sizeof(SYMBOL_INFO) + MAX_SYM_NAME * sizeof(TCHAR)] = { 0 };
-        PSYMBOL_INFO pSymInfo = (PSYMBOL_INFO)buffer;
-        pSymInfo->SizeOfStruct = sizeof(SYMBOL_INFO);
-        pSymInfo->MaxNameLen = MAX_SYM_NAME;
-
-        DWORD64 displacement = 0;
-
-        if (::SymFromAddr(
-                XDebugProcessInfo::pins()->get_process_handle(),
-                stackFrame.AddrPC.Offset,
-                &displacement,
-                pSymInfo) == TRUE) 
-        { 
-            STACK_TABLE stack;
-            stack.module_name = module_name;
-            stack.fun_name = pSymInfo->Name; 
-            DWORD* offset = 0;
-            if (XMemoryMgr::pins()->read_memory(
-                XDebugProcessInfo::pins()->get_process_handle(),
-                (DWORD)(stackFrame.AddrReturn.Offset - 0x4),
-                (LPVOID*)&offset,
-                sizeof(DWORD)))
-            {
-                stack.fun_enter = (DWORD)stackFrame.AddrReturn.Offset + *offset;
-            } 
-            if (offset != nullptr)
-            {
-                delete[] offset;
-            }
-            stack.stack_base_address = Context.Ebp + D_FUN_RET_OFFSET;
-            stack.fun_ret = (DWORD)stackFrame.AddrReturn.Offset;
-            stack.call_me_address = (DWORD)stackFrame.AddrReturn.Offset - D_OPCODE_CALL_LENGTH;
-            out_module_data.stack_table.insert(out_module_data.stack_table.begin(), stack);
-        } 
-    }
-
-    return true;
+{    
+    return XStackData::get_thread_stack_data(debug_info.thread, debug_info.context, out_module_data.stack_table);
 }
 
 bool __stdcall XCommandMgr::db_command(const XString& command, DEBUG_INFO& debug_info, OPCODE_INFO& opcode_info, DEBUG_MODULE_DATA& out_module_data)

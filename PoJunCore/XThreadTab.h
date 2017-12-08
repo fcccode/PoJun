@@ -16,6 +16,8 @@ public:
 
     bool get_thread_table(std::vector<CREATE_THREAD_DEBUG_INFO>& tab);
 
+    bool get_thread_data(int pos, CREATE_THREAD_DEBUG_INFO& data);
+
 private:
     std::vector<CREATE_THREAD_DEBUG_INFO> thread_tab;
 };

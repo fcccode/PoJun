@@ -8,10 +8,7 @@ enum OPCODE
     E_CALL_FF = 0xFF,
     E_REP = 0xF3,
     E_REPNE = 0xF2
-};
- 
-#define D_OPCODE_CALL_LENGTH 0x5
-#define D_FUN_RET_OFFSET     0x4  
+}; 
  
 class XCommandMgr
 {
