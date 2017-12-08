@@ -355,7 +355,7 @@ bool XCommandMgr::k_command(const XString& command, DEBUG_INFO& debug_info, OPCO
             XDebugProcessInfo::pins()->get_process_handle(), 
             stackFrame.AddrPC.Offset);
 
-        XString module_name = XModelTab::pins()->get_base_name(moduleBase); 
+        XString module_name = XModelTab::pins()->get_base_name((DWORD)moduleBase); 
           
         //ÏÔÊ¾º¯ÊýÃû³Æ
         BYTE buffer[sizeof(SYMBOL_INFO) + MAX_SYM_NAME * sizeof(TCHAR)] = { 0 };
@@ -373,7 +373,23 @@ bool XCommandMgr::k_command(const XString& command, DEBUG_INFO& debug_info, OPCO
         { 
             STACK_TABLE stack;
             stack.module_name = module_name;
-            stack.fun_name = pSymInfo->Name;
+            stack.fun_name = pSymInfo->Name; 
+            DWORD* offset = 0;
+            if (XMemoryMgr::pins()->read_memory(
+                XDebugProcessInfo::pins()->get_process_handle(),
+                (DWORD)(stackFrame.AddrReturn.Offset - 0x4),
+                (LPVOID*)&offset,
+                sizeof(DWORD)))
+            {
+                stack.fun_enter = (DWORD)stackFrame.AddrReturn.Offset + *offset;
+            } 
+            if (offset != nullptr)
+            {
+                delete[] offset;
+            }
+            stack.stack_base_address = Context.Ebp + D_FUN_RET_OFFSET;
+            stack.fun_ret = (DWORD)stackFrame.AddrReturn.Offset;
+            stack.call_me_address = (DWORD)stackFrame.AddrReturn.Offset - D_OPCODE_CALL_LENGTH;
             out_module_data.stack_table.insert(out_module_data.stack_table.begin(), stack);
         } 
     }

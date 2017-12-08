@@ -79,6 +79,10 @@ typedef struct TAG_STACK_TABLE
 {
     XString module_name;
     XString fun_name;
+    DWORD fun_enter;
+    DWORD stack_base_address;
+    DWORD fun_ret;
+    DWORD call_me_address;
 
 }STACK_TABLE;
  
