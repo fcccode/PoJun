@@ -140,8 +140,7 @@ bool XDebugControl::create_process(XString& file_path)
     }
 
     XDebugProcessInfo::pins()->set_process_handle_id(pi.hProcess, pi.dwProcessId);
-    XDebugProcessInfo::pins()->set_thread_handle_id(pi.hProcess, pi.dwThreadId);
-     
+    XDebugProcessInfo::pins()->set_thread_handle_id(pi.hProcess, pi.dwThreadId); 
     return true;
 }
 
@@ -165,10 +164,11 @@ DWORD XDebugControl::e_acess_violation(DEBUG_INFO& debug_info)
 
         user_control(debug_info);
         
-        debug_info.context.EFlags |= 0x100; 
+        debug_info.context.EFlags |= 0x100;
+        return DBG_CONTINUE;;
     } 
 
-    return DBG_CONTINUE;;
+    return DBG_EXCEPTION_NOT_HANDLED;;
 }
 
 DWORD XDebugControl::e_break_point(DEBUG_INFO& debug_info)
@@ -286,7 +286,7 @@ DWORD XDebugControl::e_single_step(DEBUG_INFO& debug_info)
 
     return DBG_CONTINUE;
 }
-
+ 
 DWORD XDebugControl::create_process_debug_event(DEBUG_INFO& debug_info)
 {
     CREATE_PROCESS_DEBUG_INFO *cp = (CREATE_PROCESS_DEBUG_INFO*)&debug_info.event.u.CreateProcessInfo;
@@ -294,25 +294,16 @@ DWORD XDebugControl::create_process_debug_event(DEBUG_INFO& debug_info)
     {
         XInt3Tab::pins()->create_process(cp, debug_info.process);
 
-        //符号初始化
-        if (::SymInitialize(
-            XDebugProcessInfo::pins()->get_process_handle(), 
-            NULL, 
-            FALSE) == TRUE)
-        { 
-            //加载模块的调试信息
-            DWORD64 moduleAddress = ::SymLoadModule64(
-                XDebugProcessInfo::pins()->get_process_handle(),
-                cp->hFile,
-                NULL,
-                NULL,
-                (DWORD64)cp->lpBaseOfImage,
-                0);
-
-            CloseHandle(cp->hFile);
-            CloseHandle(cp->hThread);
-            CloseHandle(cp->hProcess);
-        } 
+        //插入进程模块
+        MODULE_INFO mi;
+        mi.handle = debug_info.process;
+        mi.hfile = cp->hFile;
+        mi.base = (DWORD)cp->lpBaseOfImage;
+        mi.enter = (DWORD)cp->lpStartAddress;
+        XModule::handle_to_path(cp->hFile, mi.file_path);
+        mi.size = 0;
+        mi.file_version = 0;
+        XModelTab::pins()->insert_exe(mi);
     }
 
     return DBG_CONTINUE;
@@ -336,8 +327,8 @@ DWORD XDebugControl::exit_thread_debug_event(DEBUG_INFO& debug_info)
 }
 
 DWORD XDebugControl::exit_process_debug_event(DEBUG_INFO& debug_info)
-{ 
-    //没有有用的信息。 
+{  
+    ::SymCleanup(XDebugProcessInfo::pins()->get_process_handle());
     return DBG_CONTINUE;
 }
  
@@ -383,6 +374,7 @@ DWORD XDebugControl::unload_dll_debug_event(DEBUG_INFO& debug_info)
     if (ud != nullptr)
     {
         XModelTab::pins()->remove_dll((DWORD)ud->lpBaseOfDll);
+        ::SymUnloadModule64(XDebugProcessInfo::pins()->get_process_handle(), (DWORD64)ud->lpBaseOfDll);
     }
       
     return DBG_CONTINUE;

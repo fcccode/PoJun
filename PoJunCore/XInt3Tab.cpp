@@ -1,7 +1,7 @@
 #include "stdafx.h"
-#include "XInt3Tab.h" 
-#include "XModelTab.h" 
+#include "XInt3Tab.h"  
 #include "XSQLite3.h" 
+#include "XModelTab.h" 
 #include <XModule.h>
 
 
@@ -35,17 +35,7 @@ void XInt3Tab::create_process(CREATE_PROCESS_DEBUG_INFO* cp, HANDLE process)
     if (!ret)
     { 
         XGlobal::show_api_err();
-    }
-
-    //插入进程模块
-    MODULE_INFO mi;
-    mi.handle = process;
-    mi.base = PAGE_BASE((DWORD)cp->lpStartAddress);
-    mi.enter = (DWORD)cp->lpStartAddress;  
-    XModule::handle_to_path(cp->hFile, mi.file_path);
-    mi.size = 0;
-    mi.file_version = 0; 
-    XModelTab::pins()->insert_exe(mi); 
+    } 
 }
 
 bool XInt3Tab::is_start_opcode(DWORD opcode)

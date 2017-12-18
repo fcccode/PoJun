@@ -6,6 +6,7 @@ enum OPCODE
 {
     E_CALL_E8 = 0xE8,
     E_CALL_FF = 0xFF,
+    E_CALL_9A = 0x9A,
     E_REP = 0xF3,
     E_REPNE = 0xF2
 }; 
@@ -75,9 +76,12 @@ public:
     static bool __stdcall thread_command(const XString& command, DEBUG_INFO& debug_info, OPCODE_INFO& opcode_info, DEBUG_MODULE_DATA& out_module_data);
     //k：查看栈
     static bool __stdcall k_command(const XString& command, DEBUG_INFO& debug_info, OPCODE_INFO& opcode_info, DEBUG_MODULE_DATA& out_module_data);
+    //sym:设置符号路径
+    static bool __stdcall sym_command(const XString& command, DEBUG_INFO& debug_info, OPCODE_INFO& opcode_info, DEBUG_MODULE_DATA& out_module_data);
+    //reload：重新加载符号
+    static bool __stdcall reload_command(const XString& command, DEBUG_INFO& debug_info, OPCODE_INFO& opcode_info, DEBUG_MODULE_DATA& out_module_data); 
 
     //字节显示
-     
     static bool __stdcall db_command(const XString& command, DEBUG_INFO& debug_info, OPCODE_INFO& opcode_info, DEBUG_MODULE_DATA& out_module_data);
     static bool __stdcall dw_command(const XString& command, DEBUG_INFO& debug_info, OPCODE_INFO& opcode_info, DEBUG_MODULE_DATA& out_module_data);
     static bool __stdcall dd_command(const XString& command, DEBUG_INFO& debug_info, OPCODE_INFO& opcode_info, DEBUG_MODULE_DATA& out_module_data);
@@ -111,4 +115,3 @@ private:
     //调试指令需要使用
     bool single_step;
 };
-

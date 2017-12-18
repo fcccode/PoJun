@@ -30,6 +30,7 @@ typedef struct TAG_DECODEING_ASM
 typedef struct TAG_MODULE
 {
     HANDLE handle;
+    HANDLE hfile;
     DWORD base;
     DWORD size;
     DWORD enter;
@@ -120,6 +121,8 @@ typedef struct _tagModuleData
 #define D_EA L"{E5B926CE-FF1F-45F3-848E-06870F24FD2A}"
 #define D_EU L"{08AC0A67-3C27-42C3-A51C-81E5C0AD564E}"
 #define D_K L"{FE6DBDB1-B1EA-40EC-97A7-0B4DA52FB811}"
+#define D_SYM L"{2ACC639D-C0F6-4F3A-B0CB-A77DD11A373C}"
+#define D_RELOAD L"{3F1DB640-64B9-48A2-890E-B502A02ECFE1}"
 
 
     //÷∏¡Ó¿‡–Õ

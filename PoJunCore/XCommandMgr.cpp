@@ -6,7 +6,7 @@
 #include "XMemoryMgr.h"
 #include "XModelTab.h"
 #include "XThreadTab.h" 
-#include "XStackData.h"
+#include "XSymbolData.h"
 #include "XDebugProcessInfo.h"
 
 XCommandMgr* XCommandMgr::m_This = nullptr;
@@ -33,6 +33,8 @@ XCommandMgr::XCommandMgr()
     insert(L"lm", XCommandMgr::lm_command);
     insert(L"~", XCommandMgr::thread_command);
     insert(L"k", XCommandMgr::k_command);
+    insert(L"sym", XCommandMgr::sym_command);
+    insert(L"reload", XCommandMgr::reload_command);
 
     insert(L"db", XCommandMgr::db_command);
     insert(L"dw", XCommandMgr::dw_command);
@@ -356,12 +358,35 @@ bool __stdcall XCommandMgr::thread_command(const XString& command, DEBUG_INFO& d
         return false;
     }
 
-    return XStackData::get_thread_stack_data(data.hThread, debug_info.context, out_module_data.stack_table);
+    return XSymbolData::get_thread_stack_data(data.hThread, debug_info.context, out_module_data.stack_table);
 }
    
-bool XCommandMgr::k_command(const XString& command, DEBUG_INFO& debug_info, OPCODE_INFO& opcode_info, DEBUG_MODULE_DATA& out_module_data)
-{    
-    return XStackData::get_thread_stack_data(debug_info.thread, debug_info.context, out_module_data.stack_table);
+bool __stdcall XCommandMgr::k_command(const XString& command, DEBUG_INFO& debug_info, OPCODE_INFO& opcode_info, DEBUG_MODULE_DATA& out_module_data)
+{
+    out_module_data.type = D_K;
+    return XSymbolData::get_thread_stack_data(debug_info.thread, debug_info.context, out_module_data.stack_table);
+}
+
+bool __stdcall XCommandMgr::sym_command(const XString& command, DEBUG_INFO& debug_info, OPCODE_INFO& opcode_info, DEBUG_MODULE_DATA& out_module_data)
+{
+    out_module_data.type = D_SYM;
+
+    std::vector<XString> vt_command;
+    if (!XCommandMgr::pins()->get_vt_command(command, vt_command, 1))
+    {
+        //ÃüÁî´íÎó£¬Ö±½Ó·É
+        return false;
+    }
+
+    vt_command.erase(vt_command.begin()); 
+    XSymbolData::pins()->set_symbol_path(vt_command);
+    return true;
+}
+
+bool __stdcall XCommandMgr::reload_command(const XString& command, DEBUG_INFO& debug_info, OPCODE_INFO& opcode_info, DEBUG_MODULE_DATA& out_module_data)
+{
+    out_module_data.type = D_RELOAD;
+    return XSymbolData::pins()->reload();
 }
 
 bool __stdcall XCommandMgr::db_command(const XString& command, DEBUG_INFO& debug_info, OPCODE_INFO& opcode_info, DEBUG_MODULE_DATA& out_module_data)

@@ -31,13 +31,15 @@ void XModelTab::insert_exe(MODULE_INFO& mi)
 
 void XModelTab::insert_dll(LOAD_DLL_DEBUG_INFO *load_dll)
 { 
-    MODULE_INFO module;
-    module.base = (DWORD)load_dll->lpBaseOfDll;
+    MODULE_INFO module; 
     module.handle = load_dll->hFile;
-
+    module.hfile = load_dll->hFile; 
+    module.base = (DWORD)load_dll->lpBaseOfDll; 
     module.file_path = L"";
     if (XModule::handle_to_path(module.handle, module.file_path))
-    { 
+    {
+        module.size = 0;
+        module.file_version = 0;
         this->modules.insert(std::pair<DWORD, MODULE_INFO>(module.base, module));
     }
 }

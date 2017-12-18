@@ -1,21 +1,32 @@
 #include "stdafx.h"
-#include "XStackData.h"
+#include "XSymbolData.h"
 #include <DbgHelp.h>
 #include "XDebugProcessInfo.h"
 #include "XModelTab.h"
 #include "XMemoryMgr.h"
+#include <XFile.h> 
 
+XSymbolData* XSymbolData::m_This = nullptr;
+XSymbolData::XSymbolData()
+{
+    symbol_init = false;
+}
 
-XStackData::XStackData()
+XSymbolData::~XSymbolData()
 {
 }
 
-
-XStackData::~XStackData()
+XSymbolData* XSymbolData::pins()
 {
+    if (m_This == nullptr)
+    {
+        m_This = new XSymbolData;
+    }
+
+    return m_This;
 }
 
-bool XStackData::get_thread_stack_data(HANDLE thread, CONTEXT& context, std::vector<STACK_TABLE>& out_data)
+bool XSymbolData::get_thread_stack_data(HANDLE thread, CONTEXT& context, std::vector<STACK_TABLE>& out_data)
 {
     STACKFRAME64 stackFrame = { 0 };
     stackFrame = { 0 };
@@ -58,10 +69,10 @@ bool XStackData::get_thread_stack_data(HANDLE thread, CONTEXT& context, std::vec
         DWORD64 displacement = 0;
 
         if (::SymFromAddr(
-            XDebugProcessInfo::pins()->get_process_handle(),
-            stackFrame.AddrPC.Offset,
-            &displacement,
-            pSymInfo) == TRUE)
+                XDebugProcessInfo::pins()->get_process_handle(),
+                stackFrame.AddrPC.Offset,
+                &displacement,
+                pSymInfo))
         {
             STACK_TABLE stack;
             stack.module_name = module_name;
@@ -90,5 +101,76 @@ bool XStackData::get_thread_stack_data(HANDLE thread, CONTEXT& context, std::vec
         }
     }
 
+    return true;
+}
+
+void XSymbolData::set_symbol_path(std::vector<XString>& path)
+{
+    this->symbol_path.clear();
+
+    std::vector<XString>::iterator it = path.begin();
+    for (it; it != path.end(); it++)
+    {
+        bool dir = false;
+        if (!XFile::is_file_exist(*it, dir))
+        {
+            continue;
+        }
+
+        if (dir)
+        {
+            //枚举目录，搜索pdb, 不枚举子目录
+        }
+        else
+        {
+            if (it->get_suffix().compare(L"pdb") == 0)
+            {
+                this->symbol_path.push_back(*it);
+            } 
+        }
+
+    } 
+}
+
+bool XSymbolData::reload()
+{
+    if (!this->symbol_init)
+    {
+        //符号初始化
+        BOOL init = ::SymInitialize(
+            XDebugProcessInfo::pins()->get_process_handle(),
+            NULL,
+            FALSE);
+        this->symbol_init = (init) ? true : false;
+    }
+
+    if (!this->symbol_init)
+    {
+        return false;
+    }
+     
+    std::map<DWORD, MODULE_INFO> module;
+    if (!XModelTab::pins()->get_module_table(module))
+    {
+        return false;
+    }
+
+    std::map<DWORD, MODULE_INFO>::iterator it = module.begin();
+    for (it; it != module.end(); it++)
+    {
+        DWORD64 moduleAddress = ::SymLoadModule64(
+            XDebugProcessInfo::pins()->get_process_handle(),
+            it->second.hfile,
+            NULL,
+            NULL,
+            (DWORD64)it->second.base,
+            0);
+    }    
+
+    return true;
+}
+
+bool XSymbolData::reload(XString& sym_name)
+{
     return true;
 }
