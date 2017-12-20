@@ -9,6 +9,9 @@ public:
     XOutPutWindow(QWidget *parent = Q_NULLPTR);
     ~XOutPutWindow();
 
+private slots:
+    void on_OutPutWindow_visibilityChanged(bool visible);
+
 private:
     Ui::OutPutWindow opw;
 };

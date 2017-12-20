@@ -51,11 +51,13 @@ public:
     QAction *ma_help;
     QAction *ma_about;
     QAction *ma_set;
+    QAction *out_view;
     QWidget *centralWidget;
     QToolBar *mainToolBar;
     QMenuBar *menu_bar;
     QMenu *mb_file;
     QMenu *mb_view;
+    QMenu *menu;
     QMenu *mb_debug;
     QMenu *mb_option;
     QMenu *mb_help;
@@ -119,6 +121,8 @@ public:
         ma_about->setObjectName(QStringLiteral("ma_about"));
         ma_set = new QAction(PoJunUIClass);
         ma_set->setObjectName(QStringLiteral("ma_set"));
+        out_view = new QAction(PoJunUIClass);
+        out_view->setObjectName(QStringLiteral("out_view"));
         centralWidget = new QWidget(PoJunUIClass);
         centralWidget->setObjectName(QStringLiteral("centralWidget"));
         PoJunUIClass->setCentralWidget(centralWidget);
@@ -132,6 +136,8 @@ public:
         mb_file->setObjectName(QStringLiteral("mb_file"));
         mb_view = new QMenu(menu_bar);
         mb_view->setObjectName(QStringLiteral("mb_view"));
+        menu = new QMenu(mb_view);
+        menu->setObjectName(QStringLiteral("menu"));
         mb_debug = new QMenu(menu_bar);
         mb_debug->setObjectName(QStringLiteral("mb_debug"));
         mb_option = new QMenu(menu_bar);
@@ -156,11 +162,14 @@ public:
         mb_file->addAction(ma_disconnect);
         mb_file->addAction(ma_quit);
         mb_file->addSeparator();
+        mb_view->addAction(menu->menuAction());
+        mb_view->addSeparator();
         mb_view->addAction(ma_module);
         mb_view->addAction(ma_memory);
         mb_view->addAction(ma_thread);
         mb_view->addAction(ma_handle);
         mb_view->addAction(ma_she);
+        menu->addAction(out_view);
         mb_debug->addAction(ma_run);
         mb_debug->addAction(ma_stop);
         mb_debug->addAction(ma_restart);
@@ -232,8 +241,10 @@ public:
         ma_help->setText(QApplication::translate("PoJunUIClass", "\345\270\256\345\212\251", Q_NULLPTR));
         ma_about->setText(QApplication::translate("PoJunUIClass", "\345\205\263\344\272\216", Q_NULLPTR));
         ma_set->setText(QApplication::translate("PoJunUIClass", "\350\256\276\347\275\256", Q_NULLPTR));
+        out_view->setText(QApplication::translate("PoJunUIClass", "\350\276\223\345\207\272\347\252\227\345\217\243", Q_NULLPTR));
         mb_file->setTitle(QApplication::translate("PoJunUIClass", "\346\226\207\344\273\266(&F)", Q_NULLPTR));
         mb_view->setTitle(QApplication::translate("PoJunUIClass", "\350\247\206\345\233\276(&V)", Q_NULLPTR));
+        menu->setTitle(QApplication::translate("PoJunUIClass", "\345\255\220\347\252\227\345\217\243", Q_NULLPTR));
         mb_debug->setTitle(QApplication::translate("PoJunUIClass", "\350\260\203\350\257\225(&D)", Q_NULLPTR));
         mb_option->setTitle(QApplication::translate("PoJunUIClass", "\351\200\211\351\241\271(&O)", Q_NULLPTR));
         mb_help->setTitle(QApplication::translate("PoJunUIClass", "\345\270\256\345\212\251(&H)", Q_NULLPTR));

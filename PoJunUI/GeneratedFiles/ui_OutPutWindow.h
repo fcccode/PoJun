@@ -47,7 +47,7 @@ public:
         verticalLayoutWidget->setGeometry(QRect(0, 0, 701, 481));
         vlayout = new QVBoxLayout(verticalLayoutWidget);
         vlayout->setObjectName(QStringLiteral("vlayout"));
-        vlayout->setContentsMargins(0, 0, 0, 0);
+        vlayout->setContentsMargins(0, 0, 0, 6);
         show_text = new QTextEdit(verticalLayoutWidget);
         show_text->setObjectName(QStringLiteral("show_text"));
         show_text->setReadOnly(true);
@@ -56,6 +56,7 @@ public:
 
         hlayout = new QHBoxLayout();
         hlayout->setObjectName(QStringLiteral("hlayout"));
+        hlayout->setContentsMargins(6, -1, 6, -1);
         command = new QLabel(verticalLayoutWidget);
         command->setObjectName(QStringLiteral("command"));
 
