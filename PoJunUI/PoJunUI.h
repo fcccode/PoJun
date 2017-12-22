@@ -3,6 +3,7 @@
 #include <QtWidgets/QMainWindow>
 #include "ui_PoJunUI.h"  
 #include "XOutPutWindow.h"
+#include "XCommandWindow.h"
 
 #include <windows.h>
 
@@ -35,6 +36,8 @@ private slots:
     //子视图
     //输出窗口
     void on_out_view_triggered();
+    //命令输入窗口
+    void on_in_view_triggered();
 
     //查看模块
     void on_ma_module_triggered();
@@ -84,4 +87,5 @@ private:
     Ui::PoJunUIClass ui;   
 
     XOutPutWindow* out_put_window;
+    XCommandWindow* command_input;
 };

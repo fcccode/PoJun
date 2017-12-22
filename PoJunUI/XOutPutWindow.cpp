@@ -5,16 +5,12 @@ XOutPutWindow::XOutPutWindow(QWidget *parent)
     : QDockWidget(parent)
 {
     opw.setupUi(this);
-    opw.widget->setLayout(opw.vlayout); 
-    opw.input->setFocus(); 
+    opw.vlayout->setMargin(0);
+    opw.vlayout->setSpacing(0);
+    opw.widget->setLayout(opw.vlayout);
 }
 
 
 XOutPutWindow::~XOutPutWindow()
 {
-}
-
-void XOutPutWindow::on_OutPutWindow_visibilityChanged(bool visible)
-{
-    int i = 0;
-}
+} 

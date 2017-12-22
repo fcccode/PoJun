@@ -4,8 +4,8 @@
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
-    PoJunUI w;
-    w.showMaximized();
-    w.show();
+    PoJunUI pj; 
+    pj.showMaximized();
+    pj.setWindowState(Qt::WindowMaximized);
     return a.exec();
 }

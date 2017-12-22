@@ -41,6 +41,9 @@
     <Filter Include="UI">
       <UniqueIdentifier>{68d48d5e-c37e-4ad3-bc9e-4f0260005164}</UniqueIdentifier>
     </Filter>
+    <Filter Include="UI\ui">
+      <UniqueIdentifier>{880e9d9f-0799-480e-8482-29475909cd13}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -67,6 +70,15 @@
     <ClCompile Include="GeneratedFiles\Release\moc_XOutPutWindow.cpp">
       <Filter>Generated Files\Release</Filter>
     </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_XCommandWindow.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_XCommandWindow.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="XCommandWindow.cpp">
+      <Filter>UI</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="PoJunUI.ui">
@@ -84,12 +96,21 @@
     <CustomBuild Include="XOutPutWindow.h">
       <Filter>UI</Filter>
     </CustomBuild>
+    <CustomBuild Include="XCommandWindow.h">
+      <Filter>UI</Filter>
+    </CustomBuild>
+    <CustomBuild Include="CommandWindow.ui">
+      <Filter>Form Files</Filter>
+    </CustomBuild>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GeneratedFiles\ui_PoJunUI.h">
       <Filter>Generated Files</Filter>
     </ClInclude>
     <ClInclude Include="GeneratedFiles\ui_OutPutWindow.h">
+      <Filter>Generated Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GeneratedFiles\ui_CommandWindow.h">
       <Filter>Generated Files</Filter>
     </ClInclude>
   </ItemGroup>

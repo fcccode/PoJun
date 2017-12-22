@@ -14,10 +14,7 @@
 #include <QtWidgets/QApplication>
 #include <QtWidgets/QButtonGroup>
 #include <QtWidgets/QDockWidget>
-#include <QtWidgets/QHBoxLayout>
 #include <QtWidgets/QHeaderView>
-#include <QtWidgets/QLabel>
-#include <QtWidgets/QLineEdit>
 #include <QtWidgets/QTextEdit>
 #include <QtWidgets/QVBoxLayout>
 #include <QtWidgets/QWidget>
@@ -31,9 +28,6 @@ public:
     QWidget *verticalLayoutWidget;
     QVBoxLayout *vlayout;
     QTextEdit *show_text;
-    QHBoxLayout *hlayout;
-    QLabel *command;
-    QLineEdit *input;
 
     void setupUi(QDockWidget *OutPutWindow)
     {
@@ -54,22 +48,6 @@ public:
 
         vlayout->addWidget(show_text);
 
-        hlayout = new QHBoxLayout();
-        hlayout->setObjectName(QStringLiteral("hlayout"));
-        hlayout->setContentsMargins(6, -1, 6, -1);
-        command = new QLabel(verticalLayoutWidget);
-        command->setObjectName(QStringLiteral("command"));
-
-        hlayout->addWidget(command);
-
-        input = new QLineEdit(verticalLayoutWidget);
-        input->setObjectName(QStringLiteral("input"));
-
-        hlayout->addWidget(input);
-
-
-        vlayout->addLayout(hlayout);
-
         OutPutWindow->setWidget(widget);
 
         retranslateUi(OutPutWindow);
@@ -80,7 +58,6 @@ public:
     void retranslateUi(QDockWidget *OutPutWindow)
     {
         OutPutWindow->setWindowTitle(QApplication::translate("OutPutWindow", "\350\276\223\345\207\272", Q_NULLPTR));
-        command->setText(QApplication::translate("OutPutWindow", "\345\221\275\344\273\244", Q_NULLPTR));
     } // retranslateUi
 
 };
