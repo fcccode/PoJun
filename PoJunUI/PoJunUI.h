@@ -3,8 +3,7 @@
 #include <QtWidgets/QMainWindow>
 #include "ui_PoJunUI.h"  
 #include "XOutPutWindow.h"
-#include "XCommandWindow.h"
-
+#include "XCommandWindow.h" 
 #include <windows.h>
 
 class PoJunUI : public QMainWindow
@@ -14,14 +13,14 @@ class PoJunUI : public QMainWindow
 public:
     PoJunUI(QWidget *parent = Q_NULLPTR);
 
-private:
-    void set_dock();
-
+private:  
     void init_ui();
+
+    void init_connect();
 
     //////////////////////////////////////////////////////////////////////////
 
-private slots:
+private slots:  
     //文件菜单
     //打开新的进程
     void on_ma_open_triggered(); 
@@ -81,8 +80,7 @@ private slots:
     void on_ma_help_triggered();
     //关于
     void on_ma_about_triggered();
-
-
+       
 private:
     Ui::PoJunUIClass ui;   
 

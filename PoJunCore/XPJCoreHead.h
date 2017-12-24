@@ -163,7 +163,7 @@ typedef struct _tagModuleData
 
 //输入/输出控制回调
 typedef void(__stdcall *pfun_in_fun)(XString& command);
-typedef void(__stdcall *pfun_out_fun)(CONTEXT context, const std::list<DECODEING_ASM>& asm_tab);
+typedef void(__stdcall *pfun_out_fun)(CONTEXT context, std::list<DECODEING_ASM>& asm_tab);
  
  
 //命令管理器回调

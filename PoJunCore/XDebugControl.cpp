@@ -36,7 +36,7 @@ XDebugControl* XDebugControl::pins()
 
 void XDebugControl::start_debug_loop(XString& file_path, pfun_in_fun in_fun, pfun_out_fun out_fun, pfun_command_call_back_out command_out, DWORD count)
 {
-    if (in_fun == nullptr || out_fun == nullptr)
+    if (in_fun == nullptr || out_fun == nullptr, command_out == nullptr)
     {
         return;
     }

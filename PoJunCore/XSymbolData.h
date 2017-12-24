@@ -1,6 +1,9 @@
 #pragma once
+
+
+
 #include "XPJCoreHead.h"   
-#include <ImageHlp.h>
+//#include <ImageHlp.h>
 
 #define D_OPCODE_CALL_LENGTH 0x5
 #define D_FUN_RET_OFFSET     0x4  

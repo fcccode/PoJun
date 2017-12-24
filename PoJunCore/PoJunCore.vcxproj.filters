@@ -76,7 +76,7 @@
       <Filter>File\Control</Filter>
     </ClInclude>
     <ClInclude Include="XSymbolData.h">
-      <Filter>File\Module</Filter>
+      <Filter>File\Control</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -126,7 +126,7 @@
       <Filter>File\Control</Filter>
     </ClCompile>
     <ClCompile Include="XSymbolData.cpp">
-      <Filter>File\Module</Filter>
+      <Filter>File\Control</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

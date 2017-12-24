@@ -1,31 +1,26 @@
 #include "PoJunUI.h"
 #include <QBoxLayout.h>
+#include "XControllerCenter.h"
+#include <XFileDlg.h>
 
 PoJunUI::PoJunUI(QWidget *parent)
     : QMainWindow(parent)
 {
     ui.setupUi(this); 
-
-    ui.mainToolBar->update();
-    
-    set_dock(); 
-
-    init_ui();
+    init_ui();  
+    init_connect();
 }
-
-void PoJunUI::set_dock()
+ 
+void PoJunUI::init_ui()
 {
     QWidget* cw = takeCentralWidget();
     if (cw)
-    { 
+    {
         delete cw;
     }
 
     setDockNestingEnabled(true);
-}
-
-void PoJunUI::init_ui()
-{ 
+      
     out_put_window = new XOutPutWindow;
     if (out_put_window != nullptr)
     {
@@ -37,31 +32,24 @@ void PoJunUI::init_ui()
     {
         addDockWidget(Qt::BottomDockWidgetArea, command_input);
     }
+     
+    ui.mainToolBar->update();
 }
 
+void PoJunUI::init_connect()
+{ 
+    if (out_put_window)
+    {
+        connect(XControllerCenter::pins(), SIGNAL(show_asm()), out_put_window, SLOT(show_asm()));
+    } 
+}
+ 
 void PoJunUI::on_ma_open_triggered()
 {
-    BOOL bRet = FALSE;
-    OPENFILENAME OPEN = { 0 };
-    WCHAR FilePaht[MAX_PATH] = { 0 };
-
-    OPEN.lStructSize = sizeof(OPENFILENAME);
-    OPEN.nMaxFile = (MAX_PATH * sizeof(WCHAR));
-    ZeroMemory(&OPEN, sizeof(OPENFILENAME));
-    OPEN.lStructSize = sizeof(OPENFILENAME);
-    OPEN.hwndOwner = NULL;
-    OPEN.lpstrFile = FilePaht;
-    OPEN.nMaxFile = (MAX_PATH * sizeof(WCHAR));
-    OPEN.nFilterIndex = 1;
-    OPEN.lpstrFileTitle = NULL;
-    OPEN.nMaxFileTitle = 0;
-    OPEN.lpstrInitialDir = NULL;
-    OPEN.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST;
-
-    bRet = ::GetOpenFileNameW(&OPEN);
-    if (bRet = IDOK)
+    XString file_path = XFileDlg::open_dlg(); 
+    if (file_path.not_empty())
     {
-
+        XControllerCenter::pins()->dbg_new_process(file_path);
     }
     else
     {
