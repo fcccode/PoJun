@@ -27,19 +27,22 @@ XSymbolData* XSymbolData::pins()
 }
 
 bool XSymbolData::get_thread_stack_data(HANDLE thread, CONTEXT& context, std::vector<STACK_TABLE>& out_data)
-{
+{  
+    CONTEXT Context;
+    Context.ContextFlags = CONTEXT_FULL;
+    if (!::GetThreadContext(thread, &Context))
+    {
+        return false;
+    }
+
     STACKFRAME64 stackFrame = { 0 };
     stackFrame = { 0 };
     stackFrame.AddrPC.Mode = AddrModeFlat;
-    stackFrame.AddrPC.Offset = context.Eip;
+    stackFrame.AddrPC.Offset = Context.Eip;
     stackFrame.AddrStack.Mode = AddrModeFlat;
-    stackFrame.AddrStack.Offset = context.Esp;
+    stackFrame.AddrStack.Offset = Context.Esp;
     stackFrame.AddrFrame.Mode = AddrModeFlat;
-    stackFrame.AddrFrame.Offset = context.Ebp;
-
-    CONTEXT Context;
-    Context.ContextFlags = CONTEXT_FULL;
-    ::GetThreadContext(thread, &Context);
+    stackFrame.AddrFrame.Offset = Context.Ebp;
 
     //ªÒ»°’ª÷°
     while (::StackWalk64(

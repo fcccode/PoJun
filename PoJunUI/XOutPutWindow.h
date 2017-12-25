@@ -12,7 +12,9 @@ public:
 
 public slots:
     void show_asm();
-      
+    
+    void show_run_command();
+
 private:
     Ui::OutPutWindow opw;
 };

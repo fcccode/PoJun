@@ -57,3 +57,30 @@ void XDateCenter::clear_out_date()
 
     out_date.clear();
 }
+
+void XDateCenter::set_command(const XString& command)
+{
+    this->command_in = command;
+}
+
+XString XDateCenter::get_command()
+{
+    XString command = this->command_in;
+    this->command_in = L"";
+    return command;
+}
+
+void XDateCenter::set_module_date(const DEBUG_MODULE_DATA& module_data)
+{
+    this->module_date = module_data;
+}
+
+DEBUG_MODULE_DATA XDateCenter::get_module_date()
+{
+    return this->module_date;
+}
+
+void XDateCenter::clear_module_date()
+{
+    //clear
+}

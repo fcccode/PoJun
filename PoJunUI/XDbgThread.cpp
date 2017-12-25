@@ -26,8 +26,14 @@ void XDbgThread::run()
 }
 
 void __stdcall XDbgThread::in_fun(XString& command)
-{
-    MessageBox(0, 0, 0, 0);
+{  
+    emit pThis->command_in(); 
+
+    do 
+    {
+        Sleep(1000);
+        command = XDateCenter::pins()->get_command();
+    } while (command.empty());
 }
 
 void __stdcall XDbgThread::out_fun(CONTEXT context, std::list<DECODEING_ASM>& asm_tab)
@@ -38,5 +44,12 @@ void __stdcall XDbgThread::out_fun(CONTEXT context, std::list<DECODEING_ASM>& as
  
 void __stdcall XDbgThread::command_call_back_out(const DEBUG_MODULE_DATA& module_data)
 {
-    MessageBox(0, 0, 0, 0);
+    XDateCenter::pins()->set_module_date(module_data);
+    emit pThis->show_run_command();
+}
+
+void XDbgThread::run_command()
+{
+    XString command = XDateCenter::pins()->get_command();
+    XDebugControl::pins()->run_command(command);
 }

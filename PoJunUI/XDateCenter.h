@@ -1,6 +1,7 @@
 #pragma once 
 #include "XPublic.h"
 #include <vector>
+#include <XPJCoreHead.h>
 
 class XDateCenter
 {
@@ -19,6 +20,16 @@ public:
 
     bool get_out_date(std::vector<OUT_DATE>& out_date);
 
+    void set_command(const XString& command);
+
+    XString get_command();
+
+    void set_module_date(const DEBUG_MODULE_DATA& module_data);
+
+    DEBUG_MODULE_DATA get_module_date();
+
+    void clear_module_date();
+
 private:
     void clear_out_date();
 
@@ -26,5 +37,9 @@ private:
     XString dbg_process_path;
       
     std::vector<OUT_DATE> out_date;
+
+    XString command_in;
+
+    DEBUG_MODULE_DATA module_date;
 };
 

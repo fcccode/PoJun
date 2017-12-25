@@ -20,8 +20,10 @@ public:
     static XDebugControl* m_This;
     static XDebugControl* pins();
 
-    void start_debug_loop(XString& file_path, pfun_in_fun in_fun, pfun_out_fun out_fun, pfun_command_call_back_out command_out, DWORD count);
+    void run_command(XString& command);
 
+    void start_debug_loop(XString& file_path, pfun_in_fun in_fun, pfun_out_fun out_fun, pfun_command_call_back_out command_out, DWORD count);
+      
     bool create_process(XString& file_path);
 
     DWORD e_acess_violation(DEBUG_INFO& debug_info);

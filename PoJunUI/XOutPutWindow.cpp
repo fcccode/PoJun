@@ -67,10 +67,15 @@ void XOutPutWindow::show_asm()
         int i = 0;
         for (ait; ait != it->asm_tab.cend() && i < 1; ait++, i++)
         { 
-            str << XString(ait->address).to_hex_str() << L":   " << ait->asm_str.w_cstr() << "L\r\n";
+            str << XString(ait->address).to_hex_str() << L":   " << ait->asm_str.w_cstr();
         }
 
-        opw.show_text->setText(str.get_str().c_str());
+        opw.show_text->append(str.get_str().c_str());
         str = L"";
-    } 
+    }  
+}
+
+void XOutPutWindow::show_run_command()
+{
+    int i = 0;
 }

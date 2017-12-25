@@ -21,5 +21,12 @@ protected:
 
 signals:
     void show_asm();
+
+    void command_in();
+
+    void show_run_command();
+
+public slots:
+    void run_command();
 };
 

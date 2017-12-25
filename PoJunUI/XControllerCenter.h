@@ -30,6 +30,12 @@ public:
 signals: 
     void show_asm();
 
+    void command_in();
+
+    void run_command();
+
+    void show_run_command();
+
 private:
     DBG_STATUS status; 
 

@@ -34,6 +34,17 @@ XDebugControl* XDebugControl::pins()
     return m_This;
 }
 
+void XDebugControl::run_command(XString& command)
+{
+    DEBUG_MODULE_DATA module_data;
+    DEBUG_INFO dbgif;
+    dbgif.process = XDebugProcessInfo::pins()->get_process_handle();
+    dbgif.thread = XDebugProcessInfo::pins()->get_thread_handle();
+    OPCODE_INFO op;
+    command_explanation(command, dbgif, op, module_data);
+    this->f_command_out(module_data);
+}
+
 void XDebugControl::start_debug_loop(XString& file_path, pfun_in_fun in_fun, pfun_out_fun out_fun, pfun_command_call_back_out command_out, DWORD count)
 {
     if (in_fun == nullptr || out_fun == nullptr, command_out == nullptr)

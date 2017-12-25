@@ -41,7 +41,14 @@ void PoJunUI::init_connect()
     if (out_put_window)
     {
         connect(XControllerCenter::pins(), SIGNAL(show_asm()), out_put_window, SLOT(show_asm()));
+        connect(XControllerCenter::pins(), SIGNAL(show_run_command()), out_put_window, SLOT(show_run_command()));
     } 
+
+    if (out_put_window)
+    {
+        connect(XControllerCenter::pins(), SIGNAL(command_in()), command_input, SLOT(command_in()));
+        connect(command_input, SIGNAL(run_command()), XControllerCenter::pins(), SIGNAL(run_command()));
+    }
 }
  
 void PoJunUI::on_ma_open_triggered()
