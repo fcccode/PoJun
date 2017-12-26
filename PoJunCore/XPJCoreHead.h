@@ -150,6 +150,7 @@ typedef struct _tagModuleData
 #define DME_DWORD L"{88D416B8-FE72-4140-ADD7-E5C68180D937}"
          
         XString type;
+        DWORD address;
         union
         {
             BYTE* memory_byte;

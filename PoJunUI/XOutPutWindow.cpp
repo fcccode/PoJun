@@ -70,6 +70,7 @@ void XOutPutWindow::show_asm()
             str << XString(ait->address).to_hex_str() << L":   " << ait->asm_str.w_cstr();
         }
 
+        str << L"\r\n";
         opw.show_text->append(str.get_str().c_str());
         str = L"";
     }  
@@ -77,5 +78,107 @@ void XOutPutWindow::show_asm()
 
 void XOutPutWindow::show_run_command()
 {
-    int i = 0;
+    DEBUG_MODULE_DATA md = XDateCenter::pins()->get_module_date();
+    
+    if (md.type == D_DB)
+    {
+        show_db(md.d_memory.memory_byte, md.d_memory.address);
+    }
+    else if (md.type == D_DW)
+    {
+        show_dw(md.d_memory.memory_byte, md.d_memory.address);
+    }
+    else if (md.type == D_DD)
+    {
+        show_dd(md.d_memory.memory_byte, md.d_memory.address);
+    }
+}
+
+void XOutPutWindow::show_db(const BYTE* memory_byte, DWORD address)
+{ 
+    const int ROW = 8;
+    const int COL = 16;
+    opw.show_text->append("");
+    for (int i_row = 0; i_row < ROW; i_row++, address += 16)
+    {
+        XString str_mem_data;
+        str_mem_data << XString(address).to_hex_str() << L":    " << XString(memory_byte + i_row * COL, COL) << L"     ";
+
+        for (int i = 0; i < COL; i++)
+        {
+            char ch = *(char*)(memory_byte + i_row * ROW + i);
+            if (ch > 0x7F || ch == 0x00 || ch == 0x07 || ch == 0x08
+                || ch == 0x0A || ch == 0x0D || ch == 0x20 || ch == 0x25
+                || ch == 0xFF)
+            {
+                str_mem_data << XString('.');
+            }
+            else
+            {
+                str_mem_data << XString(ch);
+            }
+        }
+
+        opw.show_text->append(str_mem_data.get_str().c_str());
+    }
+     
+    delete[] memory_byte;
+}
+
+void XOutPutWindow::show_dw(const BYTE* memory_byte, DWORD address)
+{
+    const int ROW = 8;
+    const int COL = 8; 
+
+    opw.show_text->append(""); 
+    for (int i_row = 0; i_row < ROW; i_row++, address += 16)
+    {
+        XString str_mem_data;
+        str_mem_data << XString(address).to_hex_str() << L":    ";
+        for (int i_col = 0; i_col < COL; i_col)
+        {
+            BYTE low = *(memory_byte + i_row * ROW + i_col++);
+            BYTE high = *(memory_byte + i_row * ROW + i_col++);
+
+            XString::byte2str(high, str_mem_data);
+            XString::byte2str(low, str_mem_data);
+            str_mem_data << L"  ";
+        }
+
+        opw.show_text->append(str_mem_data.get_str().c_str()); 
+    }
+     
+    delete[] memory_byte;
+}
+
+void XOutPutWindow::show_dd(const BYTE* memory_byte, DWORD address)
+{
+    const int ROW = 8;
+    const int COL = 16;
+
+    opw.show_text->append("");
+
+    for (int i_row = 0; i_row < ROW; i_row++, address += 16)
+    { 
+        XString str_mem_data;
+        str_mem_data << XString(address).to_hex_str() << L":    ";
+
+        for (int i_col = 0; i_col < COL; i_col += 4)
+        {
+            BYTE low = *(memory_byte + i_row * (ROW * 2) + i_col);
+            BYTE high = *(memory_byte + i_row * (ROW * 2) + i_col + 1);
+            BYTE lowex = *(memory_byte + i_row * (ROW * 2) + i_col + 2);
+            BYTE highex = *(memory_byte + i_row * (ROW * 2) + i_col + 3);
+              
+            XString::byte2str(highex, str_mem_data);
+            XString::byte2str(lowex, str_mem_data);
+            XString::byte2str(high, str_mem_data);
+            XString::byte2str(low, str_mem_data);
+            str_mem_data << L"  ";
+        }
+          
+        opw.show_text->append(str_mem_data.get_str().c_str());
+    }
+
+    delete[] memory_byte;
 }

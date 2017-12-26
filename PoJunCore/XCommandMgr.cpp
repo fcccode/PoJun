@@ -400,16 +400,27 @@ bool __stdcall XCommandMgr::db_command(const XString& command, DEBUG_INFO& debug
         return false;
     }
 
-    DWORD address = debug_info.context.Eip;
+    static DWORD beg_address = debug_info.context.Eip;
+    static DWORD address = debug_info.context.Eip;
+
+    if (beg_address != debug_info.context.Eip)
+    {
+        beg_address = debug_info.context.Eip;
+        address = debug_info.context.Eip;
+    }
+
     DWORD size = D_ROW * D_COL;
     XCommandMgr::pins()->get_d_row_address(vt_command, address, size);
        
+    out_module_data.d_memory.address = address;
     out_module_data.d_memory.type = DME_BYTE;
-    return XMemoryMgr::pins()->read_memory(
+    bool ret = XMemoryMgr::pins()->read_memory(
         debug_info.process,
         address,
         (LPVOID*)&out_module_data.d_memory.memory_byte,
         size);
+    address += size;
+    return ret;
 }
 
 bool __stdcall XCommandMgr::dw_command(const XString& command, DEBUG_INFO& debug_info, OPCODE_INFO& opcode_info, DEBUG_MODULE_DATA& out_module_data)
@@ -423,16 +434,27 @@ bool __stdcall XCommandMgr::dw_command(const XString& command, DEBUG_INFO& debug
         return false;
     }
 
-    DWORD address = debug_info.context.Eip;
+    static DWORD beg_address = debug_info.context.Eip;
+    static DWORD address = debug_info.context.Eip;
+
+    if (beg_address != debug_info.context.Eip)
+    {
+        beg_address = debug_info.context.Eip;
+        address = debug_info.context.Eip;
+    }
+
     DWORD size = D_ROW * D_COL;
     XCommandMgr::pins()->get_d_row_address(vt_command, address, size);
-      
+
+    out_module_data.d_memory.address = address;
     out_module_data.d_memory.type = DME_WORD;
-    return XMemoryMgr::pins()->read_memory(
+    bool ret = XMemoryMgr::pins()->read_memory(
         debug_info.process,
         address,
         (LPVOID*)&out_module_data.d_memory.memory_word,
         size);
+    address += size;
+    return ret;
 }
 
 bool __stdcall XCommandMgr::dd_command(const XString& command, DEBUG_INFO& debug_info, OPCODE_INFO& opcode_info, DEBUG_MODULE_DATA& out_module_data)
@@ -446,16 +468,27 @@ bool __stdcall XCommandMgr::dd_command(const XString& command, DEBUG_INFO& debug
         return false;
     }
 
-    DWORD address = debug_info.context.Eip;
+    static DWORD beg_address = debug_info.context.Eip;
+    static DWORD address = debug_info.context.Eip;
+
+    if (beg_address != debug_info.context.Eip)
+    {
+        beg_address = debug_info.context.Eip;
+        address = debug_info.context.Eip;
+    }
+
     DWORD size = D_ROW * D_COL;
     XCommandMgr::pins()->get_d_row_address(vt_command, address, size);
-       
+
+    out_module_data.d_memory.address = address;
     out_module_data.d_memory.type = DME_DWORD;
-    return XMemoryMgr::pins()->read_memory(
-        debug_info.process, 
-        address, 
+    bool ret = XMemoryMgr::pins()->read_memory(
+        debug_info.process,
+        address,
         (LPVOID*)&out_module_data.d_memory.memory_dword,
         size);
+    address += size;
+    return ret;
 }
 
 bool __stdcall XCommandMgr::dq_command(const XString& command, DEBUG_INFO& debug_info, OPCODE_INFO& opcode_info, DEBUG_MODULE_DATA& out_module_data)

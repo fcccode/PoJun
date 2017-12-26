@@ -15,6 +15,12 @@ public slots:
     
     void show_run_command();
 
+    void show_db(const BYTE* memory_byte, DWORD address);
+
+    void show_dw(const BYTE* memory_byte, DWORD address);
+     
+    void show_dd(const BYTE* memory_byte, DWORD address);
+
 private:
     Ui::OutPutWindow opw;
 };

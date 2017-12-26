@@ -5,8 +5,6 @@ VisualStudioVersion = 12.0.40629.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PoJunCore", "PoJunCore\PoJunCore.vcxproj", "{92DEEAE5-66AE-40E9-8CEF-BC6F539B4D12}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PoJunConsole", "PoJunConsole\PoJunConsole.vcxproj", "{B25E4A2A-01E0-48FB-8169-53C3FF5FC5B2}"
-EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "capstone_dll", "capstone\msvc\capstone_dll\capstone_dll.vcxproj", "{2171C0E8-4915-49B9-AC23-A484FA08C126}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "XuWu", "..\虚无\XuWu\XuWu.vcxproj", "{1A79CBF6-D66B-4245-A4BC-ACAB966484E3}"
@@ -31,12 +29,6 @@ Global
 		{92DEEAE5-66AE-40E9-8CEF-BC6F539B4D12}.Release|Win32.ActiveCfg = Release|Win32
 		{92DEEAE5-66AE-40E9-8CEF-BC6F539B4D12}.Release|Win32.Build.0 = Release|Win32
 		{92DEEAE5-66AE-40E9-8CEF-BC6F539B4D12}.Release|x64.ActiveCfg = Release|Win32
-		{B25E4A2A-01E0-48FB-8169-53C3FF5FC5B2}.Debug|Win32.ActiveCfg = Debug|Win32
-		{B25E4A2A-01E0-48FB-8169-53C3FF5FC5B2}.Debug|Win32.Build.0 = Debug|Win32
-		{B25E4A2A-01E0-48FB-8169-53C3FF5FC5B2}.Debug|x64.ActiveCfg = Debug|Win32
-		{B25E4A2A-01E0-48FB-8169-53C3FF5FC5B2}.Release|Win32.ActiveCfg = Release|Win32
-		{B25E4A2A-01E0-48FB-8169-53C3FF5FC5B2}.Release|Win32.Build.0 = Release|Win32
-		{B25E4A2A-01E0-48FB-8169-53C3FF5FC5B2}.Release|x64.ActiveCfg = Release|Win32
 		{2171C0E8-4915-49B9-AC23-A484FA08C126}.Debug|Win32.ActiveCfg = Debug|Win32
 		{2171C0E8-4915-49B9-AC23-A484FA08C126}.Debug|Win32.Build.0 = Debug|Win32
 		{2171C0E8-4915-49B9-AC23-A484FA08C126}.Debug|x64.ActiveCfg = Debug|x64
