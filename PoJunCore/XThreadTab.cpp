@@ -1,5 +1,6 @@
 #include "stdafx.h"
-#include "XThreadTab.h"
+#include "XThreadTab.h" 
+#include "XDebugProcessInfo.h"
  
 XThreadTab* XThreadTab::m_This = 0;
 XThreadTab::XThreadTab()
@@ -31,10 +32,13 @@ void XThreadTab::insert_thread(CREATE_THREAD_DEBUG_INFO* pti)
     this->thread_tab.push_back(tab);
 }
 
-bool XThreadTab::get_thread_table(std::vector<CREATE_THREAD_DEBUG_INFO>& tab)
+bool XThreadTab::get_thread_table(std::vector<THREAD_DATA>& tab)
 {
-    tab = this->thread_tab;
-    return true;
+    //tab = this->thread_tab;
+      
+    return XThread::get_process_thread_table(
+        XDebugProcessInfo::pins()->get_process_pid(),
+        tab);
 }
 
 bool XThreadTab::get_thread_data(int pos, CREATE_THREAD_DEBUG_INFO& data)

@@ -33,6 +33,11 @@ HANDLE XDebugProcessInfo::get_process_handle()
     return this->process;
 }
 
+DWORD XDebugProcessInfo::get_process_pid()
+{
+    return this->pid;
+}
+
 void XDebugProcessInfo::set_thread_handle_id(HANDLE thread, DWORD tid)
 {
     this->thread = thread;

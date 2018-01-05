@@ -1,6 +1,7 @@
 #pragma once
 #include "XPJCoreHead.h"
 #include <vector> 
+#include "XThread.h"
 
 class XThreadTab
 {
@@ -14,7 +15,7 @@ public:
 
     void insert_thread(CREATE_THREAD_DEBUG_INFO* pti);
 
-    bool get_thread_table(std::vector<CREATE_THREAD_DEBUG_INFO>& tab);
+    bool get_thread_table(std::vector<THREAD_DATA>& tab);
 
     bool get_thread_data(int pos, CREATE_THREAD_DEBUG_INFO& data);
 

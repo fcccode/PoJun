@@ -38,14 +38,7 @@ void XOutPutWindow::show_asm()
             << L"EDI=" << XString(it->context.Edi).to_hex_str() << L"\r\n"
             << L"EIP=" << XString(it->context.Eip).to_hex_str() << L" "
             << L"ESP=" << XString(it->context.Esp).to_hex_str() << L" "
-            << L"EBP=" << XString(it->context.Ebp).to_hex_str() << L"\r\n"
-            << L"CS=" << XString(it->context.SegCs).to_hex_str() << L" "
-            << L"SS=" << XString(it->context.SegSs).to_hex_str() << L" "
-            << L"DS=" << XString(it->context.SegDs).to_hex_str() << L" "
-            << L"ES=" << XString(it->context.SegEs).to_hex_str() << L" "
-            << L"FS=" << XString(it->context.SegFs).to_hex_str() << L" "
-            << L"GS=" << XString(it->context.SegGs).to_hex_str() << L" "
-            << L"        ";
+            << L"EBP=" << XString(it->context.Ebp).to_hex_str() << L"                ";
 
         for (int i = 0; i < 8; i++)
         {
@@ -60,9 +53,19 @@ void XOutPutWindow::show_asm()
             {
                 str << chbite[i][1] << L" ";
             }
-        }
-        str << L"\r\n";
+        } 
 
+        str << L"\r\n" 
+            << L"CS=" << XString(it->context.SegCs).to_word_str() << L" "
+            << L"SS=" << XString(it->context.SegSs).to_word_str() << L" "
+            << L"DS=" << XString(it->context.SegDs).to_word_str() << L" "
+            << L"ES=" << XString(it->context.SegEs).to_word_str() << L" "
+            << L"FS=" << XString(it->context.SegFs).to_word_str() << L" "
+            << L"GS=" << XString(it->context.SegGs).to_word_str() << L" "
+            << L"          "
+            << L"EFL=" << XString(it->context.SegGs).to_word_str() << L" "
+            << L"        \r\n";  
+         
         std::list<DECODEING_ASM>::const_iterator ait = it->asm_tab.cbegin();
         int i = 0;
         for (ait; ait != it->asm_tab.cend() && i < 1; ait++, i++)
@@ -71,7 +74,9 @@ void XOutPutWindow::show_asm()
         }
 
         str << L"\r\n";
-        opw.show_text->append(str.get_str().c_str());
+
+        QString qstr = QString::fromLocal8Bit(str.get_str().c_str());
+        opw.show_text->append(qstr);
         str = L"";
     }  
 }
@@ -91,6 +96,14 @@ void XOutPutWindow::show_run_command()
     else if (md.type == D_DD)
     {
         show_dd(md.d_memory.memory_byte, md.d_memory.address);
+    }
+    else if (md.type == D_LM)
+    {
+        show_lm(md.module_table);
+    }
+    else if (md.type == D_THREAD)
+    {
+        show_thread(md.thread_table);
     }
 }
 
@@ -181,4 +194,61 @@ void XOutPutWindow::show_dd(const BYTE* memory_byte, DWORD address)
     }
 
     delete[] memory_byte;
+}
+
+void XOutPutWindow::show_lm(const std::map<DWORD, MODULE_INFO>& lm)
+{
+    std::map<DWORD, MODULE_INFO>::const_iterator it = lm.begin();
+
+    int max_name_length = 0;
+    for (it; it != lm.end(); it++)
+    {
+        int name_length = it->second.file_path.get_short_name().length(); 
+        if (max_name_length < name_length)
+        {
+            max_name_length = name_length;
+        }  
+    }
+
+    XString show_str;
+    show_str << L"  基址       大小       入口     ";
+
+    for (int i = 0; i < (max_name_length / 2) - 1; i++)
+    {
+        show_str << L" ";
+    }
+
+    show_str << L"名称";
+
+    for (int i = 0; i < max_name_length / 2; i++)
+    {
+        show_str << L" ";
+    }
+
+    show_str << L"   版本       路径 \r\n";
+      
+    for (it = lm.begin(); it != lm.end(); it++)
+    { 
+        show_str << XString(it->first).to_hex_str() << L" | "
+            << XString(it->second.size).to_hex_str() << L" | "
+            << XString(it->second.enter).to_hex_str() << L" | "
+            << it->second.file_path.get_short_name();
+
+        for (int i = it->second.file_path.get_short_name().length(); i < max_name_length; i++)
+        {
+            show_str << L" ";
+        }
+        
+        show_str << L" |  " 
+            << XString(it->second.file_version).to_hex_str() << L" | "
+            << it->second.file_path << L"\r\n"; 
+    }
+     
+    QString qstr = QString::fromLocal8Bit(show_str.get_str().c_str()); 
+    opw.show_text->append(qstr);
+}
+
+void XOutPutWindow::show_thread(const std::vector<THREAD_DATA>& lm)
+{
+    int i = 0;
 }

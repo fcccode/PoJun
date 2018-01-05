@@ -3,6 +3,7 @@
 #include <XString.h>  
 #include <list>
 #include <map>
+#include <XThread.h>
 
 //µ¼³ö
 #define XEXP __declspec(dllexport)
@@ -138,7 +139,7 @@ typedef struct _tagModuleData
     
     std::map<DWORD, MODULE_INFO> module_table;
 
-    std::vector<CREATE_THREAD_DEBUG_INFO> thread_table;
+    std::vector<THREAD_DATA> thread_table;
 
     std::vector<STACK_TABLE> stack_table;
 
